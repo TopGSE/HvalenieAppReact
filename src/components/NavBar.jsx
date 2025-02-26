@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
+import './NavBar.css';
 
 function NavBar({ setCurrentView }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -36,8 +37,8 @@ function NavBar({ setCurrentView }) {
         {/* Navigation links */}
         <div className={`navbar-menu ${mobileMenuOpen ? 'open' : ''}`}>
           <ul className="navbar-links">
-            <li onClick={() => handleMenuItemClick('home')}>Начало</li>
-            <li onClick={() => handleMenuItemClick('add-song')}>Добави песен</li>
+            <li><button onClick={() => handleMenuItemClick('home')}>Начало</button></li>
+            <li><button onClick={() => handleMenuItemClick('add-song')}>Добави песен</button></li>
           </ul>
         </div>
       </nav>

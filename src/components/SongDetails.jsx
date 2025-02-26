@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import EditSong from './EditSong';
 
 function SongDetails({ song, onRemoveSong, onEditSong }) {
@@ -20,6 +20,11 @@ function SongDetails({ song, onRemoveSong, onEditSong }) {
     setIsFullscreen(!isFullscreen);
   };
 
+  const handleDeleteClick = () => {
+    console.log('Delete button clicked, song:', song);
+    onRemoveSong(song);
+  };
+
   return (
     <div className="song-details-container">
       {editingSong ? (
@@ -32,6 +37,7 @@ function SongDetails({ song, onRemoveSong, onEditSong }) {
         <>
           <div className="song-header">
             <h1>{song.title}</h1>
+            <p>Artist: {song.artist || 'Unknown'}</p>
           </div>
           
           <div className={`song-content ${isFullscreen ? 'fullscreen' : ''}`}>
@@ -61,7 +67,7 @@ function SongDetails({ song, onRemoveSong, onEditSong }) {
             <button className="edit-btn" onClick={handleEditClick}>
               Edit Song
             </button>
-            <button className="delete-btn" onClick={() => onRemoveSong(song._id)}>
+            <button className="delete-btn" onClick={handleDeleteClick}>
               Delete Song
             </button>
           </div>

@@ -42,23 +42,34 @@ app.post('/songs', async (req, res) => {
   }
 });
 
-app.put('/songs/:id', async (req, res) => {
+// Make sure this route comes BEFORE the /songs/:id route
+app.delete('/songs/title/:title', async (req, res) => {
+  try {
+    const { title } = req.params;
+    console.log(`Attempting to delete song with title: ${title}`);
+    const deletedSong = await Song.findOneAndDelete({ title: title });
+    
+    if (!deletedSong) {
+      console.log('Song not found');
+      return res.status(404).json({ message: 'Song not found' });
+    }
+    
+    console.log('Song deleted successfully');
+    res.json({ message: 'Song deleted' });
+  } catch (err) {
+    console.error('Error deleting song:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// This route should come after the more specific route
+app.delete('/songs/:id', async (req, res) => {
   try {
     const updatedSong = await Song.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updatedSong) return res.status(404).json({ message: 'Song not found' });
     res.json(updatedSong);
   } catch (err) {
     res.status(400).json({ message: err.message });
-  }
-});
-
-app.delete('/songs/:id', async (req, res) => {
-  try {
-    const deletedSong = await Song.findByIdAndDelete(req.params.id);
-    if (!deletedSong) return res.status(404).json({ message: 'Song not found' });
-    res.json({ message: 'Song deleted' });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
   }
 });
 

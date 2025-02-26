@@ -6,6 +6,7 @@ import SongList from './components/SongList';
 import SongDetails from './components/SongDetails';
 import AddSong from './components/AddSong';
 import NavBar from './components/NavBar';
+import ConfirmModal from './components/ConfirmModal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -15,6 +16,8 @@ function App() {
   const [currentView, setCurrentView] = useState('home');
   const [selectedSong, setSelectedSong] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [songToDelete, setSongToDelete] = useState(null);
 
   useEffect(() => {
     axios.get('http://localhost:5000/songs')
@@ -34,7 +37,16 @@ function App() {
       });
   };
 
+  // Update the handleRemoveSong function to use ID instead of title
   const handleRemoveSong = (id) => {
+    if (!id) {
+      console.error('Cannot remove song: id is undefined');
+      toast.error('Failed to remove song: missing id');
+      return;
+    }
+    
+    console.log(`Removing song with id: ${id}`);
+    
     axios.delete(`http://localhost:5000/songs/${id}`)
       .then(() => {
         setSongs(songs.filter(song => song._id !== id));
@@ -67,6 +79,37 @@ function App() {
     song.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleDeleteClick = (song) => {
+    console.log(`Preparing to delete song:`, song);
+    if (!song || !song.title) {
+      console.error('Invalid song object or missing title property:', song);
+      toast.error('Cannot delete song: invalid song data');
+      return;
+    }
+    setSongToDelete(song);
+    setShowConfirmModal(true);
+  };
+
+  // Update the handleConfirmDelete function
+  const handleConfirmDelete = () => {
+    if (songToDelete && songToDelete._id) {
+      console.log(`Confirmed deletion for song: ${songToDelete.title} with ID: ${songToDelete._id}`);
+      handleRemoveSong(songToDelete._id);
+      setShowConfirmModal(false);
+      setSongToDelete(null);
+    } else {
+      console.error('Cannot delete: songToDelete is undefined or missing ID');
+      toast.error('Failed to delete song: missing song data');
+      setShowConfirmModal(false);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    console.log('Cancelled deletion');
+    setShowConfirmModal(false);
+    setSongToDelete(null);
+  };
+
   return (
     <div className="app-container">
       <NavBar setCurrentView={setCurrentView} />
@@ -75,7 +118,7 @@ function App() {
         <div className="main-layout">
           <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
             <div className="sidebar-header">
-              <h2>Songs</h2>
+              <h2>Песни ({songs.length})</h2>
               <SearchBar onSearch={setSearchTerm} />
               <button 
                 className="toggle-sidebar"
@@ -97,13 +140,13 @@ function App() {
             {selectedSong ? (
               <SongDetails
                 song={selectedSong}
-                onRemoveSong={handleRemoveSong}
+                onRemoveSong={handleDeleteClick}
                 onEditSong={handleEditSong}
               />
             ) : (
               <div className="empty-state">
-                <h2>Select a song to view details</h2>
-                <p>Choose a song from the list on the left</p>
+                <h2>Изберете песен за повече подробности.</h2>
+                <p>Изберете песен от списъка отляво.</p>
               </div>
             )}
           </main>
@@ -121,6 +164,12 @@ function App() {
       )}
       
       <ToastContainer position="bottom-right" />
+      <ConfirmModal 
+        show={showConfirmModal} 
+        onClose={handleCancelDelete} 
+        onConfirm={handleConfirmDelete} 
+        songTitle={songToDelete ? songToDelete.title : ''}
+      />
     </div>
   );
 }
