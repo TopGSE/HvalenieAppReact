@@ -920,3 +920,95 @@
 	padding: 8px 12px;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+
+/* Add high contrast styles for the song details page */
+
+/* General high contrast overrides */
+.high-contrast .song-details-card {
+	border: var(--separator);
+	background-color: var(--card-bg);
+	color: var(--text-color);
+}
+
+.high-contrast .song-title-section h1,
+.high-contrast .song-title-section h2 {
+	color: var(--text-color);
+}
+
+.high-contrast .song-category-badge {
+	background-color: var(--secondary-color);
+	color: var(--bg-color);
+	border: 1px solid var(--text-color);
+}
+
+/* Font size controls */
+.high-contrast .font-size-controls {
+	background-color: var(--button-bg);
+	border: 2px solid var(--border-color);
+}
+
+.high-contrast .font-size-button {
+	color: var(--button-text);
+}
+
+.high-contrast .font-size-value {
+	color: var(--button-text);
+}
+
+/* Content tabs */
+.high-contrast .tab-button {
+	border: 1px solid var(--border-color);
+}
+
+.high-contrast .tab-button.active {
+	background-color: var(--primary-color);
+	color: var(--bg-color);
+	border: 2px solid var(--text-color);
+}
+
+/* Lyrics and chords */
+.high-contrast .lyrics-text,
+.high-contrast .chords-text {
+	color: var(--text-color);
+	border: var(--separator);
+	padding: 16px;
+}
+
+/* Action buttons */
+.high-contrast .action-button {
+	background-color: var(--button-bg);
+	color: var(--button-text);
+	border: 2px solid var(--border-color);
+}
+
+.high-contrast .action-button:hover {
+	outline: var(--focus-outline);
+}
+
+/* Playlist dropdown */
+.high-contrast .playlist-dropdown {
+	border: var(--separator);
+	background-color: var(--card-bg);
+}
+
+.high-contrast .playlist-list button {
+	border: 1px solid var(--border-color);
+	background-color: var(--button-bg);
+	color: var(--button-text);
+}
+
+.high-contrast .playlist-list button.already-added {
+	background-color: var(--primary-color);
+	color: var(--bg-color);
+	border: 2px solid var(--text-color);
+}
+
+/* Focus indicators for accessibility */
+.high-contrast button:focus,
+.high-contrast input:focus,
+.high-contrast select:focus,
+.high-contrast a:focus {
+	outline: var(--focus-outline);
+}
+
+/* Add similar high contrast styles to your PlaylistView.css and other component CSS files */

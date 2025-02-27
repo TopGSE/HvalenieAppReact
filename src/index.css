@@ -11,6 +11,14 @@
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+
+	/* Base theme variables - keep existing ones */
+	--bg-color: #ffffff;
+	--text-color: #333333;
+	--primary-color: #006eef;
+	/* Add other existing variables */
+
+	/* High contrast mode variables will override the base ones when enabled */
 }
 
 a {
@@ -112,4 +120,64 @@ button:focus-visible {
 	button {
 		background-color: #f9f9f9;
 	}
+}
+
+/* High contrast light mode */
+body.high-contrast:not(.dark) {
+	--bg-color: #ffffff;
+	--text-color: #000000;
+	--primary-color: #0000CC;
+	--secondary-color: #CC0000;
+	--border-color: #000000;
+	--button-bg: #000000;
+	--button-text: #ffffff;
+	--card-bg: #ffffff;
+	--input-bg: #ffffff;
+	--input-border: #000000;
+	--input-text: #000000;
+	--focus-outline: 3px solid #0000CC;
+	--hover-bg: #FFFFCC;
+	--separator: 2px solid #000000;
+	--placeholder-color: #555555;
+}
+
+/* High contrast dark mode */
+body.high-contrast.dark {
+	--bg-color: #000000;
+	--text-color: #ffffff;
+	--primary-color: #00CCFF;
+	--secondary-color: #FFCC00;
+	--border-color: #ffffff;
+	--button-bg: #ffffff;
+	--button-text: #000000;
+	--card-bg: #000000;
+	--input-bg: #000000;
+	--input-border: #ffffff;
+	--input-text: #ffffff;
+	--focus-outline: 3px solid #FFCC00;
+	--hover-bg: #001133;
+	--separator: 2px solid #ffffff;
+	--placeholder-color: #cccccc;
+}
+
+/* Add these global focus styles */
+:focus {
+	outline: 2px solid var(--primary-color);
+	outline-offset: 2px;
+}
+
+.high-contrast :focus {
+	outline: 3px solid var(--primary-color);
+	outline-offset: 3px;
+}
+
+/* This ensures better keyboard navigation visibility */
+.high-contrast button:focus-visible,
+.high-contrast a:focus-visible,
+.high-contrast input:focus-visible,
+.high-contrast select:focus-visible,
+.high-contrast textarea:focus-visible {
+	outline: 3px solid var(--secondary-color);
+	outline-offset: 3px;
+	box-shadow: 0 0 0 3px var(--bg-color);
 }

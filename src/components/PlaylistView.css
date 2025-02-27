@@ -375,6 +375,80 @@
 	cursor: pointer;
 }
 
+/* High contrast styles for playlist view */
+.high-contrast .playlist-view {
+	border: var(--separator);
+	background-color: var(--card-bg);
+}
+
+.high-contrast .playlist-header {
+	border-bottom: var(--separator);
+}
+
+.high-contrast .playlist-info h3 {
+	color: var(--text-color);
+}
+
+.high-contrast .playlist-song-count {
+	color: var(--text-color);
+}
+
+.high-contrast .edit-playlist-btn,
+.high-contrast .delete-playlist-btn {
+	background-color: var(--button-bg);
+	color: var(--button-text);
+	border: 2px solid var(--border-color);
+}
+
+.high-contrast .edit-playlist-btn:hover,
+.high-contrast .delete-playlist-btn:hover {
+	outline: var(--focus-outline);
+}
+
+.high-contrast .playlist-search-input {
+	border: 2px solid var(--border-color);
+	background-color: var(--input-bg);
+	color: var(--input-text);
+}
+
+.high-contrast .sort-select {
+	border: 2px solid var(--border-color);
+	background-color: var(--input-bg);
+	color: var(--input-text);
+}
+
+.high-contrast .playlist-song-item {
+	border: var(--separator);
+}
+
+.high-contrast .playlist-song-item.selected {
+	background-color: var(--primary-color);
+	color: var(--bg-color);
+	border: 2px solid var(--text-color);
+}
+
+.high-contrast .song-number {
+	color: var(--text-color);
+	font-weight: bold;
+}
+
+.high-contrast .song-category {
+	background-color: var(--secondary-color);
+	color: var(--bg-color);
+	border: 1px solid var(--text-color);
+}
+
+.high-contrast .favorite-btn,
+.high-contrast .remove-btn {
+	border: 1px solid var(--border-color);
+	background-color: var(--button-bg);
+	color: var(--button-text);
+}
+
+.high-contrast .empty-playlist {
+	border: var(--separator);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
 	.playlist-header {

@@ -1,0 +1,116 @@
+.song-tooltip {
+	position: absolute;
+	width: 320px;
+	background-color: white;
+	border-radius: 10px;
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+	/* Stronger shadow */
+	padding: 16px;
+	z-index: 9999;
+	/* Very high z-index to ensure visibility */
+	transform: translate(-50%, -115%);
+	/* Move it higher above the element */
+	border: 2px solid #006eef;
+	/* Add a visible border for testing */
+	pointer-events: none;
+}
+
+.song-tooltip::after {
+	content: '';
+	position: absolute;
+	bottom: -10px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 0;
+	height: 0;
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+	border-top: 10px solid white;
+	filter: drop-shadow(0 3px 1px rgba(0, 0, 0, 0.1));
+}
+
+.tooltip-visible {
+	opacity: 1;
+	transform: translate(-50%, -102%);
+}
+
+.song-tooltip-header {
+	margin-bottom: 12px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid #eee;
+}
+
+.song-tooltip-header h4 {
+	margin: 0 0 4px 0;
+	font-size: 16px;
+	font-weight: 600;
+	color: #222;
+}
+
+.song-tooltip-artist {
+	font-size: 13px;
+	color: #666;
+}
+
+.song-tooltip-preview {
+	margin-bottom: 12px;
+}
+
+.song-tooltip-lyrics {
+	margin: 0;
+	font-family: monospace;
+	font-size: 13px;
+	line-height: 1.4;
+	white-space: pre-wrap;
+	color: #333;
+	max-height: 100px;
+	overflow: hidden;
+}
+
+.song-tooltip-footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 12px;
+	margin-top: 8px;
+	padding-top: 8px;
+	border-top: 1px solid #eee;
+}
+
+.song-tooltip-category {
+	display: inline-block;
+	background-color: #e1f0ff;
+	color: #006eef;
+	padding: 2px 8px;
+	border-radius: 12px;
+	font-weight: 500;
+}
+
+.song-tooltip-hint {
+	color: #888;
+	font-style: italic;
+}
+
+/* Animation for the tooltip */
+@keyframes tooltipFadeIn {
+	from {
+		opacity: 0;
+		transform: translate(-50%, -90%);
+	}
+
+	to {
+		opacity: 1;
+		transform: translate(-50%, -102%);
+	}
+}
+
+.song-with-tooltip:hover .song-tooltip {
+	animation: tooltipFadeIn 0.2s forwards;
+	display: block;
+}
+
+.tooltip-container {
+	pointer-events: none;
+	position: fixed;
+	z-index: 9999;
+}

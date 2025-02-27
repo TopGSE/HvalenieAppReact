@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import './PlaylistView.css';
 
 function PlaylistView({ 
@@ -16,6 +16,8 @@ function PlaylistView({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('default');
+
+  const songRefs = useRef({});
 
   // Format date helper function
   const formatDate = (dateString) => {
@@ -159,6 +161,7 @@ function PlaylistView({
           {sortedPlaylistSongs.map((song, index) => (
             <div 
               key={song._id}
+              ref={el => songRefs.current[song._id] = el}
               className={`playlist-song-item ${selectedSongId === song._id ? 'selected' : ''}`}
               onClick={() => onSelectSong(song)}
               style={{animationDelay: `${index * 0.05}s`}}
