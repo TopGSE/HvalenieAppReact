@@ -1,0 +1,231 @@
+/*components/PlaylistModal.css */
+
+.modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.6);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	backdrop-filter: blur(4px);
+	animation: fade-in 0.2s ease-out;
+}
+
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+.modal-content {
+	width: 100%;
+	max-width: 500px;
+	background-color: var(--card-bg, #fff);
+	border-radius: 12px;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+	animation: slide-up 0.3s ease-out;
+	padding: 24px;
+	max-height: 90vh;
+	overflow-y: auto;
+}
+
+@keyframes slide-up {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.modal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 20px 24px;
+	border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+}
+
+.modal-header h2 {
+	margin: 0;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: var(--text-color, #333);
+}
+
+.close-modal {
+	background: none;
+	border: none;
+	font-size: 1.5rem;
+	line-height: 1;
+	color: var(--text-color-secondary, #666);
+	cursor: pointer;
+	transition: color 0.2s;
+}
+
+.close-modal:hover {
+	color: var(--danger-color, #f44336);
+}
+
+.playlist-modal {
+	padding: 24px;
+}
+
+.playlist-modal h2 {
+	margin-top: 0;
+	margin-bottom: 24px;
+	color: var(--text-color, #333);
+	font-size: 1.5rem;
+	text-align: center;
+	border-bottom: 1px solid var(--border-color, #eee);
+	padding-bottom: 16px;
+	margin-bottom: 20px;
+}
+
+.form-group {
+	margin-bottom: 20px;
+}
+
+.form-group label {
+	display: block;
+	margin-bottom: 8px;
+	font-weight: 500;
+	color: var(--text-color, #333);
+}
+
+.form-group input,
+.form-group textarea {
+	width: 100%;
+	padding: 12px;
+	border: 1px solid var(--border-color, #ddd);
+	border-radius: 6px;
+	font-size: 1rem;
+	background-color: var(--input-bg, #fff);
+	color: var(--text-color, #333);
+	transition: border-color 0.2s;
+	font-size: 16px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+	outline: none;
+	border-color: var(--primary-color, #2196f3);
+	box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+}
+
+.form-group textarea {
+	resize: vertical;
+	min-height: 100px;
+}
+
+.form-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+	margin-top: 24px;
+}
+
+.cancel-btn,
+.submit-btn {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 6px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.cancel-btn {
+	background-color: var(--cancel-btn, #e0e0e0);
+	color: var(--text-color, #333);
+	border: 1px solid var(--border-color, #ddd);
+	color: var(--text-color-secondary, #666);
+}
+
+.submit-btn {
+	background-color: var(--primary-color, #2196f3);
+	color: white;
+}
+
+.cancel-btn:hover {
+	background-color: var(--cancel-btn-hover, #d0d0d0);
+	background-color: rgba(0, 0, 0, 0.05);
+}
+
+.submit-btn:hover {
+	background-color: var(--primary-color-hover, #0b7dda);
+	background-color: var(--primary-color-dark, #005bc7);
+}
+
+.submit-btn:disabled {
+	background-color: #cccccc;
+	cursor: not-allowed;
+}
+
+/* Dark theme adjustments */
+.dark .modal-content {
+	background-color: var(--card-bg-dark, #2a2a2a);
+}
+
+.dark .modal-header {
+	border-bottom-color: var(--border-color, #444);
+}
+
+.dark .modal-header h2,
+.dark .form-group label {
+	color: var(--text-color-dark, #e0e0e0);
+}
+
+.dark .playlist-modal h2,
+.dark .form-group label {
+	color: var(--text-color-dark, #eee);
+	border-bottom-color: var(--border-color-dark, #444);
+}
+
+.dark .form-group input,
+.dark .form-group textarea {
+	background-color: var(--input-bg-dark, #333);
+	border-color: var(--border-color-dark, #444);
+	color: var(--text-color-dark, #eee);
+}
+
+.dark .cancel-btn {
+	background-color: var(--cancel-btn-dark, #444);
+	color: var(--text-color-dark, #eee);
+	border-color: var(--border-color-dark, #444);
+	color: var(--text-color-secondary-dark, #aaa);
+}
+
+.dark .cancel-btn:hover {
+	background-color: var(--cancel-btn-hover-dark, #555);
+	background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+	.modal-content {
+		width: 90%;
+		max-width: none;
+	}
+
+	.form-actions {
+		flex-direction: column-reverse;
+	}
+
+	.cancel-btn,
+	.submit-btn {
+		width: 100%;
+		padding: 14px;
+	}
+}

@@ -64,6 +64,7 @@ body {
 	transition: width 0.3s ease;
 	color: #000000;
 	overflow: hidden;
+	/* Remove the order: 3 from here - this is causing the sidebar to move right */
 }
 
 .sidebar.collapsed {
@@ -77,6 +78,8 @@ body {
 	flex-direction: column;
 	gap: 10px;
 	position: relative;
+	order: 1;
+	/* Header first */
 }
 
 .sidebar-header-top {
@@ -126,6 +129,132 @@ body {
 	overflow-x: hidden;
 	height: calc(100vh - 180px);
 	/* Adjust as needed */
+	order: 3;
+	/* Song list third */
+}
+
+/* Add these styles for the playlists in sidebar */
+.sidebar .playlists-section {
+	margin-top: 20px;
+	padding: 0 15px;
+	order: 4;
+	/* Playlists last */
+}
+
+.sidebar .playlists-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 10px;
+	border-bottom: 1px solid var(--border-color, #ddd);
+	padding-bottom: 8px;
+}
+
+.sidebar .playlists-header h3 {
+	margin: 0;
+	font-size: 16px;
+	color: var(--text-color, #555);
+}
+
+.sidebar .add-playlist-btn {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	border: none;
+	background-color: var(--primary-color, #006eef);
+	color: white;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 16px;
+	cursor: pointer;
+	padding: 0;
+	transition: all 0.2s;
+}
+
+.sidebar .add-playlist-btn:hover {
+	background-color: var(--primary-color-dark, #005bc7);
+	transform: scale(1.05);
+}
+
+.sidebar .playlists-list {
+	max-height: 200px;
+	overflow-y: auto;
+	scrollbar-width: thin;
+}
+
+.sidebar .playlist-item {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px 12px;
+	margin: 4px 0;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.2s;
+	font-size: 14px;
+	background-color: var(--list-item-bg, rgba(0, 0, 0, 0.02));
+}
+
+.sidebar .playlist-item:hover {
+	background-color: var(--list-item-hover, rgba(0, 0, 0, 0.05));
+}
+
+.sidebar .playlist-item.selected {
+	background-color: var(--primary-color-light, rgba(0, 110, 239, 0.1));
+	border-left: 3px solid var(--primary-color, #006eef);
+	font-weight: 500;
+}
+
+.sidebar .playlist-item-name {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 80%;
+}
+
+.sidebar .playlist-item-count {
+	background-color: var(--badge-bg, rgba(0, 0, 0, 0.1));
+	color: var(--text-color-secondary, #666);
+	border-radius: 10px;
+	padding: 2px 6px;
+	font-size: 12px;
+	min-width: 20px;
+	text-align: center;
+}
+
+.sidebar .no-playlists {
+	color: var(--text-color-secondary, #666);
+	font-style: italic;
+	text-align: center;
+	padding: 10px 0;
+	font-size: 14px;
+}
+
+/* Dark theme adjustments */
+.dark .sidebar .playlists-header {
+	border-bottom-color: var(--border-color-dark, #444);
+}
+
+.dark .sidebar .playlists-header h3 {
+	color: var(--text-color-dark, #ddd);
+}
+
+.dark .sidebar .playlist-item {
+	background-color: var(--list-item-bg-dark, rgba(255, 255, 255, 0.05));
+}
+
+.dark .sidebar .playlist-item:hover {
+	background-color: var(--list-item-hover-dark, rgba(255, 255, 255, 0.1));
+}
+
+.dark .sidebar .playlist-item-count {
+	background-color: var(--badge-bg-dark, rgba(255, 255, 255, 0.15));
+	color: var(--text-color-secondary-dark, #bbb);
+}
+
+.dark .sidebar .no-playlists {
+	color: var(--text-color-secondary-dark, #999);
 }
 
 /* Song List */
@@ -898,6 +1027,8 @@ body {
 	padding: 10px;
 	margin-bottom: 15px;
 	border-bottom: 1px solid var(--border-color, #ddd);
+	order: 2;
+	/* Recently viewed second */
 }
 
 .recent-songs h3 {
@@ -1011,6 +1142,8 @@ body {
 	overflow-x: hidden;
 	height: calc(100vh - 180px);
 	/* Adjust as needed */
+	order: 3;
+	/* Song list third */
 }
 
 /* Specific styling for lyrics and chords containers */

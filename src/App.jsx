@@ -11,6 +11,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 // Add these imports at the top
 import EditSong from './components/EditSong';
+import PlaylistView from './components/PlaylistView';
+import PlaylistModal from './components/PlaylistModal';
 
 function App() {
   const [songs, setSongs] = useState(() => {
@@ -54,6 +56,16 @@ function App() {
   });
   // Add this state for edit mode
   const [isEditing, setIsEditing] = useState(false);
+
+  // Add these states to your App component
+  const [playlists, setPlaylists] = useState(() => {
+    const savedPlaylists = localStorage.getItem('playlists');
+    return savedPlaylists ? JSON.parse(savedPlaylists) : [];
+  });
+  const [currentPlaylist, setCurrentPlaylist] = useState(null);
+  const [playlistToEdit, setPlaylistToEdit] = useState(null);
+  const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+  const [songSourcePlaylist, setSongSourcePlaylist] = useState(null);
 
   // Updated useEffect for loading songs with better error handling
   useEffect(() => {
@@ -163,6 +175,11 @@ function App() {
   useEffect(() => {
     localStorage.setItem('songs', JSON.stringify(songs));
   }, [songs]);
+
+  // Effect to save playlists to localStorage
+  useEffect(() => {
+    localStorage.setItem('playlists', JSON.stringify(playlists));
+  }, [playlists]);
 
   // Add this useEffect at the beginning of your component
   useEffect(() => {
@@ -354,10 +371,12 @@ function App() {
   };
 
   // Update the song selection function
-  const handleSelectSong = (song) => {
+  const handleSelectSong = (song, fromPlaylist = null) => {
     setSelectedSong(song);
+    setSongSourcePlaylist(fromPlaylist); // Track which playlist we came from
+    setCurrentPlaylist(null); // Clear current playlist to show song details
     
-    // Add to recently viewed and remove duplicates
+    // Add to recently viewed
     setRecentlyViewed(prev => {
       const filtered = prev.filter(s => s._id !== song._id);
       return [song, ...filtered].slice(0, 5); // Keep 5 most recent
@@ -405,6 +424,125 @@ function App() {
   // Add cancelEditMode function
   const cancelEditMode = () => {
     setIsEditing(false);
+  };
+
+  // Function to create or update a playlist
+  const handleSavePlaylist = (playlistData) => {
+    if (playlistData.id) {
+      // Update existing playlist
+      const updatedPlaylists = playlists.map(p => 
+        p.id === playlistData.id ? { ...p, ...playlistData, updatedAt: new Date().toISOString() } : p
+      );
+      setPlaylists(updatedPlaylists);
+      
+      // If the updated playlist was the current one, update that too
+      if (currentPlaylist && currentPlaylist.id === playlistData.id) {
+        setCurrentPlaylist({ ...currentPlaylist, ...playlistData, updatedAt: new Date().toISOString() });
+      }
+      toast.success('Playlist updated!');
+    } else {
+      // Create new playlist
+      const newPlaylist = {
+        ...playlistData,
+        id: Date.now().toString(),
+        songIds: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      setPlaylists([...playlists, newPlaylist]);
+      toast.success('Playlist created!');
+    }
+    setShowPlaylistModal(false);
+    setPlaylistToEdit(null);
+  };
+
+  // Function to add a song to a playlist
+  const addSongToPlaylist = (playlistId, songId) => {
+    // Check if song exists
+    if (!songs.some(song => song._id === songId)) {
+      toast.error('Song not found');
+      return;
+    }
+    
+    // Check if playlist exists
+    const playlist = playlists.find(p => p.id === playlistId);
+    if (!playlist) {
+      toast.error('Playlist not found');
+      return;
+    }
+    
+    // Check if song is already in playlist
+    if (playlist.songIds && playlist.songIds.includes(songId)) {
+      toast.info(`Song is already in playlist "${playlist.name}"`);
+      return;
+    }
+    
+    // Create a new array of songIds or use existing one
+    const songIds = playlist.songIds ? [...playlist.songIds, songId] : [songId];
+    
+    const updatedPlaylists = playlists.map(p => {
+      if (p.id === playlistId) {
+        return {
+          ...p,
+          songIds: songIds,
+          updatedAt: new Date().toISOString()
+        };
+      }
+      return p;
+    });
+    
+    setPlaylists(updatedPlaylists);
+    
+    // If this was the current playlist, update that too
+    if (currentPlaylist && currentPlaylist.id === playlistId) {
+      setCurrentPlaylist({
+        ...currentPlaylist,
+        songIds: songIds,
+        updatedAt: new Date().toISOString()
+      });
+    }
+    
+    toast.success('Song added to playlist!');
+  };
+
+  // Function to remove a song from a playlist
+  const removeSongFromPlaylist = (playlistId, songId) => {
+    const updatedPlaylists = playlists.map(playlist => {
+      if (playlist.id === playlistId) {
+        return {
+          ...playlist,
+          songIds: playlist.songIds.filter(id => id !== songId),
+          updatedAt: new Date().toISOString()
+        };
+      }
+      return playlist;
+    });
+    
+    setPlaylists(updatedPlaylists);
+    
+    // If this was the current playlist, update that too
+    if (currentPlaylist && currentPlaylist.id === playlistId) {
+      setCurrentPlaylist({
+        ...currentPlaylist,
+        songIds: currentPlaylist.songIds.filter(id => id !== songId),
+        updatedAt: new Date().toISOString()
+      });
+    }
+    
+    toast.success('Song removed from playlist');
+  };
+
+  // Function to delete a playlist
+  const handleDeletePlaylist = (playlistId) => {
+    const updatedPlaylists = playlists.filter(p => p.id !== playlistId);
+    setPlaylists(updatedPlaylists);
+    
+    // If this was the current playlist, clear it
+    if (currentPlaylist && currentPlaylist.id === playlistId) {
+      setCurrentPlaylist(null);
+    }
+    
+    toast.success('Playlist deleted');
   };
 
   return (
@@ -460,6 +598,8 @@ function App() {
                 {sidebarCollapsed ? '>' : '<'}
               </button>
             </div>
+            
+            {/* Recently viewed songs section - keep this in the sidebar */}
             {recentlyViewed.length > 0 && !sidebarCollapsed && (
               <div className="recent-songs">
                 <div className="recent-songs-header">
@@ -478,7 +618,7 @@ function App() {
                       key={song._id} 
                       className="recent-song-item"
                       onClick={() => setSelectedSong(song)}
-                      title={song.title} /* Add title for tooltip on hover */
+                      title={song.title}
                     >
                       {song.title}
                     </div>
@@ -486,6 +626,7 @@ function App() {
                 </div>
               </div>
             )}
+            
             <div className="sidebar-content">
               {isLoading && <div className="loading-spinner">Loading...</div>}
               {error && (
@@ -517,10 +658,67 @@ function App() {
                 toggleFavorite={toggleFavorite}
               />
             </div>
+            
+            {/* Move playlists section here in the sidebar */}
+            <div className="playlists-section">
+              <div className="playlists-header">
+                <h3>Playlists</h3>
+                <button 
+                  onClick={() => {
+                    setPlaylistToEdit(null);
+                    setShowPlaylistModal(true);
+                  }} 
+                  className="add-playlist-btn"
+                  title="Create new playlist"
+                >
+                  +
+                </button>
+              </div>
+              
+              <div className="playlists-list">
+                {playlists.length === 0 ? (
+                  <div className="no-playlists">
+                    <p>No playlists yet</p>
+                  </div>
+                ) : (
+                  playlists.map(playlist => (
+                    <div
+                      key={playlist.id}
+                      className={`playlist-item ${currentPlaylist?.id === playlist.id ? 'selected' : ''}`}
+                      onClick={() => {
+                        setCurrentPlaylist(playlist);
+                        setSelectedSong(null);
+                      }}
+                    >
+                      <div className="playlist-item-name">{playlist.name}</div>
+                      <div className="playlist-item-count">{playlist.songIds?.length || 0}</div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </aside>
           
           <main className="content-area">
-            {selectedSong ? (
+            {/* Remove the recently-viewed-section from here */}
+            
+            {/* Keep only the content area with song details or playlist */}
+            {currentPlaylist ? (
+              <PlaylistView 
+                playlist={currentPlaylist}
+                songs={songs}
+                onSelectSong={(song) => handleSelectSong(song, currentPlaylist)}
+                selectedSongId={selectedSong?._id}
+                onEditPlaylist={(playlist) => {
+                  setPlaylistToEdit(playlist);
+                  setShowPlaylistModal(true);
+                }}
+                onDeletePlaylist={handleDeletePlaylist}
+                onRemoveSongFromPlaylist={removeSongFromPlaylist}
+                favorites={favorites}
+                toggleFavorite={toggleFavorite}
+              />
+            ) : selectedSong ? (
               isEditing ? (
                 <EditSong 
                   song={selectedSong} 
@@ -531,7 +729,15 @@ function App() {
                 <SongDetails
                   song={selectedSong}
                   onRemoveSong={handleDeleteClick}
-                  onEditSong={startEditMode} // Changed to start edit mode
+                  onEditSong={startEditMode}
+                  playlists={playlists}
+                  onAddToPlaylist={addSongToPlaylist}
+                  onCreatePlaylist={() => {
+                    setPlaylistToEdit(null);
+                    setShowPlaylistModal(true);
+                  }}
+                  songSourcePlaylist={songSourcePlaylist}
+                  setCurrentPlaylist={setCurrentPlaylist}
                 />
               )
             ) : (
@@ -560,6 +766,15 @@ function App() {
         onClose={handleCancelDelete} 
         onConfirm={handleConfirmDelete} 
         songTitle={songToDelete ? songToDelete.title : ''}
+      />
+      <PlaylistModal
+        show={showPlaylistModal}
+        onClose={() => {
+          setShowPlaylistModal(false);
+          setPlaylistToEdit(null);
+        }}
+        onSave={handleSavePlaylist}
+        playlist={playlistToEdit}
       />
     </div>
   );
