@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './NavBar.css';
 
-function NavBar({ setCurrentView, theme, toggleTheme }) {
+function NavBar({ setCurrentView }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -23,14 +23,9 @@ function NavBar({ setCurrentView, theme, toggleTheme }) {
   return (
     <>
       <nav className="navbar">
-        <div className="navbar-brand">
-          <h1>Хваление Емануил</h1>
+        <div className="navbar-logo">
+          <span>Hvalenie</span>
         </div>
-
-        {/* Add theme toggle button */}
-        <button className="theme-toggle" onClick={toggleTheme}>
-          {theme === 'light' ? '🌙' : '☀️'}
-        </button>
 
         {/* Hamburger menu icon for mobile */}
         <div className="hamburger-menu" onClick={toggleMobileMenu}>
@@ -42,8 +37,8 @@ function NavBar({ setCurrentView, theme, toggleTheme }) {
         {/* Navigation links */}
         <div className={`navbar-menu ${mobileMenuOpen ? 'open' : ''}`}>
           <ul className="navbar-links">
-            <li><button onClick={() => handleMenuItemClick('home')}>Начало</button></li>
-            <li><button onClick={() => handleMenuItemClick('add-song')}>Добави песен</button></li>
+            <li><button onClick={() => handleMenuItemClick('home')}>Home</button></li>
+            <li><button onClick={() => handleMenuItemClick('add-song')}>Add Song</button></li>
           </ul>
         </div>
       </nav>

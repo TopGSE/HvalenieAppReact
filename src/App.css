@@ -231,32 +231,6 @@ body {
 	font-size: 14px;
 }
 
-/* Dark theme adjustments */
-.dark .sidebar .playlists-header {
-	border-bottom-color: var(--border-color-dark, #444);
-}
-
-.dark .sidebar .playlists-header h3 {
-	color: var(--text-color-dark, #ddd);
-}
-
-.dark .sidebar .playlist-item {
-	background-color: var(--list-item-bg-dark, rgba(255, 255, 255, 0.05));
-}
-
-.dark .sidebar .playlist-item:hover {
-	background-color: var(--list-item-hover-dark, rgba(255, 255, 255, 0.1));
-}
-
-.dark .sidebar .playlist-item-count {
-	background-color: var(--badge-bg-dark, rgba(255, 255, 255, 0.15));
-	color: var(--text-color-secondary-dark, #bbb);
-}
-
-.dark .sidebar .no-playlists {
-	color: var(--text-color-secondary-dark, #999);
-}
-
 /* Song List */
 .song-list {
 	padding: 1rem;
@@ -954,16 +928,6 @@ body {
 	--sidebar-bg: #f1f1f1;
 }
 
-/* Dark theme */
-body.dark {
-	--bg-color: #1a1a1a;
-	--text-color: #f1f1f1;
-	--card-bg: #2a2a2a;
-	--border-color: #444;
-	--primary-color: #4a9eff;
-	--sidebar-bg: #333;
-}
-
 /* Apply variables throughout your app */
 body {
 	color: var(--text-color);
@@ -1101,32 +1065,10 @@ body {
 	background: rgba(0, 110, 239, 0.8);
 }
 
-/* Dark theme scrollbar adjustments */
-.dark ::-webkit-scrollbar-track {
-	background: rgba(255, 255, 255, 0.05);
-}
-
-.dark ::-webkit-scrollbar-thumb {
-	background: rgba(79, 170, 255, 0.5);
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-	background: rgba(79, 170, 255, 0.8);
-}
-
-.dark * {
-	scrollbar-color: rgba(79, 170, 255, 0.5) rgba(255, 255, 255, 0.05);
-}
-
 /* For Firefox */
 * {
 	scrollbar-width: thin;
 	scrollbar-color: rgba(0, 110, 239, 0.5) rgba(0, 0, 0, 0.05);
-}
-
-/* Dark theme Firefox scrollbar */
-.dark * {
-	scrollbar-color: rgba(79, 170, 255, 0.5) rgba(255, 255, 255, 0.05);
 }
 
 /* Specific styling for the song list container */
@@ -1216,11 +1158,6 @@ body {
 	color: #f44336;
 }
 
-/* For dark theme */
-.dark .clear-recent-btn:hover {
-	background-color: rgba(255, 255, 255, 0.1);
-}
-
 .reload-button {
 	background: none;
 	border: none;
@@ -1237,8 +1174,4 @@ body {
 .reload-button:hover {
 	background-color: rgba(0, 0, 0, 0.05);
 	transform: rotate(180deg);
-}
-
-.dark .reload-button:hover {
-	background-color: rgba(255, 255, 255, 0.1);
 }

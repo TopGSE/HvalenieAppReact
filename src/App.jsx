@@ -41,10 +41,6 @@ function App() {
   const [filterBy, setFilterBy] = useState(() => {
     return localStorage.getItem('filterBy') || 'all';
   });
-  const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('theme');
-    return savedTheme || 'light';
-  });
   const [error, setError] = useState(null);
   const [recentlyViewed, setRecentlyViewed] = useState(() => {
     const saved = localStorage.getItem('recentlyViewed');
@@ -130,11 +126,6 @@ function App() {
         toast.error('Failed to reload songs from server');
       });
   };
-
-  useEffect(() => {
-    document.body.className = theme;
-    localStorage.setItem('theme', theme);
-  }, [theme]);
 
   useEffect(() => {
     localStorage.setItem('songFavorites', JSON.stringify(favorites));
@@ -549,8 +540,6 @@ function App() {
     <div className="app-container">
       <NavBar 
         setCurrentView={setCurrentView}
-        theme={theme}
-        toggleTheme={() => setTheme(theme === 'light' ? 'dark' : 'light')}
       />
       
       {currentView === 'home' && (
