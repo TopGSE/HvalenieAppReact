@@ -413,6 +413,7 @@
 	color: #333;
 	margin: 0;
 	padding: 0;
+	transition: font-size 0.2s ease;
 }
 
 .song-actions-bar {
@@ -445,6 +446,10 @@
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
+}
+
+.action-button.active {
+	background-color: #cce6ff;
 }
 
 .edit-button {
@@ -482,12 +487,19 @@
 	position: absolute;
 	bottom: calc(100% + 10px);
 	left: 0;
-	width: 280px;
+	width: 320px;
+	/* Increased from 280px */
+	max-height: 450px;
+	/* Added max-height */
+	overflow-y: auto;
+	/* Allow scrolling for many playlists */
 	background-color: #fff;
 	border-radius: 12px;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-	padding: 16px;
-	z-index: 10;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+	/* Enhanced shadow */
+	padding: 20px;
+	/* Increased padding */
+	z-index: 100;
 	animation: slide-up 0.2s ease;
 }
 
@@ -499,8 +511,47 @@
 
 	to {
 		opacity: 1;
-		transform: translateY(0);
 	}
+}
+
+.playlist-dropdown.modern h4 {
+	margin: 0 0 16px 0;
+	color: #333;
+	font-size: 18px;
+	/* Larger title */
+	font-weight: 600;
+}
+
+.playlist-list {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 16px 0;
+	max-height: 300px;
+	/* Taller playlist list */
+	overflow-y: auto;
+}
+
+.playlist-list li {
+	margin-bottom: 8px;
+	/* More spacing between items */
+}
+
+.playlist-list button {
+	width: 100%;
+	text-align: left;
+	padding: 12px 16px;
+	/* Larger buttons */
+	border: none;
+	border-radius: 8px;
+	background-color: #f5f5f5;
+	display: grid;
+	grid-template-columns: 1fr auto auto;
+	gap: 8px;
+	align-items: center;
+	cursor: pointer;
+	transition: all 0.2s;
+	font-size: 15px;
+	/* Larger text */
 }
 
 .playlist-dropdown.modern h4 {
@@ -529,8 +580,9 @@
 	border: none;
 	border-radius: 6px;
 	background-color: #f5f5f5;
-	display: flex;
-	justify-content: space-between;
+	display: grid;
+	grid-template-columns: 1fr auto auto;
+	gap: 8px;
 	align-items: center;
 	cursor: pointer;
 	transition: all 0.2s;
@@ -595,6 +647,151 @@
 	background-color: rgba(0, 110, 239, 0.05);
 }
 
+/* Add these new styles - they won't change your layout but will enhance the dropdown */
+
+/* Improved header with search */
+.playlist-dropdown-header {
+	margin-bottom: 12px;
+}
+
+.playlist-dropdown .playlist-search {
+	position: relative;
+	margin-top: 10px;
+}
+
+.playlist-dropdown .playlist-search input {
+	width: 100%;
+	padding: 8px 30px 8px 10px;
+	border-radius: 6px;
+	border: 1px solid #ddd;
+	font-size: 14px;
+	background-color: #f5f5f5;
+	transition: all 0.2s;
+}
+
+.playlist-dropdown .playlist-search input:focus {
+	outline: none;
+	border-color: #006eef;
+	background-color: white;
+	box-shadow: 0 0 0 3px rgba(0, 110, 239, 0.1);
+}
+
+.playlist-dropdown .clear-search {
+	position: absolute;
+	right: 8px;
+	top: 50%;
+	transform: translateY(-50%);
+	background: none;
+	border: none;
+	font-size: 14px;
+	color: #999;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+}
+
+.playlist-dropdown .clear-search:hover {
+	background-color: rgba(0, 0, 0, 0.1);
+	color: #555;
+}
+
+/* Button states */
+.playlist-list button.adding {
+	background-color: #e1f0ff;
+	cursor: wait;
+}
+
+.playlist-list button.error {
+	background-color: #fff0f0;
+	color: #e53935;
+	border-left: 3px solid #e53935;
+}
+
+.error-message {
+	color: #e53935;
+	font-size: 12px;
+	margin-top: 2px;
+	padding-left: 12px;
+}
+
+/* Loading spinner */
+.loading-spinner {
+	width: 16px;
+	height: 16px;
+	border: 2px solid rgba(0, 110, 239, 0.3);
+	border-radius: 50%;
+	border-top-color: #006eef;
+	animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* Better transition for already added */
+.playlist-list button.already-added {
+	background-color: #e1f0ff;
+	cursor: default;
+	transition: all 0.3s ease;
+}
+
+.playlist-list button.already-added .playlist-status {
+	background-color: rgba(0, 110, 239, 0.1);
+	color: #006eef;
+	animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+	0% {
+		transform: scale(1);
+	}
+
+	50% {
+		transform: scale(1.1);
+	}
+
+	100% {
+		transform: scale(1);
+	}
+}
+
+/* Improve dropdown presentation */
+.playlist-dropdown.modern {
+	box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+	border: none;
+	max-height: 400px;
+	overflow-y: auto;
+	z-index: 100;
+}
+
+.create-playlist-button {
+	position: sticky;
+	bottom: 0;
+	background-color: white;
+	padding-top: 12px;
+	padding-bottom: 4px;
+	box-shadow: 0 -4px 6px rgba(255, 255, 255, 0.9);
+}
+
+.playlist-count {
+	font-size: 13px;
+	color: #777;
+	white-space: nowrap;
+}
+
+.create-playlist-hint {
+	margin-top: 0;
+	font-style: italic;
+	font-size: 13px;
+	color: #777;
+}
+
 @media print {
 	.no-print {
 		display: none !important;
@@ -653,4 +850,73 @@
 		flex: 1;
 		justify-content: center;
 	}
+
+	.playlist-dropdown.modern {
+		left: auto;
+		right: 0;
+		width: 280px;
+		/* Slightly smaller on mobile */
+	}
+}
+
+/* Add style for the dropdown indicator */
+.dropdown-indicator {
+	margin-left: 6px;
+	font-size: 10px;
+	transition: transform 0.2s ease;
+}
+
+/* Font size control styles */
+.font-size-controls {
+	display: flex;
+	align-items: center;
+	background-color: #f5f5f5;
+	border-radius: 20px;
+	padding: 4px;
+	margin-right: 8px;
+}
+
+.font-size-button {
+	width: 28px;
+	height: 28px;
+	background-color: transparent;
+	font-size: 14px;
+	font-weight: 600;
+	color: #555;
+}
+
+.font-size-button:disabled {
+	color: #ccc;
+	cursor: not-allowed;
+}
+
+.font-size-button:hover:not(:disabled) {
+	background-color: #e6e6e6;
+}
+
+.font-size-value {
+	font-size: 13px;
+	color: #666;
+	width: 38px;
+	text-align: center;
+	user-select: none;
+}
+
+.font-sm {
+	font-size: 10px;
+	position: relative;
+	top: -2px;
+}
+
+/* For fullscreen mode, adjust font size controls */
+.fullscreen .font-size-controls {
+	background-color: rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(10px);
+	position: fixed;
+	bottom: 20px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 1010;
+	padding: 8px 12px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
