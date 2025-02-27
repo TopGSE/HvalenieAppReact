@@ -2,17 +2,17 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
 import SearchBar from './components/SearchBar';
-import SongList from './components/SongList';
-import SongDetails from './components/SongDetails';
+import SongList from './components/song/SongList';
+import SongDetails from './components/song/SongDetails';
 import AddSong from './components/AddSong';
-import NavBar from './components/NavBar';
-import ConfirmModal from './components/ConfirmModal';
+import NavBar from './components/navbar/NavBar';
+import ConfirmModal from './components/modals/ConfirmModal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 // Add these imports at the top
-import EditSong from './components/EditSong';
-import PlaylistView from './components/PlaylistView';
-import PlaylistModal from './components/PlaylistModal';
+import EditSong from './components/song/EditSong';
+import PlaylistView from './components/playlist/PlaylistView';
+import PlaylistModal from './components/modals/PlaylistModal';
 
 function App() {
   const [songs, setSongs] = useState(() => {
