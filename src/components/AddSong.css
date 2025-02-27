@@ -1,0 +1,104 @@
+/* Form styling for AddSong and EditSong components */
+.add-song-form {
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 20px;
+	background-color: var(--card-bg, #fff);
+	border-radius: 8px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+	margin-bottom: 20px;
+}
+
+.form-group label {
+	display: block;
+	font-weight: 500;
+	margin-bottom: 6px;
+	color: var(--text-color, #333);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+	width: 100%;
+	padding: 10px 12px;
+	border: 1px solid var(--border-color, #ddd);
+	border-radius: 4px;
+	font-size: 16px;
+	background-color: var(--input-bg, #fff);
+	color: var(--text-color, #333);
+}
+
+.form-group textarea {
+	resize: vertical;
+	min-height: 100px;
+	font-family: monospace;
+}
+
+.form-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	margin-top: 20px;
+}
+
+.submit-btn {
+	background-color: #4CAF50;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	padding: 10px 20px;
+	font-size: 16px;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.submit-btn:hover {
+	background-color: #45a049;
+}
+
+.cancel-btn {
+	background-color: #f44336;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	padding: 10px 20px;
+	font-size: 16px;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.cancel-btn:hover {
+	background-color: #d32f2f;
+}
+
+/* Dark theme support */
+.dark .add-song-form {
+	background-color: #2a2a2a;
+}
+
+.dark .form-group input,
+.dark .form-group select,
+.dark .form-group textarea {
+	background-color: #333;
+	border-color: #444;
+	color: #f1f1f1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+	.add-song-form {
+		padding: 15px;
+	}
+
+	.form-actions {
+		flex-direction: column;
+	}
+
+	.form-actions button {
+		width: 100%;
+		margin-bottom: 10px;
+	}
+}

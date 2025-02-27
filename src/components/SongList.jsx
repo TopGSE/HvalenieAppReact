@@ -1,6 +1,6 @@
 import { Scrollbar } from 'react-scrollbars-custom';
 
-function SongList({ songs, onSelectSong, selectedSongId }) {
+function SongList({ songs, onSelectSong, selectedSongId, favorites, toggleFavorite }) {
   if (songs.length === 0) {
     return <div className="empty-songs">No songs found</div>;
   }

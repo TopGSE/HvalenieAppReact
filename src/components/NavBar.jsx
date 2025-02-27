@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './NavBar.css';
 
-function NavBar({ setCurrentView }) {
+function NavBar({ setCurrentView, theme, toggleTheme }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -26,6 +26,11 @@ function NavBar({ setCurrentView }) {
         <div className="navbar-brand">
           <h1>Хваление Емануил</h1>
         </div>
+
+        {/* Add theme toggle button */}
+        <button className="theme-toggle" onClick={toggleTheme}>
+          {theme === 'light' ? '🌙' : '☀️'}
+        </button>
 
         {/* Hamburger menu icon for mobile */}
         <div className="hamburger-menu" onClick={toggleMobileMenu}>
