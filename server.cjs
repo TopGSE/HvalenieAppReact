@@ -62,7 +62,6 @@ app.get('/songs', async (req, res) => {
     
     // Get all songs with proper error handling
     const songs = await Song.find({}).lean();
-    console.log(`Found ${songs.length} songs in database`);
     
     // If no songs found, log it but still return empty array
     if (songs.length === 0) {
@@ -118,7 +117,6 @@ app.delete('/songs/:id', async (req, res) => {
 app.get('/api/debug/songs-count', async (req, res) => {
   try {
     const count = await Song.countDocuments();
-    console.log(`Database contains ${count} songs`);
     res.json({ count, message: `Database contains ${count} songs` });
   } catch (err) {
     console.error('Error checking song count:', err);
@@ -155,7 +153,6 @@ app.get('/api/debug/create-test-data', async (req, res) => {
     
     // Insert the test songs
     const result = await Song.insertMany(testSongs);
-    console.log(`Created ${result.length} test songs`);
     res.json({ 
       message: `Created ${result.length} test songs successfully`, 
       songs: result 

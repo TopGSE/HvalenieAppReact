@@ -9,7 +9,6 @@ import NavBar from './components/navbar/NavBar';
 import ConfirmModal from './components/modals/ConfirmModal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-// Add these imports at the top
 import EditSong from './components/song/EditSong';
 import PlaylistView from './components/playlist/PlaylistView';
 import PlaylistModal from './components/modals/PlaylistModal';
@@ -69,11 +68,9 @@ function App() {
       setIsLoading(true);
       setError(null);
       
-      console.log('Attempting to fetch songs from server...');
       
       axios.get('http://localhost:5000/songs')
         .then(response => {
-          console.log(`Fetched ${response.data.length} songs successfully`);
           
           // Check if we got an empty array
           if (response.data.length === 0) {
@@ -107,13 +104,11 @@ function App() {
 
   // Add this function to your component for manual reloading
   const handleReloadSongs = () => {
-    console.log('Manual reload triggered');
     setIsLoading(true);
     setError(null);
     
     axios.get('http://localhost:5000/songs')
       .then(response => {
-        console.log(`Reloaded ${response.data.length} songs successfully`);
         setSongs(response.data);
         localStorage.setItem('songs', JSON.stringify(response.data));
         setIsLoading(false);
@@ -244,7 +239,6 @@ function App() {
       return;
     }
     
-    console.log(`Removing song with id: ${id}`);
     
     axios.delete(`http://localhost:5000/songs/${id}`)
       .then(() => {
@@ -259,7 +253,6 @@ function App() {
   };
 
   const handleEditSong = (updatedSong) => {
-    console.log('Editing song:', updatedSong);
     
     if (!updatedSong || !updatedSong._id) {
       console.error('Invalid song data or missing ID');
@@ -269,11 +262,9 @@ function App() {
     
     // Make sure the URL is correct
     const url = `http://localhost:5000/songs/${updatedSong._id}`;
-    console.log(`Sending PUT request to: ${url}`);
     
     axios.put(url, updatedSong)
       .then(response => {
-        console.log('Edit successful, response:', response.data);
         const updatedSongs = songs.map(song =>
           song._id === updatedSong._id ? response.data : song
         );
@@ -319,7 +310,6 @@ function App() {
   });
 
   const handleDeleteClick = (song) => {
-    console.log(`Preparing to delete song:`, song);
     if (!song || !song.title) {
       console.error('Invalid song object or missing title property:', song);
       toast.error('Cannot delete song: invalid song data');
@@ -332,7 +322,6 @@ function App() {
   // Update the handleConfirmDelete function
   const handleConfirmDelete = () => {
     if (songToDelete && songToDelete._id) {
-      console.log(`Confirmed deletion for song: ${songToDelete.title} with ID: ${songToDelete._id}`);
       handleRemoveSong(songToDelete._id);
       setShowConfirmModal(false);
       setSongToDelete(null);
@@ -344,7 +333,6 @@ function App() {
   };
 
   const handleCancelDelete = () => {
-    console.log('Cancelled deletion');
     setShowConfirmModal(false);
     setSongToDelete(null);
   };
