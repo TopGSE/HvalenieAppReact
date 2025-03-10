@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext } from 'react';
 import axios from 'axios';
 import './App.css';
 import SearchBar from './components/SearchBar';
@@ -12,8 +12,287 @@ import 'react-toastify/dist/ReactToastify.css';
 import EditSong from './components/song/EditSong';
 import PlaylistView from './components/playlist/PlaylistView';
 import PlaylistModal from './components/modals/PlaylistModal';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
+
+// Modify the AuthContext section
+const AuthContext = createContext(null);
+
+// Custom hook to use the AuthContext
+export const useAuth = () => {
+  return useContext(AuthContext);
+};
+
+// Create a wrapper component that will use useLocation
+function AppContent({ 
+  isLoggedIn, username, handleLogin, handleLogout, songs, searchTerm, setSearchTerm, currentView, 
+  setCurrentView, selectedSong, setSelectedSong, sidebarCollapsed, setSidebarCollapsed, 
+  showConfirmModal, setShowConfirmModal, songToDelete, setSongToDelete, isLoading, 
+  sortOrder, setSortOrder, filterBy, setFilterBy, error, recentlyViewed, setRecentlyViewed, 
+  favorites, toggleFavorite, isEditing, setIsEditing, playlists, setPlaylists, currentPlaylist, 
+  setCurrentPlaylist, playlistToEdit, setPlaylistToEdit, showPlaylistModal, setShowPlaylistModal,
+  songSourcePlaylist, setSongSourcePlaylist, handleReloadSongs, retryFetch, handleSelectSong,
+  clearRecentlyViewed, startEditMode, handleEditSong, cancelEditMode, filteredSongs, handleDeleteClick,
+  handleCancelDelete, handleConfirmDelete, handleDeletePlaylist, removeSongFromPlaylist, handleSavePlaylist,
+  addSongToPlaylist, handleAddSong, userRole
+}) {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Redirect to login page if not logged in and not already on login or register
+    if (!isLoggedIn && location.pathname !== '/login' && location.pathname !== '/register') {
+      console.log('Redirecting to /login');
+      // The navigation will be handled by the <Navigate> component in the Routes.
+    }
+  }, [isLoggedIn, location]);
+
+  return (
+    <div className="app-container">
+      <NavBar setCurrentView={setCurrentView} />
+      <Routes>
+        <Route path="/" element={<Navigate to={isLoggedIn ? "/home" : "/login"} />} />
+        <Route path="/login" element={isLoggedIn ? <Navigate to="/home" /> : <Login />} />
+        <Route path="/register" element={isLoggedIn ? <Navigate to="/home" /> : <Register />} />
+        <Route path="/home" element={
+          isLoggedIn ? (
+            <div className="main-layout">
+              <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
+                <div className="sidebar-header">
+                  <div className="sidebar-header-top">
+                    <h2>Песни ({songs.length})</h2>
+                    <button 
+                      className="reload-button" 
+                      onClick={handleReloadSongs}
+                      title="Reload songs from server"
+                    >
+                      🔄
+                    </button>
+                  </div>
+                  <SearchBar onSearch={setSearchTerm} />
+                  <div className="sort-filter-controls">
+                    <select 
+                      value={sortOrder} 
+                      onChange={(e) => setSortOrder(e.target.value)}
+                      className="sort-select"
+                    >
+                      <option value="asc">A-Z</option>
+                      <option value="desc">Z-A</option>
+                      <option value="recent">Recently Added</option>
+                    </select>
+                    
+                    <select 
+                      value={filterBy} 
+                      onChange={(e) => setFilterBy(e.target.value)}
+                      className="filter-select"
+                    >
+                      <option value="all">Всички Песни</option>
+                      <option value="praise">Хваление</option>
+                      <option value="worship">Поклонение</option>
+                      <option value="christmas">Рождество</option>
+                      <option value="easter">Възкресение</option>
+                    </select>
+                  </div>
+                  <button 
+                    className="toggle-sidebar"
+                    onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                  >
+                    {sidebarCollapsed ? '>' : '<'}
+                  </button>
+                </div>
+                
+                {/* Recently viewed songs section */}
+                {recentlyViewed.length > 0 && !sidebarCollapsed && (
+                  <div className="recent-songs">
+                    <div className="recent-songs-header">
+                      <h3>Скорошни Избрани</h3>
+                      <button 
+                        onClick={clearRecentlyViewed}
+                        className="clear-recent-btn"
+                        title="Clear recently viewed"
+                      >
+                        х
+                      </button>
+                    </div>
+                    <div className="recent-songs-list">
+                      {recentlyViewed.map(song => (
+                        <div 
+                          key={song._id} 
+                          className="recent-song-item"
+                          onClick={() => setSelectedSong(song)}
+                          title={song.title}
+                        >
+                          {song.title}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                <div className="sidebar-content">
+                  {isLoading && <div className="loading-spinner">Loading...</div>}
+                  {error && (
+                    <div className="error-container">
+                      <h3>Something went wrong</h3>
+                      <p>{error.message || 'Unable to load songs'}</p>
+                      <button className="retry-button" onClick={retryFetch}>Try Again</button>
+                    </div>
+                  )}
+                  {!isLoading && !error && filteredSongs.length === 0 && (
+                    <div className="empty-state-list">
+                      <div className="empty-icon">📝</div>
+                      <h3>Няма такава песен</h3>
+                      {searchTerm ? (
+                        <p>Пробвайте да потърсите отново</p>
+                      ) : (
+                        <p>Добавете първата ви песен</p>
+                      )}
+                      <button className="add-song-button" onClick={() => setCurrentView('add-song')}>
+                        Add a Song
+                      </button>
+                    </div>
+                  )}
+                  <SongList 
+                    songs={filteredSongs} 
+                    onSelectSong={handleSelectSong} 
+                    selectedSongId={selectedSong?._id}
+                    favorites={favorites}
+                    toggleFavorite={toggleFavorite}
+                  />
+                </div>
+                
+                {/* Playlists section */}
+                <div className="playlists-section">
+                  <div className="playlists-header">
+                    <h3>Playlists</h3>
+                    <button 
+                      onClick={() => {
+                        setPlaylistToEdit(null);
+                        setShowPlaylistModal(true);
+                      }} 
+                      className="add-playlist-btn"
+                      title="Create new playlist"
+                    >
+                      +
+                    </button>
+                  </div>
+                  
+                  <div className="playlists-list">
+                    {playlists.length === 0 ? (
+                      <div className="no-playlists">
+                        <p>No playlists yet</p>
+                      </div>
+                    ) : (
+                      playlists.map(playlist => (
+                        <div
+                          key={playlist.id}
+                          className={`playlist-item ${currentPlaylist?.id === playlist.id ? 'selected' : ''}`}
+                          onClick={() => {
+                            setCurrentPlaylist(playlist);
+                            setSelectedSong(null);
+                          }}
+                        >
+                          <div className="playlist-item-name">{playlist.name}</div>
+                          <div className="playlist-item-count">{playlist.songIds?.length || 0}</div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </aside>
+              
+              <main className="content-area">
+                {currentPlaylist ? (
+                  <PlaylistView 
+                    playlist={currentPlaylist}
+                    songs={songs}
+                    onSelectSong={(song) => handleSelectSong(song, currentPlaylist)}
+                    selectedSongId={selectedSong?._id}
+                    onEditPlaylist={(playlist) => {
+                      setPlaylistToEdit(playlist);
+                      setShowPlaylistModal(true);
+                    }}
+                    onDeletePlaylist={handleDeletePlaylist}
+                    onRemoveSongFromPlaylist={removeSongFromPlaylist}
+                    favorites={favorites}
+                    toggleFavorite={toggleFavorite}
+                  />
+                ) : selectedSong ? (
+                  isEditing ? (
+                    <EditSong 
+                      song={selectedSong} 
+                      onSaveEdit={handleEditSong}
+                      onCancel={cancelEditMode}
+                    />
+                  ) : (
+                    <SongDetails
+                      song={selectedSong}
+                      onRemoveSong={handleDeleteClick}
+                      onEditSong={startEditMode}
+                      playlists={playlists}
+                      onAddToPlaylist={addSongToPlaylist}
+                      onCreatePlaylist={() => {
+                        setPlaylistToEdit(null);
+                        setShowPlaylistModal(true);
+                      }}
+                      songSourcePlaylist={songSourcePlaylist}
+                      setCurrentPlaylist={setCurrentPlaylist}
+                    />
+                  )
+                ) : (
+                  <div className="empty-state">
+                    <h2>Изберете песен за повече подробности.</h2>
+                    <p>Изберете песен от списъка отляво.</p>
+                  </div>
+                )}
+              </main>
+            </div>
+          ) : (
+            <Navigate to="/login" />
+          )
+        } />
+        <Route path="/add-song" element={
+          isLoggedIn && userRole === 'admin' ? (
+            <div className="add-song-page">
+              <div className="add-song-header">
+                <h1>Добави нова песен</h1>
+                <p>Добави нова песен към списъка</p>
+              </div>
+              <AddSong onAddSong={handleAddSong} />
+            </div>
+          ) : isLoggedIn ? (
+            <div className="unauthorized-page">
+              <h2>Unauthorized Access</h2>
+              <p>You need administrator privileges to add songs.</p>
+              <button onClick={() => navigate('/home')}>Return to Home</button>
+            </div>
+          ) : (
+            <Navigate to="/login" />
+          )
+        } />
+      </Routes>
+      <ToastContainer position="bottom-right" />
+      <ConfirmModal 
+        show={showConfirmModal} 
+        onClose={handleCancelDelete} 
+        onConfirm={handleConfirmDelete} 
+        songTitle={songToDelete ? songToDelete.title : ''}
+      />
+      <PlaylistModal
+        show={showPlaylistModal}
+        onClose={() => {
+          setShowPlaylistModal(false);
+          setPlaylistToEdit(null);
+        }}
+        onSave={handleSavePlaylist}
+        playlist={playlistToEdit}
+      />
+    </div>
+  );
+}
 
 function App() {
+  // All your state and functions here
   const [songs, setSongs] = useState(() => {
     const savedSongs = localStorage.getItem('songs');
     return savedSongs ? JSON.parse(savedSongs) : [];
@@ -62,6 +341,37 @@ function App() {
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
   const [songSourcePlaylist, setSongSourcePlaylist] = useState(null);
 
+  // Authentication state
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('token') ? true : false;
+  });
+  const [username, setUsername] = useState(() => {
+    return localStorage.getItem('username') || null;
+  });
+  const [userRole, setUserRole] = useState(() => {
+    return localStorage.getItem('userRole') || null;
+  });
+
+  // Login handler
+  const handleLogin = (username, role) => {
+    setIsLoggedIn(true);
+    setUsername(username);
+    setUserRole(role);
+    localStorage.setItem('username', username);
+    localStorage.setItem('userRole', role);
+  };
+
+  // Logout handler
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setUsername(null);
+    setUserRole(null);
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('userRole');
+    toast.info('Logged out successfully');
+  };
+
   // Updated useEffect for loading songs with better error handling
   useEffect(() => {
     const loadSongs = () => {
@@ -99,8 +409,10 @@ function App() {
         });
     };
     
-    loadSongs();
-  }, []);
+    if (isLoggedIn) {
+      loadSongs();
+    }
+  }, [isLoggedIn]);
 
   // Add this function to your component for manual reloading
   const handleReloadSongs = () => {
@@ -525,235 +837,68 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      <NavBar 
-        setCurrentView={setCurrentView}
-      />
-      
-      {currentView === 'home' && (
-        <div className="main-layout">
-          <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
-            <div className="sidebar-header">
-              <div className="sidebar-header-top">
-                <h2>Песни ({songs.length})</h2>
-                <button 
-                  className="reload-button" 
-                  onClick={handleReloadSongs}
-                  title="Reload songs from server"
-                >
-                  🔄
-                </button>
-              </div>
-              <SearchBar onSearch={setSearchTerm} />
-              <div className="sort-filter-controls">
-                <select 
-                  value={sortOrder} 
-                  onChange={(e) => setSortOrder(e.target.value)}
-                  className="sort-select"
-                >
-                  <option value="asc">A-Z</option>
-                  <option value="desc">Z-A</option>
-                  <option value="recent">Recently Added</option>
-                </select>
-                
-                <select 
-                  value={filterBy} 
-                  onChange={(e) => setFilterBy(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">Всички Песни</option>
-                  <option value="praise">Хваление</option>
-                  <option value="worship">Поклонение</option>
-                  <option value="christmas">Рождество</option>
-                  <option value="easter">Възкресение</option>
-                </select>
-              </div>
-              <button 
-                className="toggle-sidebar"
-                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              >
-                {sidebarCollapsed ? '>' : '<'}
-              </button>
-            </div>
-            
-            {/* Recently viewed songs section - keep this in the sidebar */}
-            {recentlyViewed.length > 0 && !sidebarCollapsed && (
-              <div className="recent-songs">
-                <div className="recent-songs-header">
-                  <h3>Скорошни Избрани</h3>
-                  <button 
-                    onClick={clearRecentlyViewed}
-                    className="clear-recent-btn"
-                    title="Clear recently viewed"
-                  >
-                    х
-                  </button>
-                </div>
-                <div className="recent-songs-list">
-                  {recentlyViewed.map(song => (
-                    <div 
-                      key={song._id} 
-                      className="recent-song-item"
-                      onClick={() => setSelectedSong(song)}
-                      title={song.title}
-                    >
-                      {song.title}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            <div className="sidebar-content">
-              {isLoading && <div className="loading-spinner">Loading...</div>}
-              {error && (
-                <div className="error-container">
-                  <h3>Something went wrong</h3>
-                  <p>{error.message || 'Unable to load songs'}</p>
-                  <button className="retry-button" onClick={retryFetch}>Try Again</button>
-                </div>
-              )}
-              {!isLoading && !error && filteredSongs.length === 0 && (
-                <div className="empty-state-list">
-                  <div className="empty-icon">📝</div>
-                  <h3>Няма такава песен</h3>
-                  {searchTerm ? (
-                    <p>Пробвайте да потърсите отново</p>
-                  ) : (
-                    <p>Добавете първата ви песен</p>
-                  )}
-                  <button className="add-song-button" onClick={() => setCurrentView('add-song')}>
-                    Add a Song
-                  </button>
-                </div>
-              )}
-              <SongList 
-                songs={filteredSongs} 
-                onSelectSong={handleSelectSong} 
-                selectedSongId={selectedSong?._id}
-                favorites={favorites}
-                toggleFavorite={toggleFavorite}
-              />
-            </div>
-            
-            {/* Move playlists section here in the sidebar */}
-            <div className="playlists-section">
-              <div className="playlists-header">
-                <h3>Playlists</h3>
-                <button 
-                  onClick={() => {
-                    setPlaylistToEdit(null);
-                    setShowPlaylistModal(true);
-                  }} 
-                  className="add-playlist-btn"
-                  title="Create new playlist"
-                >
-                  +
-                </button>
-              </div>
-              
-              <div className="playlists-list">
-                {playlists.length === 0 ? (
-                  <div className="no-playlists">
-                    <p>No playlists yet</p>
-                  </div>
-                ) : (
-                  playlists.map(playlist => (
-                    <div
-                      key={playlist.id}
-                      className={`playlist-item ${currentPlaylist?.id === playlist.id ? 'selected' : ''}`}
-                      onClick={() => {
-                        setCurrentPlaylist(playlist);
-                        setSelectedSong(null);
-                      }}
-                    >
-                      <div className="playlist-item-name">{playlist.name}</div>
-                      <div className="playlist-item-count">{playlist.songIds?.length || 0}</div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          </aside>
-          
-          <main className="content-area">
-            {/* Remove the recently-viewed-section from here */}
-            
-            {/* Keep only the content area with song details or playlist */}
-            {currentPlaylist ? (
-              <PlaylistView 
-                playlist={currentPlaylist}
-                songs={songs}
-                onSelectSong={(song) => handleSelectSong(song, currentPlaylist)}
-                selectedSongId={selectedSong?._id}
-                onEditPlaylist={(playlist) => {
-                  setPlaylistToEdit(playlist);
-                  setShowPlaylistModal(true);
-                }}
-                onDeletePlaylist={handleDeletePlaylist}
-                onRemoveSongFromPlaylist={removeSongFromPlaylist}
-                favorites={favorites}
-                toggleFavorite={toggleFavorite}
-              />
-            ) : selectedSong ? (
-              isEditing ? (
-                <EditSong 
-                  song={selectedSong} 
-                  onSaveEdit={handleEditSong}
-                  onCancel={cancelEditMode}
-                />
-              ) : (
-                <SongDetails
-                  song={selectedSong}
-                  onRemoveSong={handleDeleteClick}
-                  onEditSong={startEditMode}
-                  playlists={playlists}
-                  onAddToPlaylist={addSongToPlaylist}
-                  onCreatePlaylist={() => {
-                    setPlaylistToEdit(null);
-                    setShowPlaylistModal(true);
-                  }}
-                  songSourcePlaylist={songSourcePlaylist}
-                  setCurrentPlaylist={setCurrentPlaylist}
-                />
-              )
-            ) : (
-              <div className="empty-state">
-                <h2>Изберете песен за повече подробности.</h2>
-                <p>Изберете песен от списъка отляво.</p>
-              </div>
-            )}
-          </main>
-        </div>
-      )}
-      
-      {currentView === 'add-song' && (
-        <div className="add-song-page">
-          <div className="add-song-header">
-            <h1>Добави нова песен</h1>
-            <p>Добави нова песен към списъка</p>
-          </div>
-          <AddSong onAddSong={handleAddSong} />
-        </div>
-      )}
-      
-      <ToastContainer position="bottom-right" />
-      <ConfirmModal 
-        show={showConfirmModal} 
-        onClose={handleCancelDelete} 
-        onConfirm={handleConfirmDelete} 
-        songTitle={songToDelete ? songToDelete.title : ''}
-      />
-      <PlaylistModal
-        show={showPlaylistModal}
-        onClose={() => {
-          setShowPlaylistModal(false);
-          setPlaylistToEdit(null);
-        }}
-        onSave={handleSavePlaylist}
-        playlist={playlistToEdit}
-      />
-    </div>
+    <AuthContext.Provider value={{ isLoggedIn, username, userRole, handleLogin, handleLogout }}>
+      <Router>
+        <AppContent 
+          // Pass all state and handlers as props
+          isLoggedIn={isLoggedIn}
+          username={username}
+          handleLogin={handleLogin}
+          handleLogout={handleLogout}
+          songs={songs}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          currentView={currentView}
+          setCurrentView={setCurrentView}
+          selectedSong={selectedSong}
+          setSelectedSong={setSelectedSong}
+          sidebarCollapsed={sidebarCollapsed}
+          setSidebarCollapsed={setSidebarCollapsed}
+          showConfirmModal={showConfirmModal}
+          setShowConfirmModal={setShowConfirmModal}
+          songToDelete={songToDelete}
+          setSongToDelete={setSongToDelete}
+          isLoading={isLoading}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+          filterBy={filterBy}
+          setFilterBy={setFilterBy}
+          error={error}
+          recentlyViewed={recentlyViewed}
+          setRecentlyViewed={setRecentlyViewed}
+          favorites={favorites}
+          toggleFavorite={toggleFavorite}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
+          playlists={playlists}
+          setPlaylists={setPlaylists}
+          currentPlaylist={currentPlaylist}
+          setCurrentPlaylist={setCurrentPlaylist}
+          playlistToEdit={playlistToEdit}
+          setPlaylistToEdit={setPlaylistToEdit}
+          showPlaylistModal={showPlaylistModal}
+          setShowPlaylistModal={setShowPlaylistModal}
+          songSourcePlaylist={songSourcePlaylist}
+          setSongSourcePlaylist={setSongSourcePlaylist}
+          handleReloadSongs={handleReloadSongs}
+          retryFetch={retryFetch}
+          handleSelectSong={handleSelectSong}
+          clearRecentlyViewed={clearRecentlyViewed}
+          startEditMode={startEditMode}
+          handleEditSong={handleEditSong}
+          cancelEditMode={cancelEditMode}
+          filteredSongs={filteredSongs}
+          handleDeleteClick={handleDeleteClick}
+          handleCancelDelete={handleCancelDelete}
+          handleConfirmDelete={handleConfirmDelete}
+          handleDeletePlaylist={handleDeletePlaylist}
+          removeSongFromPlaylist={removeSongFromPlaylist}
+          handleSavePlaylist={handleSavePlaylist}
+          addSongToPlaylist={addSongToPlaylist}
+          handleAddSong={handleAddSong}
+        />
+      </Router>
+    </AuthContext.Provider>
   );
 }
 

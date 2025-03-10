@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const authRoutes = require('./src/routes/authRoutes.cjs'); // Import auth routes
+const adminMiddleware = require('./src/middleware/adminMiddleware.cjs');
 
 const app = express();
 const port = 5000;
@@ -8,32 +10,10 @@ const port = 5000;
 app.use(cors());
 app.use(express.json());
 
-// Improved MongoDB connection
+// MongoDB Connection
 mongoose.connect('mongodb://localhost:27017/church-songs')
-  .then(() => {
-    console.log('Connected to MongoDB successfully');
-    // List all collections to verify database structure
-    mongoose.connection.db.listCollections().toArray((err, collections) => {
-      if (err) {
-        console.error('Error listing collections:', err);
-      } else {
-        console.log('Available collections:', collections.map(c => c.name));
-      }
-    });
-  })
-  .catch(err => {
-    console.error('MongoDB connection error:', err);
-    // Don't exit the process, but log the error
-  });
-
-// Add a check for disconnections
-mongoose.connection.on('disconnected', () => {
-  console.log('MongoDB disconnected');
-});
-
-mongoose.connection.on('error', (err) => {
-  console.error('MongoDB connection error:', err);
-});
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 const songSchema = new mongoose.Schema({
   title: String,
@@ -46,7 +26,7 @@ const songSchema = new mongoose.Schema({
 
 const Song = mongoose.model('Song', songSchema);
 
-// Enhanced GET /songs route
+// Public song routes (accessible to all)
 app.get('/songs', async (req, res) => {
   try {
     console.log('GET /songs request received');
@@ -75,7 +55,21 @@ app.get('/songs', async (req, res) => {
   }
 });
 
-app.post('/songs', async (req, res) => {
+app.get('/songs/:id', async (req, res) => {
+  try {
+    const song = await Song.findById(req.params.id).lean();
+    if (!song) {
+      return res.status(404).json({ message: 'Song not found' });
+    }
+    res.json(song);
+  } catch (err) {
+    console.error('Error retrieving song:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Protected song routes (admin only)
+app.post('/songs', adminMiddleware, async (req, res) => {
   const song = new Song(req.body);
   try {
     const newSong = await song.save();
@@ -85,7 +79,7 @@ app.post('/songs', async (req, res) => {
   }
 });
 
-app.put('/songs/:id', async (req, res) => {
+app.put('/songs/:id', adminMiddleware, async (req, res) => {
   try {
     const updatedSong = await Song.findByIdAndUpdate(
       req.params.id,
@@ -101,7 +95,7 @@ app.put('/songs/:id', async (req, res) => {
   }
 });
 
-app.delete('/songs/:id', async (req, res) => {
+app.delete('/songs/:id', adminMiddleware, async (req, res) => {
   try {
     const deletedSong = await Song.findByIdAndDelete(req.params.id);
     if (!deletedSong) {
@@ -163,6 +157,9 @@ app.get('/api/debug/create-test-data', async (req, res) => {
   }
 });
 
+// Use authentication routes
+app.use('/auth', authRoutes);
+
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on port ${port}`);
 });

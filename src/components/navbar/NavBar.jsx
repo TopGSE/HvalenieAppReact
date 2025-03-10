@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './NavBar.css';
+import { useAuth } from '../../App'; // Import the auth context
 
-function NavBar({ setCurrentView }) {
+function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isLoggedIn, username, userRole, handleLogout } = useAuth(); // Added username here
+  const navigate = useNavigate();
+
+  // Check if user is admin
+  const isAdmin = userRole === 'admin';
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -14,17 +21,23 @@ function NavBar({ setCurrentView }) {
     }
   };
 
-  const handleMenuItemClick = (view) => {
-    setCurrentView(view);
+  const handleMenuItemClick = () => {
     setMobileMenuOpen(false);
     document.body.style.overflow = '';
+  };
+
+  const handleLogoutClick = () => {
+    handleLogout(); // Call the logout function from context
+    setMobileMenuOpen(false);
+    document.body.style.overflow = '';
+    navigate('/login'); // Navigate to login page
   };
 
   return (
     <>
       <nav className="navbar">
         <div className="navbar-logo">
-          <span>Hvalenie</span>
+          <Link to="/" onClick={handleMenuItemClick}>Hvalenie</Link>
         </div>
 
         {/* Hamburger menu icon for mobile */}
@@ -37,8 +50,26 @@ function NavBar({ setCurrentView }) {
         {/* Navigation links */}
         <div className={`navbar-menu ${mobileMenuOpen ? 'open' : ''}`}>
           <ul className="navbar-links">
-            <li><button onClick={() => handleMenuItemClick('home')}>Home</button></li>
-            <li><button onClick={() => handleMenuItemClick('add-song')}>Add Song</button></li>
+            {isLoggedIn ? (
+              // Links for logged-in users
+              <>
+                <li><Link to="/home" onClick={handleMenuItemClick}>Home</Link></li>
+                {isAdmin && (
+                  <li><Link to="/add-song" onClick={handleMenuItemClick}>Add Song</Link></li>
+                )}
+                <li>
+                  <button className="logout-button" onClick={handleLogoutClick}>
+                    Logout {username ? `(${username})` : ''}
+                  </button>
+                </li>
+              </>
+            ) : (
+              // Links for non-logged-in users
+              <>
+                <li><Link to="/login" onClick={handleMenuItemClick}>Login</Link></li>
+                <li><Link to="/register" onClick={handleMenuItemClick}>Register</Link></li>
+              </>
+            )}
           </ul>
         </div>
       </nav>
