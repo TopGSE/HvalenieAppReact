@@ -14,7 +14,7 @@ import PlaylistView from './components/playlist/PlaylistView';
 import PlaylistModal from './components/modals/PlaylistModal';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
-import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 // Modify the AuthContext section
 const AuthContext = createContext(null);
@@ -26,7 +26,7 @@ export const useAuth = () => {
 
 // Create a wrapper component that will use useLocation
 function AppContent({ 
-  isLoggedIn, username, handleLogin, handleLogout, songs, searchTerm, setSearchTerm, currentView, 
+  isLoggedIn, username, userRole, handleLogin, handleLogout, songs, searchTerm, setSearchTerm, currentView, 
   setCurrentView, selectedSong, setSelectedSong, sidebarCollapsed, setSidebarCollapsed, 
   showConfirmModal, setShowConfirmModal, songToDelete, setSongToDelete, isLoading, 
   sortOrder, setSortOrder, filterBy, setFilterBy, error, recentlyViewed, setRecentlyViewed, 
@@ -35,10 +35,14 @@ function AppContent({
   songSourcePlaylist, setSongSourcePlaylist, handleReloadSongs, retryFetch, handleSelectSong,
   clearRecentlyViewed, startEditMode, handleEditSong, cancelEditMode, filteredSongs, handleDeleteClick,
   handleCancelDelete, handleConfirmDelete, handleDeletePlaylist, removeSongFromPlaylist, handleSavePlaylist,
-  addSongToPlaylist, handleAddSong, userRole
+  addSongToPlaylist, handleAddSong
 }) {
   const location = useLocation();
-
+  const navigate = useNavigate(); // Add this line to get the navigate function
+  
+  console.log("AppContent - userRole:", userRole); // Debug log to see the role
+  console.log("AppContent - isAdmin check:", userRole === 'admin');
+  
   useEffect(() => {
     // Redirect to login page if not logged in and not already on login or register
     if (!isLoggedIn && location.pathname !== '/login' && location.pathname !== '/register') {
@@ -264,6 +268,7 @@ function AppContent({
             <div className="unauthorized-page">
               <h2>Unauthorized Access</h2>
               <p>You need administrator privileges to add songs.</p>
+              <p>Your current role: {userRole || 'none'}</p>
               <button onClick={() => navigate('/home')}>Return to Home</button>
             </div>
           ) : (
@@ -359,6 +364,7 @@ function App() {
     setUserRole(role);
     localStorage.setItem('username', username);
     localStorage.setItem('userRole', role);
+    console.log('Login handler - username:', username, 'role:', role);
   };
 
   // Logout handler
@@ -512,9 +518,19 @@ function App() {
   }, [songs]);
 
   const handleAddSong = (newSong) => {
-    setIsLoading(true); // Optional: Show loading state
-    
-    axios.post('http://localhost:5000/songs', newSong)
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('Authentication required. Please log in again.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    axios.post('http://localhost:5000/songs', newSong, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
       .then(response => {
         // Update the songs array with the new song
         setSongs([...songs, response.data]);
@@ -545,14 +561,17 @@ function App() {
 
   // Update the handleRemoveSong function to use ID instead of title
   const handleRemoveSong = (id) => {
-    if (!id) {
-      console.error('Cannot remove song: id is undefined');
-      toast.error('Failed to remove song: missing id');
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('Authentication required. Please log in again.');
       return;
     }
-    
-    
-    axios.delete(`http://localhost:5000/songs/${id}`)
+
+    axios.delete(`http://localhost:5000/songs/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
       .then(() => {
         setSongs(songs.filter(song => song._id !== id));
         setSelectedSong(null);
@@ -565,17 +584,28 @@ function App() {
   };
 
   const handleEditSong = (updatedSong) => {
-    
     if (!updatedSong || !updatedSong._id) {
       console.error('Invalid song data or missing ID');
       toast.error('Cannot edit song: missing or invalid data');
       return;
     }
     
+    // Get the token from localStorage
+    const token = localStorage.getItem('token');
+    if (!token) {
+      toast.error('Authentication required. Please log in again.');
+      return;
+    }
+    
     // Make sure the URL is correct
     const url = `http://localhost:5000/songs/${updatedSong._id}`;
     
-    axios.put(url, updatedSong)
+    // Include the token in the Authorization header
+    axios.put(url, updatedSong, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
       .then(response => {
         const updatedSongs = songs.map(song =>
           song._id === updatedSong._id ? response.data : song
@@ -843,6 +873,7 @@ function App() {
           // Pass all state and handlers as props
           isLoggedIn={isLoggedIn}
           username={username}
+          userRole={userRole}  // Make sure this is properly passed
           handleLogin={handleLogin}
           handleLogout={handleLogout}
           songs={songs}

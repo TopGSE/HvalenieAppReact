@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
+import './AddSong.css'; // Import the CSS file
 
 function AddSong({ onAddSong }) {
   const [title, setTitle] = useState('');
   const [lyrics, setLyrics] = useState('');
   const [chords, setChords] = useState('');
+  const [category, setCategory] = useState('praise'); // Add category state
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = (e) => {
@@ -23,12 +25,18 @@ function AddSong({ onAddSong }) {
     setIsSubmitting(true);
     
     try {
-      onAddSong({ title, lyrics, chords });
+      onAddSong({ 
+        title, 
+        lyrics, 
+        chords,
+        category // Include category in the song data
+      });
       
       // Reset form
       setTitle('');
       setLyrics('');
       setChords('');
+      setCategory('praise');
       
     } catch (error) {
       console.error('Error adding song:', error);
@@ -40,7 +48,7 @@ function AddSong({ onAddSong }) {
 
   return (
     <div className="add-song-form-container">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="add-song-form">
         <div className="form-group">
           <label htmlFor="title">Song Title</label>
           <input
@@ -51,6 +59,21 @@ function AddSong({ onAddSong }) {
             placeholder="Enter song title"
             required
           />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="category">Category</label>
+          <select
+            id="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          >
+            <option value="praise">Хваление</option>
+            <option value="worship">Поклонение</option>
+            <option value="christmas">Рождество</option>
+            <option value="easter">Възкресение</option>
+          </select>
         </div>
         
         <div className="form-group">

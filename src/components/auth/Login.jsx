@@ -15,6 +15,7 @@ function Login() {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:5000/auth/login', { email, password });
+      console.log('Login response:', response.data); // Debug the response
       localStorage.setItem('token', response.data.token);
       handleLogin(response.data.username, response.data.role);
       toast.success('Logged in successfully');

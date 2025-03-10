@@ -46,10 +46,11 @@ router.post('/login', async (req, res) => {
       role: user.role 
     }, JWT_SECRET, { expiresIn: '1h' });
     
+    // Make sure to include role in the response
     res.json({ 
       token, 
       username: user.username,
-      role: user.role 
+      role: user.role  // This is critical
     });
   } catch (err) {
     console.error('Login error:', err);

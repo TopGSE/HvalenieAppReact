@@ -8,6 +8,10 @@ function NavBar() {
   const { isLoggedIn, username, userRole, handleLogout } = useAuth(); // Added username here
   const navigate = useNavigate();
 
+  // Add these debug logs
+  console.log('NavBar - userRole:', userRole);
+  console.log('NavBar - isAdmin:', userRole === 'admin');
+
   // Check if user is admin
   const isAdmin = userRole === 'admin';
 
