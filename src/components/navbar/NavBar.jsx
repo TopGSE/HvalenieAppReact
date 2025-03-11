@@ -41,7 +41,7 @@ function NavBar() {
     <>
       <nav className="navbar">
         <div className="navbar-logo">
-          <Link to="/" onClick={handleMenuItemClick}>Hvalenie</Link>
+          <Link to="/" onClick={handleMenuItemClick}>Hvalenie Emanuil</Link>
         </div>
 
         {/* Hamburger menu icon for mobile */}
@@ -61,6 +61,7 @@ function NavBar() {
                 {isAdmin && (
                   <li><Link to="/add-song" onClick={handleMenuItemClick}>Add Song</Link></li>
                 )}
+                <li><Link to="/profile" onClick={handleMenuItemClick}>Profile</Link></li>
                 <li>
                   <button className="logout-button" onClick={handleLogoutClick}>
                     Logout {username ? `(${username})` : ''}

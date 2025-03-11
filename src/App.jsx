@@ -14,6 +14,7 @@ import PlaylistView from './components/playlist/PlaylistView';
 import PlaylistModal from './components/modals/PlaylistModal';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import UserProfile from './components/profile/UserProfile';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 // Modify the AuthContext section
@@ -275,6 +276,7 @@ function AppContent({
             <Navigate to="/login" />
           )
         } />
+        <Route path="/profile" element={isLoggedIn ? <UserProfile /> : <Navigate to="/login" />} />
       </Routes>
       <ToastContainer position="bottom-right" />
       <ConfirmModal 
