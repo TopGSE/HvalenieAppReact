@@ -7,7 +7,14 @@ const adminMiddleware = require('./src/middleware/adminMiddleware.cjs');
 const app = express();
 const port = 5000;
 
-app.use(cors());
+// Update the CORS configuration
+app.use(cors({
+  origin: 'http://localhost:3000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
 app.use(express.json());
 
 // MongoDB Connection

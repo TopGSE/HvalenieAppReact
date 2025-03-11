@@ -9,6 +9,7 @@ import './AuthForm.css';
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
@@ -41,8 +42,22 @@ function Login() {
     
     setIsLoading(true);
     try {
-      const response = await axios.post('http://localhost:5000/auth/login', { email, password });
+      const response = await axios.post('http://localhost:5000/auth/login', { 
+        email, 
+        password,
+        rememberMe 
+      });
+      
+      // Store access token
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('username', response.data.username);
+      localStorage.setItem('userRole', response.data.role);
+      
+      // If rememberMe is true and we got a refresh token, store it
+      if (rememberMe && response.data.refreshToken) {
+        localStorage.setItem('refreshToken', response.data.refreshToken);
+      }
+      
       handleLogin(response.data.username, response.data.role);
       toast.success('Welcome back!');
       navigate('/home');
@@ -112,7 +127,11 @@ function Login() {
           
           <div className="form-options">
             <label className="checkbox-container">
-              <input type="checkbox" />
+              <input 
+                type="checkbox" 
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
               <span className="checkmark"></span>
               Remember me
             </label>

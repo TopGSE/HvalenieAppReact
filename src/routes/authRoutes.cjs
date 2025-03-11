@@ -27,9 +27,10 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Enhanced login endpoint that handles remember me
 router.post('/login', async (req, res) => {
   console.log('Login request received:', req.body);
-  const { email, password } = req.body;
+  const { email, password, rememberMe } = req.body;
   try {
     const user = await User.findOne({ email });
     if (!user) {
@@ -41,18 +42,35 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Include role in the token payload
+    // Clean up expired refresh tokens
+    user.removeExpiredRefreshTokens();
+    
+    // Generate access token
     const token = jwt.sign({ 
       userId: user._id,
       role: user.role 
     }, JWT_SECRET, { expiresIn: '1h' });
     
-    // Make sure to include role in the response
-    res.json({ 
+    // If remember me is checked, generate and store a refresh token
+    let refreshToken = null;
+    if (rememberMe) {
+      const refreshTokenObj = user.generateRefreshToken();
+      refreshToken = refreshTokenObj.token;
+      await user.save();
+    }
+    
+    // Response with or without refresh token
+    const response = { 
       token, 
       username: user.username,
-      role: user.role  // This is critical
-    });
+      role: user.role
+    };
+    
+    if (refreshToken) {
+      response.refreshToken = refreshToken;
+    }
+    
+    res.json(response);
   } catch (err) {
     console.error('Login error:', err);
     res.status(500).json({ message: err.message });
@@ -136,6 +154,74 @@ router.delete('/profile', authMiddleware, async (req, res) => {
     res.json({ message: 'Account deleted successfully' });
   } catch (err) {
     console.error('Error deleting account:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Add these new routes for token refresh and logout
+
+// Refresh Token endpoint
+router.post('/refresh-token', async (req, res) => {
+  const { refreshToken } = req.body;
+  
+  if (!refreshToken) {
+    return res.status(400).json({ message: 'Refresh token is required' });
+  }
+  
+  try {
+    // Find user with this refresh token
+    const user = await User.findOne({ 'refreshTokens.token': refreshToken });
+    
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid refresh token' });
+    }
+    
+    // Verify token hasn't expired
+    const tokenDoc = user.refreshTokens.find(rt => rt.token === refreshToken);
+    if (!tokenDoc || new Date() > tokenDoc.expires) {
+      // Remove expired token
+      user.refreshTokens = user.refreshTokens.filter(rt => rt.token !== refreshToken);
+      await user.save();
+      return res.status(401).json({ message: 'Refresh token expired' });
+    }
+    
+    // Generate a new access token
+    const accessToken = jwt.sign(
+      { userId: user._id, role: user.role }, 
+      JWT_SECRET, 
+      { expiresIn: '1h' }
+    );
+    
+    // Return new access token
+    res.json({
+      token: accessToken,
+      username: user.username,
+      role: user.role
+    });
+    
+  } catch (err) {
+    console.error('Error refreshing token:', err);
+    res.status(500).json({ message: 'Failed to refresh token' });
+  }
+});
+
+// Logout endpoint that invalidates refresh tokens
+router.post('/logout', authMiddleware, async (req, res) => {
+  const { refreshToken } = req.body;
+  
+  try {
+    if (refreshToken) {
+      // Find the user and remove this specific refresh token
+      const user = await User.findById(req.user._id);
+      if (user) {
+        user.refreshTokens = user.refreshTokens.filter(rt => rt.token !== refreshToken);
+        await user.save();
+      }
+    }
+    
+    res.json({ message: 'Logged out successfully' });
+  } catch (err) {
+    console.error('Logout error:', err);
     res.status(500).json({ message: err.message });
   }
 });

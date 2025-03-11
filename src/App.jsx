@@ -16,6 +16,7 @@ import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import UserProfile from './components/profile/UserProfile';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { setupTokenRefresh } from './utils/authUtils';
 
 // Modify the AuthContext section
 const AuthContext = createContext(null);
@@ -867,6 +868,21 @@ function App() {
     
     toast.success('Playlist deleted');
   };
+
+  useEffect(() => {
+    // Set up token refresh mechanism
+    setupTokenRefresh();
+    
+    // Check if user is already logged in (from previous session)
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+    const userRole = localStorage.getItem('userRole');
+    
+    if (token && username) {
+      // Auto login from stored credentials
+      handleLogin(username, userRole);
+    }
+  }, []); // Empty dependency array means this runs once on mount
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, username, userRole, handleLogin, handleLogout }}>
