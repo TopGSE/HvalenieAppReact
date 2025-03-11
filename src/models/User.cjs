@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['admin', 'reader'], default: 'reader' },
+  resetToken: { type: String },
+  resetTokenExpiry: { type: Date },
   refreshTokens: [refreshTokenSchema] // Array to store multiple refresh tokens (for multiple devices)
 }, { timestamps: true });
 

@@ -1,8 +1,14 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const authRoutes = require('./src/routes/authRoutes.cjs'); // Import auth routes
 const adminMiddleware = require('./src/middleware/adminMiddleware.cjs');
+const jwt = require('jsonwebtoken');
+const User = require('./src/models/User.cjs');
+const authMiddleware = require('./src/middleware/authMiddleware.cjs');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 const app = express();
 const port = 5000;
@@ -166,6 +172,69 @@ app.get('/api/debug/create-test-data', async (req, res) => {
 
 // Use authentication routes
 app.use('/auth', authRoutes);
+
+// Forgot password endpoint
+app.post('/auth/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  console.log(`Password reset requested for email: ${email}`);
+  
+  try {
+    const user = await User.findOne({ email });
+    
+    // Don't reveal if user exists or not (security best practice)
+    if (!user) {
+      console.log(`No user found with email: ${email}`);
+      return res.status(200).json({ message: 'If your email exists in our system, you will receive reset instructions.' });
+    }
+    
+    // Generate a reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
+    
+    // Store the reset token with the user
+    user.resetToken = resetToken;
+    user.resetTokenExpiry = resetTokenExpiry;
+    await user.save();
+    
+    // Create email transport
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_APP_PASSWORD
+      }
+    });
+    
+    // Construct the reset URL (frontend URL)
+    const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
+    
+    // Email content
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: 'Password Reset - Hvalenie Emanuil',
+      html: `
+        <h1>Password Reset Request</h1>
+        <p>You requested a password reset for your account.</p>
+        <p>Click the link below to reset your password:</p>
+        <a href="${resetUrl}" style="display:inline-block;padding:10px 20px;background-color:#007bff;color:#ffffff;text-decoration:none;border-radius:5px;">Reset Password</a>
+        <p>This link is valid for one hour.</p>
+        <p>If you didn't request this, please ignore this email.</p>
+      `
+    };
+    
+    // Send the email
+    await transporter.sendMail(mailOptions);
+    console.log(`Password reset email sent to: ${email}`);
+    
+    res.status(200).json({
+      message: 'Password reset instructions sent to your email'
+    });
+  } catch (err) {
+    console.error('Error in forgot password flow:', err);
+    res.status(500).json({ message: 'Error sending password reset email' });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

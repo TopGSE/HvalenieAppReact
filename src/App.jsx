@@ -15,6 +15,8 @@ import PlaylistModal from './components/modals/PlaylistModal';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import UserProfile from './components/profile/UserProfile';
+import ForgotPassword from './components/auth/ForgotPassword';
+import ResetPassword from './components/auth/ResetPassword';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { setupTokenRefresh } from './utils/authUtils';
 
@@ -60,6 +62,8 @@ function AppContent({
         <Route path="/" element={<Navigate to={isLoggedIn ? "/home" : "/login"} />} />
         <Route path="/login" element={isLoggedIn ? <Navigate to="/home" /> : <Login />} />
         <Route path="/register" element={isLoggedIn ? <Navigate to="/home" /> : <Register />} />
+        <Route path="/forgot-password" element={isLoggedIn ? <Navigate to="/home" /> : <ForgotPassword />} />
+        <Route path="/reset-password/:token" element={isLoggedIn ? <Navigate to="/home" /> : <ResetPassword />} />
         <Route path="/home" element={
           isLoggedIn ? (
             <div className="main-layout">
