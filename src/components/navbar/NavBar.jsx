@@ -6,7 +6,7 @@ import { FaUser } from "react-icons/fa"; // Import user icon for default avatar
 
 function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isLoggedIn, username, userRole, handleLogout, user } = useAuth(); // Get full user object
+  const { isLoggedIn, username, userRole, user } = useAuth(); // Remove handleLogout
   const navigate = useNavigate();
 
   // Check if user is admin
@@ -27,13 +27,6 @@ function NavBar() {
     document.body.style.overflow = "";
   };
 
-  const handleLogoutClick = () => {
-    handleLogout(); // Call the logout function from context
-    setMobileMenuOpen(false);
-    document.body.style.overflow = "";
-    navigate("/login"); // Navigate to login page
-  };
-
   return (
     <>
       <nav className="navbar">
@@ -43,7 +36,6 @@ function NavBar() {
           </Link>
         </div>
 
-        {/* Hamburger menu icon for mobile */}
         <div className="hamburger-menu" onClick={toggleMobileMenu}>
           <span
             className={`hamburger-line ${mobileMenuOpen ? "open" : ""}`}
@@ -56,11 +48,9 @@ function NavBar() {
           ></span>
         </div>
 
-        {/* Navigation links */}
         <div className={`navbar-menu ${mobileMenuOpen ? "open" : ""}`}>
           <ul className="navbar-links">
             {isLoggedIn ? (
-              // Links for logged-in users
               <>
                 <li>
                   <Link to="/home" onClick={handleMenuItemClick}>
@@ -93,14 +83,9 @@ function NavBar() {
                     )}
                   </Link>
                 </li>
-                <li>
-                  <button className="logout-button" onClick={handleLogoutClick}>
-                    Logout {username ? `(${username})` : ""}
-                  </button>
-                </li>
+                {/* Removed logout button from here */}
               </>
             ) : (
-              // Links for non-logged-in users
               <>
                 <li>
                   <Link to="/login" onClick={handleMenuItemClick}>
@@ -118,7 +103,6 @@ function NavBar() {
         </div>
       </nav>
 
-      {/* Overlay for mobile menu */}
       {mobileMenuOpen && (
         <div className="menu-overlay" onClick={toggleMobileMenu}></div>
       )}

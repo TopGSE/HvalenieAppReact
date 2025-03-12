@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../../App";
+import { useNavigate } from "react-router-dom";
 import AvatarEditor from "react-avatar-editor";
 import { Scrollbars } from "react-custom-scrollbars-2";
 import {
@@ -13,12 +14,14 @@ import {
   FaTimes,
   FaPencilAlt,
   FaMusic,
+  FaSignOutAlt,
 } from "react-icons/fa";
 import RandomSongGenerator from "../modals/RandomSongGenerator";
 import "./UserProfile.css";
 
 function UserProfile() {
   const { user, handleLogout } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -229,6 +232,13 @@ function UserProfile() {
 
   const handleScaleChange = (e) => {
     setScale(parseFloat(e.target.value));
+  };
+
+  // Handler for logout button
+  const handleLogoutClick = () => {
+    handleLogout();
+    navigate("/login");
+    toast.info("You have been logged out");
   };
 
   return (
@@ -479,6 +489,20 @@ function UserProfile() {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+
+        {/* New logout section before the danger zone */}
+        <div className="profile-section logout-section">
+          <div className="logout-container">
+            <button
+              className="logout-profile-button"
+              onClick={handleLogoutClick}
+            >
+              <FaSignOutAlt className="logout-icon" />
+              <span>Logout</span>
+            </button>
+            <p className="logout-description">Sign out of your account</p>
           </div>
         </div>
 

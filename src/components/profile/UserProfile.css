@@ -263,7 +263,7 @@
 
 /* Danger zone */
 .danger-zone {
-	margin-top: 32px;
+	margin-top: 30px;
 	padding-top: 16px;
 	border-top: 1px dashed #dc3545;
 }
@@ -508,4 +508,65 @@
 
 .random-song-generator-button:active {
 	transform: translateY(1px);
+}
+
+/* Add these styles for the logout section */
+
+.logout-section {
+	margin-top: 30px;
+	padding: 20px;
+	background-color: #f8f9fa;
+	border-radius: 8px;
+	border: 1px solid #eaeaea;
+}
+
+.logout-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.logout-profile-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 12px 24px;
+	border-radius: 6px;
+	font-size: 16px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	width: 100%;
+	max-width: 200px;
+	margin-bottom: 10px;
+}
+
+.logout-profile-button:hover {
+	background-color: #0069d9;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.logout-profile-button:active {
+	transform: translateY(0);
+}
+
+.logout-icon {
+	margin-right: 10px;
+	font-size: 18px;
+}
+
+.logout-description {
+	color: #6c757d;
+	font-size: 14px;
+	text-align: center;
+	margin: 0;
+}
+
+/* Add more space before the danger zone */
+.danger-zone {
+	margin-top: 30px;
 }
