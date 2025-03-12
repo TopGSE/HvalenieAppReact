@@ -2,10 +2,15 @@
 .auth-page {
 	display: flex;
 	justify-content: center;
-	align-items: center;
+	align-items: flex-start;
+	/* Changed from center to flex-start */
 	min-height: 100vh;
 	background-color: #f8f9fa;
-	padding: 20px;
+	padding: 100px 40px 80px 40px;
+	/* Increased top padding */
+	box-sizing: border-box;
+	margin-top: 0;
+	/* Ensure no default margin */
 }
 
 .auth-form-container {
@@ -17,6 +22,8 @@
 	padding: 40px;
 	box-sizing: border-box;
 	transition: all 0.3s ease;
+	margin: 0 0 50px 0;
+	/* Removed top margin since we're using padding on parent */
 }
 
 .auth-form-header {
@@ -286,9 +293,13 @@
 
 /* Responsive adjustments */
 @media (max-width: 576px) {
+	.auth-page {
+		padding: 120px 20px 60px 20px;
+		/* Increased top padding for mobile */
+	}
+
 	.auth-form-container {
 		padding: 30px 20px;
-		margin-top: 1rem;
 	}
 
 	.form-options {
