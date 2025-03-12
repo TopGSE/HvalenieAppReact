@@ -163,7 +163,10 @@ function AppContent({
                     </div>
 
                     <div className="search-container">
-                      <SearchBar onSearch={setSearchTerm} />
+                      <SearchBar
+                        onSearch={setSearchTerm}
+                        totalResults={filteredSongs.length}
+                      />
                       <button
                         className="toggle-sidebar"
                         onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
