@@ -231,6 +231,34 @@ body {
 	font-size: 14px;
 }
 
+/* Add these styles to your App.css file */
+
+.playlist-header-buttons {
+	display: flex;
+	gap: 8px;
+}
+
+.generate-playlist-btn {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	border: none;
+	background-color: #9c27b0;
+	color: white;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 16px;
+	cursor: pointer;
+	padding: 0;
+	transition: all 0.2s;
+}
+
+.generate-playlist-btn:hover {
+	background-color: #7b1fa2;
+	transform: scale(1.05);
+}
+
 /* Song List */
 .song-list {
 	padding: 1rem;

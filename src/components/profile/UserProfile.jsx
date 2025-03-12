@@ -12,7 +12,9 @@ import {
   FaCheck,
   FaTimes,
   FaPencilAlt,
+  FaMusic,
 } from "react-icons/fa";
+import RandomSongGenerator from "../modals/RandomSongGenerator";
 import "./UserProfile.css";
 
 function UserProfile() {
@@ -26,6 +28,8 @@ function UserProfile() {
   const [editor, setEditor] = useState(null);
   const [scale, setScale] = useState(1.2);
   const [isLoading, setIsLoading] = useState(false);
+  const [showRandomSongGenerator, setShowRandomSongGenerator] = useState(false);
+  const [songs, setSongs] = useState([]);
 
   // Section visibility states
   const [showPhotoSection, setShowPhotoSection] = useState(false);
@@ -50,8 +54,30 @@ function UserProfile() {
       }
     };
 
+    // Fetch songs for random generator
+    const fetchSongs = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/songs");
+        setSongs(response.data);
+      } catch (error) {
+        console.error("Error fetching songs:", error);
+      }
+    };
+
     fetchUserProfile();
+    fetchSongs();
   }, []);
+
+  // Handle creating a playlist from random songs
+  const handleCreatePlaylist = (playlistData) => {
+    // Instead of directly manipulating localStorage, use the prop function
+    handleSavePlaylist({
+      ...playlistData,
+      // No need to specify id here, handleSavePlaylist will do that
+    });
+
+    // Toast is already handled in handleSavePlaylist
+  };
 
   const handleUpdatePhoto = async () => {
     if (!editor) {
@@ -200,6 +226,16 @@ function UserProfile() {
     <Scrollbars style={{ height: "100vh" }}>
       <div className="user-profile-container">
         <h2>User Profile</h2>
+
+        {/* Add Random Song Generator Button */}
+        <div className="random-song-generator-button-container">
+          <button
+            className="random-song-generator-button"
+            onClick={() => setShowRandomSongGenerator(true)}
+          >
+            <FaMusic /> Generate Random Worship Set
+          </button>
+        </div>
 
         {/* Profile Photo at the top */}
         <div
@@ -460,6 +496,14 @@ function UserProfile() {
             {isLoading ? "Processing..." : "Delete My Account"}
           </button>
         </div>
+
+        {/* Random Song Generator Modal */}
+        <RandomSongGenerator
+          show={showRandomSongGenerator}
+          onClose={() => setShowRandomSongGenerator(false)}
+          songs={songs}
+          onCreatePlaylist={handleCreatePlaylist}
+        />
       </div>
     </Scrollbars>
   );

@@ -26,6 +26,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 import { setupTokenRefresh } from "./utils/authUtils";
+import RandomSongGenerator from "./components/modals/RandomSongGenerator";
 
 // Modify the AuthContext section
 export const AuthContext = createContext(null);
@@ -92,10 +93,12 @@ function AppContent({
   removeSongFromPlaylist,
   handleSavePlaylist,
   addSongToPlaylist,
-  handleAddSong,
+  handleAddSong, // Add this line here
 }) {
   const location = useLocation();
   const navigate = useNavigate(); // Add this line to get the navigate function
+
+  const [showRandomSongGenerator, setShowRandomSongGenerator] = useState(false); // Add this state
 
   console.log("AppContent - userRole:", userRole); // Debug log to see the role
   console.log("AppContent - isAdmin check:", userRole === "admin");
@@ -258,16 +261,25 @@ function AppContent({
                   <div className="playlists-section">
                     <div className="playlists-header">
                       <h3>Playlists</h3>
-                      <button
-                        onClick={() => {
-                          setPlaylistToEdit(null);
-                          setShowPlaylistModal(true);
-                        }}
-                        className="add-playlist-btn"
-                        title="Create new playlist"
-                      >
-                        +
-                      </button>
+                      <div className="playlist-header-buttons">
+                        <button
+                          onClick={() => setShowRandomSongGenerator(true)}
+                          className="generate-playlist-btn"
+                          title="Generate random worship set"
+                        >
+                          🎲
+                        </button>
+                        <button
+                          onClick={() => {
+                            setPlaylistToEdit(null);
+                            setShowPlaylistModal(true);
+                          }}
+                          className="add-playlist-btn"
+                          title="Create new playlist"
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
 
                     <div className="playlists-list">
@@ -382,7 +394,13 @@ function AppContent({
         />
         <Route
           path="/profile"
-          element={isLoggedIn ? <UserProfile /> : <Navigate to="/login" />}
+          element={
+            isLoggedIn ? (
+              <UserProfile handleSavePlaylist={handleSavePlaylist} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
       </Routes>
       <ToastContainer position="bottom-right" />
@@ -400,6 +418,12 @@ function AppContent({
         }}
         onSave={handleSavePlaylist}
         playlist={playlistToEdit}
+      />
+      <RandomSongGenerator
+        show={showRandomSongGenerator}
+        onClose={() => setShowRandomSongGenerator(false)}
+        songs={songs}
+        onCreatePlaylist={handleSavePlaylist}
       />
     </div>
   );
@@ -883,7 +907,7 @@ function App() {
       const newPlaylist = {
         ...playlistData,
         id: Date.now().toString(),
-        songIds: [],
+        songIds: playlistData.songIds || [], // Use passed songIds instead of overwriting with empty array
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -1002,7 +1026,7 @@ function App() {
     <AuthContext.Provider
       value={{
         isLoggedIn,
-        user, // Make sure to include the full user object here
+        user,
         token,
         username,
         userRole,
@@ -1015,7 +1039,7 @@ function App() {
           // Pass all state and handlers as props
           isLoggedIn={isLoggedIn}
           username={username}
-          userRole={userRole} // Make sure this is properly passed
+          userRole={userRole}
           handleLogin={handleLogin}
           handleLogout={handleLogout}
           songs={songs}
@@ -1068,7 +1092,7 @@ function App() {
           removeSongFromPlaylist={removeSongFromPlaylist}
           handleSavePlaylist={handleSavePlaylist}
           addSongToPlaylist={addSongToPlaylist}
-          handleAddSong={handleAddSong}
+          handleAddSong={handleAddSong} // Add this line to pass handleAddSong
         />
       </Router>
     </AuthContext.Provider>
