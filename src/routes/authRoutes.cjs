@@ -427,4 +427,21 @@ router.put('/profile/password', authMiddleware, async (req, res) => {
   }
 });
 
+// Add this route to your authRoutes.cjs file
+
+/**
+ * Count users - admin only
+ * @route GET /auth/users/count
+ * @access Private (Admin)
+ */
+router.get("/users/count", authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const count = await User.countDocuments();
+    res.json({ count });
+  } catch (error) {
+    console.error("Error counting users:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 module.exports = router;

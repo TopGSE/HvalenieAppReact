@@ -2,11 +2,36 @@
 
 .admin-container {
 	max-width: 1200px;
-	margin: 80px auto 30px;
+	margin: 80px auto 50px;
 	padding: 30px;
 	background-color: white;
 	border-radius: 12px;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	overflow-y: auto;
+	/* Change from 'visible' to 'auto' to add scrollbar when needed */
+	max-height: 80vh;
+	/* Limit height to 80% of viewport height */
+	height: calc(100vh - 160px);
+	/* Alternative fixed height calculation */
+}
+
+/* Style the scrollbar for better appearance */
+.admin-container::-webkit-scrollbar {
+	width: 8px;
+}
+
+.admin-container::-webkit-scrollbar-track {
+	background: #f1f1f1;
+	border-radius: 4px;
+}
+
+.admin-container::-webkit-scrollbar-thumb {
+	background: #c1c1c1;
+	border-radius: 4px;
+}
+
+.admin-container::-webkit-scrollbar-thumb:hover {
+	background: #a1a1a1;
 }
 
 .unauthorized-container {
@@ -70,6 +95,9 @@
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 	gap: 20px;
+	overflow: visible;
+	margin-bottom: 30px;
+	/* Increase bottom margin */
 }
 
 .stats-card {
@@ -79,6 +107,10 @@
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 	border: 1px solid #eaeaea;
 	transition: transform 0.2s, box-shadow 0.2s;
+	overflow: hidden;
+	/* Keep content inside cards */
+	height: fit-content;
+	/* Only take space needed */
 }
 
 .stats-card:hover {
@@ -123,6 +155,14 @@
 .stat-note {
 	font-size: 12px;
 	color: #888;
+	text-align: center;
+	margin-top: 5px;
+}
+
+/* Add to your AdminStyles.css */
+.stat-error {
+	font-size: 0.75rem;
+	color: #dc3545;
 	text-align: center;
 	margin-top: 5px;
 }
@@ -211,6 +251,8 @@
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
+	max-height: 350px;
+	overflow-y: auto;
 }
 
 .songs-list li {
@@ -285,6 +327,7 @@
 	.admin-container {
 		padding: 20px;
 		margin-top: 70px;
+		margin-bottom: 30px;
 	}
 
 	.stats-grid {
@@ -299,5 +342,10 @@
 		flex-direction: column;
 		gap: 15px;
 		align-items: flex-start;
+	}
+
+	body {
+		padding-bottom: 50px;
+		/* Add space at bottom of the page */
 	}
 }

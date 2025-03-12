@@ -150,16 +150,28 @@ function AppContent({
                 >
                   <div className="sidebar-header">
                     <div className="sidebar-header-top">
-                      <h2>Песни ({songs.length})</h2>
+                      <div className="songs-count-container">
+                        <h2>Песни ({songs.length})</h2>
+                        <button
+                          className="reload-button"
+                          onClick={handleReloadSongs}
+                          title="Reload songs from server"
+                        >
+                          🔄
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="search-container">
+                      <SearchBar onSearch={setSearchTerm} />
                       <button
-                        className="reload-button"
-                        onClick={handleReloadSongs}
-                        title="Reload songs from server"
+                        className="toggle-sidebar"
+                        onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                       >
-                        🔄
+                        {sidebarCollapsed ? ">" : "<"}
                       </button>
                     </div>
-                    <SearchBar onSearch={setSearchTerm} />
+
                     <div className="sort-filter-controls">
                       <select
                         value={sortOrder}
@@ -183,12 +195,6 @@ function AppContent({
                         <option value="easter">Възкресение</option>
                       </select>
                     </div>
-                    <button
-                      className="toggle-sidebar"
-                      onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                    >
-                      {sidebarCollapsed ? ">" : "<"}
-                    </button>
                   </div>
 
                   {/* Recently viewed songs section */}
@@ -260,6 +266,7 @@ function AppContent({
 
                   {/* Playlists section */}
                   <div className="playlists-section">
+                    {/* Fixed Playlists Header section */}
                     <div className="playlists-header">
                       <h3>Playlists</h3>
                       <div className="playlist-header-buttons">

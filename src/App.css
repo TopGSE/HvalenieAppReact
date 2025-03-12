@@ -56,89 +56,127 @@ body {
 
 /* Sidebar */
 .sidebar {
+	display: flex;
+	flex-direction: column;
+	height: calc(100vh - 60px);
+	/* Account for navbar height */
+	overflow: hidden;
+	/* Prevent sidebar itself from overflowing */
 	width: 450px;
 	background-color: #ffffff;
 	border-right: 1px solid #eaeaea;
-	display: flex;
-	flex-direction: column;
 	transition: width 0.3s ease;
 	color: #000000;
-	overflow: hidden;
-	/* Remove the order: 3 from here - this is causing the sidebar to move right */
 }
 
 .sidebar.collapsed {
 	width: 60px;
 }
 
+/* Sidebar header improvements */
 .sidebar-header {
 	padding: 1rem;
 	border-bottom: 1px solid #eaeaea;
+	flex: 0 0 auto;
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
 	position: relative;
-	order: 1;
-	/* Header first */
 }
 
+/* Make songs count and reload button container better aligned */
 .sidebar-header-top {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	margin-bottom: 10px;
 }
 
+/* Style songs count with reload button */
+.songs-count-container {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Search container to hold search bar and toggle button */
+.search-container {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+/* Adjust search bar to leave space for toggle button */
+.search-bar {
+	position: relative;
+	width: 100%;
+	margin-right: 34px;
+	/* Space for toggle button */
+}
+
+/* Position the toggle button on the right of the search bar */
 .toggle-sidebar {
 	position: absolute;
-	right: -1px;
+	right: 0;
 	top: 50%;
 	transform: translateY(-50%);
-	width: 30px;
-	height: 30px;
+	width: 28px;
+	height: 28px;
 	border-radius: 50%;
-	background: rgb(0, 0, 0);
-	border: 1px solid #eaeaea;
-	cursor: pointer;
+	border: 1px solid #ddd;
+	background-color: white;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	z-index: 10;
+	cursor: pointer;
+	font-size: 14px;
+	transition: all 0.2s ease;
+	z-index: 2;
+	color: #666;
 }
 
-.sidebar.collapsed .sidebar-header {
+.toggle-sidebar:hover {
+	background-color: #f0f0f0;
+}
+
+/* Adjust the reload button style */
+.reload-button {
+	background: none;
+	border: none;
+	font-size: 16px;
+	cursor: pointer;
+	padding: 5px;
+	border-radius: 50%;
+	display: flex;
 	align-items: center;
-}
-
-.sidebar.collapsed h2,
-.sidebar.collapsed .search-bar {
-	display: none;
+	justify-content: center;
+	transition: transform 0.3s ease;
+	margin-left: 5px;
 }
 
 /* Add these styles to fix layout issues */
 
 .sidebar-content {
-	flex: 1;
+	flex: 1 1 auto;
+	/* Allow to grow and shrink as needed */
 	overflow-y: auto;
 	overflow-x: hidden;
-	max-height: calc(100vh - 200px);
-	scrollbar-gutter: stable;
-	padding-right: 4px;
-	/* Add some padding to prevent content from touching scrollbar */
-	overflow-y: auto;
-	/* Only add vertical scrollbar to sidebar content */
-	overflow-x: hidden;
-	height: calc(100vh - 180px);
-	/* Adjust as needed */
-	order: 3;
-	/* Song list third */
+	min-height: 100px;
+	/* Ensure minimum height */
+	max-height: calc(100vh - 350px);
+	/* Allow space for other elements */
 }
 
 /* Add these styles for the playlists in sidebar */
 .sidebar .playlists-section {
-	margin-top: 20px;
-	padding: 0 15px;
-	order: 4;
-	/* Playlists last */
+	margin-top: 0;
+	padding: 0 15px 15px;
+	border-top: 1px solid #eaeaea;
+	flex: 0 0 auto;
+	/* Fixed size, don't grow */
+	display: flex;
+	flex-direction: column;
+	max-height: 30vh;
 }
 
 .sidebar .playlists-header {
@@ -178,9 +216,11 @@ body {
 }
 
 .sidebar .playlists-list {
-	max-height: 200px;
 	overflow-y: auto;
-	scrollbar-width: thin;
+	max-height: 25vh;
+	padding-right: 5px;
+	padding-bottom: 10px;
+	/* Add bottom padding so the last item is fully visible */
 }
 
 .sidebar .playlist-item {
@@ -194,6 +234,8 @@ body {
 	transition: all 0.2s;
 	font-size: 14px;
 	background-color: var(--list-item-bg, rgba(0, 0, 0, 0.02));
+	max-height: 40px;
+	/* Limit height of individual playlist items */
 }
 
 .sidebar .playlist-item:hover {
@@ -533,6 +575,8 @@ button[type="submit"]:hover {
 .search-bar {
 	position: relative;
 	width: 100%;
+	margin-right: 34px;
+	/* Space for toggle button */
 }
 
 .search-bar input {
@@ -555,8 +599,9 @@ button[type="submit"]:hover {
 	}
 
 	.sidebar {
+		height: auto;
+		max-height: 50vh;
 		width: 100%;
-		max-height: 250px;
 		border-right: none;
 		border-bottom: 1px solid #eaeaea;
 		max-height: 40vh;
@@ -605,6 +650,18 @@ button[type="submit"]:hover {
 	.song-list::-webkit-scrollbar {
 		width: 0;
 		display: none;
+	}
+
+	.sidebar-content {
+		max-height: 30vh;
+	}
+
+	.playlists-section {
+		max-height: 20vh;
+	}
+
+	.playlists-list {
+		max-height: 15vh;
 	}
 }
 
@@ -1019,8 +1076,10 @@ body {
 	padding: 10px;
 	margin-bottom: 15px;
 	border-bottom: 1px solid var(--border-color, #ddd);
-	order: 2;
-	/* Recently viewed second */
+	flex: 0 0 auto;
+	/* Don't allow this to grow or shrink */
+	max-height: 15vh;
+	overflow: hidden;
 }
 
 .recent-songs h3 {
@@ -1030,15 +1089,12 @@ body {
 
 /* Change from flex row to grid */
 .recent-songs-list {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+	display: flex;
+	flex-wrap: wrap;
 	gap: 8px;
-	max-height: 100px;
-	/* Limit vertical height if needed */
+	max-height: 10vh;
+	/* Reduce height to leave more room for playlists */
 	overflow-y: auto;
-	/* Allow vertical scrolling if more than ~2 rows */
-	overflow-x: hidden;
-	/* Prevent horizontal scrolling */
 	padding-bottom: 5px;
 }
 
@@ -1149,6 +1205,25 @@ body {
 
 .recent-songs-list::-webkit-scrollbar-thumb {
 	background: rgba(0, 110, 239, 0.3);
+}
+
+/* Style for the scrollbar in playlists */
+.playlists-list::-webkit-scrollbar {
+	width: 6px;
+}
+
+.playlists-list::-webkit-scrollbar-track {
+	background: #f1f1f1;
+	border-radius: 3px;
+}
+
+.playlists-list::-webkit-scrollbar-thumb {
+	background: #888;
+	border-radius: 3px;
+}
+
+.playlists-list::-webkit-scrollbar-thumb:hover {
+	background: #555;
 }
 
 /* Style for the recent songs header with title and clear button */

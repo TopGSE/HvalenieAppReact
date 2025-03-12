@@ -28,6 +28,7 @@ function Statistics() {
   const fetchStatistics = async () => {
     try {
       setLoading(true);
+      const token = localStorage.getItem("token");
 
       // Fetch songs
       const songsResponse = await axios.get("http://localhost:5000/songs");
@@ -36,6 +37,20 @@ function Statistics() {
       // Get playlists from localStorage
       const storedPlaylists = localStorage.getItem("playlists");
       const playlists = storedPlaylists ? JSON.parse(storedPlaylists) : [];
+
+      // Fetch users count (admin only)
+      let totalUsers = "N/A";
+      try {
+        const usersResponse = await axios.get(
+          "http://localhost:5000/auth/users/count",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        totalUsers = usersResponse.data.count;
+      } catch (userError) {
+        console.error("Error fetching user count:", userError);
+      }
 
       // Calculate category counts
       const categoryCounts = songs.reduce((acc, song) => {
@@ -57,15 +72,13 @@ function Statistics() {
         .slice(0, 5);
 
       setStats({
-        totalUsers: "N/A", // Skip user data fetch completely
+        totalUsers,
         totalSongs: songs.length,
         totalPlaylists: playlists.length,
         categoryCounts,
-        userRoles: {}, // Leave empty since we skip the fetch
+        userRoles: {}, // We'll keep this empty for now
         recentlyAddedSongs,
       });
-
-      // Don't try to fetch user data anymore - endpoint doesn't exist
     } catch (error) {
       console.error("Error fetching statistics:", error);
       toast.error("Failed to load statistics");
@@ -116,7 +129,6 @@ function Statistics() {
             <div className="stats-card-content">
               <h3>Total Users</h3>
               <div className="stat-value">{stats.totalUsers}</div>
-              <div className="stat-note">User API not available</div>
             </div>
           </div>
 
