@@ -11,9 +11,8 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
-// Update the CORS configuration
 app.use(cors({
   origin: 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -21,10 +20,10 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' })); // Increased limit for image uploads
 
 // MongoDB Connection
-mongoose.connect('mongodb://localhost:27017/church-songs')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/church-songs')
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
@@ -237,5 +236,5 @@ app.post('/auth/forgot-password', async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`Server running on port ${port}`);
 });

@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['admin', 'reader'], default: 'reader' },
   resetToken: { type: String },
   resetTokenExpiry: { type: Date },
+  profilePhoto: { type: String }, // Added profile photo field
   refreshTokens: [refreshTokenSchema] // Array to store multiple refresh tokens (for multiple devices)
 }, { timestamps: true });
 

@@ -9,7 +9,6 @@
 	padding: 100px 40px 80px 40px;
 	/* Increased top padding */
 	box-sizing: border-box;
-	margin-top: 0;
 	/* Ensure no default margin */
 }
 
@@ -22,7 +21,7 @@
 	padding: 40px;
 	box-sizing: border-box;
 	transition: all 0.3s ease;
-	margin: 0 0 50px 0;
+	margin: 60px 0 50px 0;
 	/* Removed top margin since we're using padding on parent */
 }
 

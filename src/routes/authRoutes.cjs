@@ -342,4 +342,89 @@ router.post('/reset-password/:token', async (req, res) => {
   }
 });
 
+// Add profile photo update endpoint
+router.put('/profile/photo', authMiddleware, async (req, res) => {
+  try {
+    const { profilePhoto } = req.body;
+    
+    if (!profilePhoto) {
+      return res.status(400).json({ message: 'No profile photo provided' });
+    }
+    
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    user.profilePhoto = profilePhoto;
+    await user.save();
+    
+    res.json({ 
+      message: 'Profile photo updated successfully',
+      profilePhoto: user.profilePhoto
+    });
+  } catch (err) {
+    console.error('Error updating profile photo:', err);
+    res.status(500).json({ message: 'Error updating profile photo' });
+  }
+});
+
+// Add email update endpoint
+router.put('/profile/email', authMiddleware, async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and current password are required' });
+    }
+    
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+    
+    user.email = email;
+    await user.save();
+    
+    res.json({ message: 'Email updated successfully' });
+  } catch (err) {
+    console.error('Error updating email:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Add password update endpoint
+router.put('/profile/password', authMiddleware, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Current password and new password are required' });
+    }
+    
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+    
+    user.password = newPassword;
+    await user.save();
+    
+    res.json({ message: 'Password updated successfully' });
+  } catch (err) {
+    console.error('Error updating password:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;
