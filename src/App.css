@@ -207,7 +207,7 @@ input[type="text"] {
 /* Position the toggle button on the right of the search bar */
 .toggle-sidebar {
 	position: absolute;
-	right: 25px;
+	right: 0px;
 	top: 50%;
 	transform: translateY(-50%);
 	width: 28px;
@@ -1367,4 +1367,38 @@ body {
 .reload-button:hover {
 	background-color: rgba(0, 0, 0, 0.05);
 	transform: rotate(180deg);
+}
+
+/* Add these styles at the end of your App.css file */
+
+/* Clickable card styles */
+.clickable-card {
+	cursor: pointer;
+	position: relative;
+	overflow: hidden;
+	transition: all 0.3s ease;
+}
+
+.clickable-card:hover {
+	transform: translateY(-5px) !important;
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15) !important;
+	background-color: #f0f7ff !important;
+}
+
+.clickable-card:active {
+	transform: translateY(-2px) !important;
+}
+
+.card-click-hint {
+	font-size: 12px;
+	color: #6c757d;
+	text-align: center;
+	margin-top: 10px;
+	opacity: 0.7;
+	transition: opacity 0.2s ease;
+}
+
+.clickable-card:hover .card-click-hint {
+	opacity: 1;
+	color: #006eef;
 }
