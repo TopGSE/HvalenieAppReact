@@ -487,24 +487,49 @@ function App() {
   const [userRole, setUserRole] = useState(localStorage.getItem("userRole"));
 
   // Login handler
-  const handleLogin = (username, role) => {
+  const handleLogin = (username, role, userData = null) => {
     setIsLoggedIn(true);
     setUsername(username);
     setUserRole(role);
-    localStorage.setItem("username", username);
-    localStorage.setItem("userRole", role);
-    console.log("Login handler - username:", username, "role:", role);
+
+    if (userData) {
+      setUser(userData); // Set user data if provided directly
+    } else {
+      // Fetch fresh user data after login
+      const token = localStorage.getItem("token");
+      if (token) {
+        axios
+          .get("http://localhost:5000/auth/profile", {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          .then((response) => {
+            const userData = response.data;
+            setUser(userData);
+            localStorage.setItem("user", JSON.stringify(userData));
+          })
+          .catch((error) => {
+            console.error("Error fetching user profile:", error);
+          });
+      }
+    }
   };
 
   // Logout handler
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUsername(null);
-    setUserRole(null);
+    // Clear all user data from localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("username");
     localStorage.removeItem("userRole");
-    toast.info("Logged out successfully");
+    localStorage.removeItem("user"); // Important: Also clear the user object
+
+    // Reset all user-related state
+    setToken(null);
+    setIsLoggedIn(false);
+    setUsername(null);
+    setUserRole(null);
+    setUser(null); // Also reset the user object in state
+
+    // Other logout actions you might have...
   };
 
   // Updated useEffect for loading songs with better error handling
@@ -1021,6 +1046,51 @@ function App() {
       handleLogin(username, userRole);
     }
   }, []); // Empty dependency array means this runs once on mount
+
+  // Inside your main App component, add this effect
+  useEffect(() => {
+    const handleUserUpdate = () => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    };
+
+    window.addEventListener("storage:user-updated", handleUserUpdate);
+
+    return () => {
+      window.removeEventListener("storage:user-updated", handleUserUpdate);
+    };
+  }, []);
+
+  // In your App.jsx where you initialize the user state
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      // Set initial logged in state
+      setIsLoggedIn(true);
+
+      // Load user data from localStorage
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+
+      // Fetch fresh user data from server
+      axios
+        .get("http://localhost:5000/auth/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          const userData = response.data;
+          setUser(userData);
+          localStorage.setItem("user", JSON.stringify(userData));
+        })
+        .catch((error) => {
+          console.error("Error fetching user profile:", error);
+        });
+    }
+  }, []);
 
   return (
     <AuthContext.Provider

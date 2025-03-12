@@ -105,6 +105,15 @@ function UserProfile() {
       );
 
       setPreview(dataUrl);
+
+      // Update the user in localStorage to ensure the photo is available on page reload
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      userData.profilePhoto = dataUrl;
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      // Refresh the user object in the app to update the navbar immediately
+      window.dispatchEvent(new Event("storage:user-updated"));
+
       toast.success("Profile photo updated successfully");
       setShowPhotoSection(false);
       setSrc(null);
@@ -227,17 +236,6 @@ function UserProfile() {
       <div className="user-profile-container">
         <h2>User Profile</h2>
 
-        {/* Add Random Song Generator Button */}
-        <div className="random-song-generator-button-container">
-          <button
-            className="random-song-generator-button"
-            onClick={() => setShowRandomSongGenerator(true)}
-          >
-            <FaMusic /> Generate Random Worship Set
-          </button>
-        </div>
-
-        {/* Profile Photo at the top */}
         <div
           className="profile-photo-top"
           onClick={() => setShowPhotoSection(true)}
@@ -496,14 +494,6 @@ function UserProfile() {
             {isLoading ? "Processing..." : "Delete My Account"}
           </button>
         </div>
-
-        {/* Random Song Generator Modal */}
-        <RandomSongGenerator
-          show={showRandomSongGenerator}
-          onClose={() => setShowRandomSongGenerator(false)}
-          songs={songs}
-          onCreatePlaylist={handleCreatePlaylist}
-        />
       </div>
     </Scrollbars>
   );
