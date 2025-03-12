@@ -1,27 +1,34 @@
-import { useState, useEffect, createContext, useContext } from 'react';
-import axios from 'axios';
-import './App.css';
-import SearchBar from './components/SearchBar';
-import SongList from './components/song/SongList';
-import SongDetails from './components/song/SongDetails';
-import AddSong from './components/AddSong';
-import NavBar from './components/navbar/NavBar';
-import ConfirmModal from './components/modals/ConfirmModal';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import EditSong from './components/song/EditSong';
-import PlaylistView from './components/playlist/PlaylistView';
-import PlaylistModal from './components/modals/PlaylistModal';
-import Login from './components/auth/Login';
-import Register from './components/auth/Register';
-import UserProfile from './components/profile/UserProfile';
-import ForgotPassword from './components/auth/ForgotPassword';
-import ResetPassword from './components/auth/ResetPassword';
-import { BrowserRouter as Router, Route, Routes, Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { setupTokenRefresh } from './utils/authUtils';
+import { useState, useEffect, createContext, useContext } from "react";
+import axios from "axios";
+import "./App.css";
+import SearchBar from "./components/SearchBar";
+import SongList from "./components/song/SongList";
+import SongDetails from "./components/song/SongDetails";
+import AddSong from "./components/AddSong";
+import NavBar from "./components/navbar/NavBar";
+import ConfirmModal from "./components/modals/ConfirmModal";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import EditSong from "./components/song/EditSong";
+import PlaylistView from "./components/playlist/PlaylistView";
+import PlaylistModal from "./components/modals/PlaylistModal";
+import Login from "./components/auth/Login";
+import Register from "./components/auth/Register";
+import UserProfile from "./components/profile/UserProfile";
+import ForgotPassword from "./components/auth/ForgotPassword";
+import ResetPassword from "./components/auth/ResetPassword";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import { setupTokenRefresh } from "./utils/authUtils";
 
 // Modify the AuthContext section
-const AuthContext = createContext(null);
+export const AuthContext = createContext(null);
 
 // Custom hook to use the AuthContext
 export const useAuth = () => {
@@ -29,28 +36,78 @@ export const useAuth = () => {
 };
 
 // Create a wrapper component that will use useLocation
-function AppContent({ 
-  isLoggedIn, username, userRole, handleLogin, handleLogout, songs, searchTerm, setSearchTerm, currentView, 
-  setCurrentView, selectedSong, setSelectedSong, sidebarCollapsed, setSidebarCollapsed, 
-  showConfirmModal, setShowConfirmModal, songToDelete, setSongToDelete, isLoading, 
-  sortOrder, setSortOrder, filterBy, setFilterBy, error, recentlyViewed, setRecentlyViewed, 
-  favorites, toggleFavorite, isEditing, setIsEditing, playlists, setPlaylists, currentPlaylist, 
-  setCurrentPlaylist, playlistToEdit, setPlaylistToEdit, showPlaylistModal, setShowPlaylistModal,
-  songSourcePlaylist, setSongSourcePlaylist, handleReloadSongs, retryFetch, handleSelectSong,
-  clearRecentlyViewed, startEditMode, handleEditSong, cancelEditMode, filteredSongs, handleDeleteClick,
-  handleCancelDelete, handleConfirmDelete, handleDeletePlaylist, removeSongFromPlaylist, handleSavePlaylist,
-  addSongToPlaylist, handleAddSong
+function AppContent({
+  isLoggedIn,
+  username,
+  userRole,
+  handleLogin,
+  handleLogout,
+  songs,
+  searchTerm,
+  setSearchTerm,
+  currentView,
+  setCurrentView,
+  selectedSong,
+  setSelectedSong,
+  sidebarCollapsed,
+  setSidebarCollapsed,
+  showConfirmModal,
+  setShowConfirmModal,
+  songToDelete,
+  setSongToDelete,
+  isLoading,
+  sortOrder,
+  setSortOrder,
+  filterBy,
+  setFilterBy,
+  error,
+  recentlyViewed,
+  setRecentlyViewed,
+  favorites,
+  toggleFavorite,
+  isEditing,
+  setIsEditing,
+  playlists,
+  setPlaylists,
+  currentPlaylist,
+  setCurrentPlaylist,
+  playlistToEdit,
+  setPlaylistToEdit,
+  showPlaylistModal,
+  setShowPlaylistModal,
+  songSourcePlaylist,
+  setSongSourcePlaylist,
+  handleReloadSongs,
+  retryFetch,
+  handleSelectSong,
+  clearRecentlyViewed,
+  startEditMode,
+  handleEditSong,
+  cancelEditMode,
+  filteredSongs,
+  handleDeleteClick,
+  handleCancelDelete,
+  handleConfirmDelete,
+  handleDeletePlaylist,
+  removeSongFromPlaylist,
+  handleSavePlaylist,
+  addSongToPlaylist,
+  handleAddSong,
 }) {
   const location = useLocation();
   const navigate = useNavigate(); // Add this line to get the navigate function
-  
+
   console.log("AppContent - userRole:", userRole); // Debug log to see the role
-  console.log("AppContent - isAdmin check:", userRole === 'admin');
-  
+  console.log("AppContent - isAdmin check:", userRole === "admin");
+
   useEffect(() => {
     // Redirect to login page if not logged in and not already on login or register
-    if (!isLoggedIn && location.pathname !== '/login' && location.pathname !== '/register') {
-      console.log('Redirecting to /login');
+    if (
+      !isLoggedIn &&
+      location.pathname !== "/login" &&
+      location.pathname !== "/register"
+    ) {
+      console.log("Redirecting to /login");
       // The navigation will be handled by the <Navigate> component in the Routes.
     }
   }, [isLoggedIn, location]);
@@ -59,236 +116,281 @@ function AppContent({
     <div className="app-container">
       <NavBar setCurrentView={setCurrentView} />
       <Routes>
-        <Route path="/" element={<Navigate to={isLoggedIn ? "/home" : "/login"} />} />
-        <Route path="/login" element={isLoggedIn ? <Navigate to="/home" /> : <Login />} />
-        <Route path="/register" element={isLoggedIn ? <Navigate to="/home" /> : <Register />} />
-        <Route path="/forgot-password" element={isLoggedIn ? <Navigate to="/home" /> : <ForgotPassword />} />
-        <Route path="/reset-password/:token" element={isLoggedIn ? <Navigate to="/home" /> : <ResetPassword />} />
-        <Route path="/home" element={
-          isLoggedIn ? (
-            <div className="main-layout">
-              <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
-                <div className="sidebar-header">
-                  <div className="sidebar-header-top">
-                    <h2>Песни ({songs.length})</h2>
-                    <button 
-                      className="reload-button" 
-                      onClick={handleReloadSongs}
-                      title="Reload songs from server"
-                    >
-                      🔄
-                    </button>
-                  </div>
-                  <SearchBar onSearch={setSearchTerm} />
-                  <div className="sort-filter-controls">
-                    <select 
-                      value={sortOrder} 
-                      onChange={(e) => setSortOrder(e.target.value)}
-                      className="sort-select"
-                    >
-                      <option value="asc">A-Z</option>
-                      <option value="desc">Z-A</option>
-                      <option value="recent">Recently Added</option>
-                    </select>
-                    
-                    <select 
-                      value={filterBy} 
-                      onChange={(e) => setFilterBy(e.target.value)}
-                      className="filter-select"
-                    >
-                      <option value="all">Всички Песни</option>
-                      <option value="praise">Хваление</option>
-                      <option value="worship">Поклонение</option>
-                      <option value="christmas">Рождество</option>
-                      <option value="easter">Възкресение</option>
-                    </select>
-                  </div>
-                  <button 
-                    className="toggle-sidebar"
-                    onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                  >
-                    {sidebarCollapsed ? '>' : '<'}
-                  </button>
-                </div>
-                
-                {/* Recently viewed songs section */}
-                {recentlyViewed.length > 0 && !sidebarCollapsed && (
-                  <div className="recent-songs">
-                    <div className="recent-songs-header">
-                      <h3>Скорошни Избрани</h3>
-                      <button 
-                        onClick={clearRecentlyViewed}
-                        className="clear-recent-btn"
-                        title="Clear recently viewed"
+        <Route
+          path="/"
+          element={<Navigate to={isLoggedIn ? "/home" : "/login"} />}
+        />
+        <Route
+          path="/login"
+          element={isLoggedIn ? <Navigate to="/home" /> : <Login />}
+        />
+        <Route
+          path="/register"
+          element={isLoggedIn ? <Navigate to="/home" /> : <Register />}
+        />
+        <Route
+          path="/forgot-password"
+          element={isLoggedIn ? <Navigate to="/home" /> : <ForgotPassword />}
+        />
+        <Route
+          path="/reset-password/:token"
+          element={isLoggedIn ? <Navigate to="/home" /> : <ResetPassword />}
+        />
+        <Route
+          path="/home"
+          element={
+            isLoggedIn ? (
+              <div className="main-layout">
+                <aside
+                  className={`sidebar ${sidebarCollapsed ? "collapsed" : ""}`}
+                >
+                  <div className="sidebar-header">
+                    <div className="sidebar-header-top">
+                      <h2>Песни ({songs.length})</h2>
+                      <button
+                        className="reload-button"
+                        onClick={handleReloadSongs}
+                        title="Reload songs from server"
                       >
-                        х
+                        🔄
                       </button>
                     </div>
-                    <div className="recent-songs-list">
-                      {recentlyViewed.map(song => (
-                        <div 
-                          key={song._id} 
-                          className="recent-song-item"
-                          onClick={() => setSelectedSong(song)}
-                          title={song.title}
-                        >
-                          {song.title}
-                        </div>
-                      ))}
+                    <SearchBar onSearch={setSearchTerm} />
+                    <div className="sort-filter-controls">
+                      <select
+                        value={sortOrder}
+                        onChange={(e) => setSortOrder(e.target.value)}
+                        className="sort-select"
+                      >
+                        <option value="asc">A-Z</option>
+                        <option value="desc">Z-A</option>
+                        <option value="recent">Recently Added</option>
+                      </select>
+
+                      <select
+                        value={filterBy}
+                        onChange={(e) => setFilterBy(e.target.value)}
+                        className="filter-select"
+                      >
+                        <option value="all">Всички Песни</option>
+                        <option value="praise">Хваление</option>
+                        <option value="worship">Поклонение</option>
+                        <option value="christmas">Рождество</option>
+                        <option value="easter">Възкресение</option>
+                      </select>
                     </div>
-                  </div>
-                )}
-                
-                <div className="sidebar-content">
-                  {isLoading && <div className="loading-spinner">Loading...</div>}
-                  {error && (
-                    <div className="error-container">
-                      <h3>Something went wrong</h3>
-                      <p>{error.message || 'Unable to load songs'}</p>
-                      <button className="retry-button" onClick={retryFetch}>Try Again</button>
-                    </div>
-                  )}
-                  {!isLoading && !error && filteredSongs.length === 0 && (
-                    <div className="empty-state-list">
-                      <div className="empty-icon">📝</div>
-                      <h3>Няма такава песен</h3>
-                      {searchTerm ? (
-                        <p>Пробвайте да потърсите отново</p>
-                      ) : (
-                        <p>Добавете първата ви песен</p>
-                      )}
-                      <button className="add-song-button" onClick={() => setCurrentView('add-song')}>
-                        Add a Song
-                      </button>
-                    </div>
-                  )}
-                  <SongList 
-                    songs={filteredSongs} 
-                    onSelectSong={handleSelectSong} 
-                    selectedSongId={selectedSong?._id}
-                    favorites={favorites}
-                    toggleFavorite={toggleFavorite}
-                  />
-                </div>
-                
-                {/* Playlists section */}
-                <div className="playlists-section">
-                  <div className="playlists-header">
-                    <h3>Playlists</h3>
-                    <button 
-                      onClick={() => {
-                        setPlaylistToEdit(null);
-                        setShowPlaylistModal(true);
-                      }} 
-                      className="add-playlist-btn"
-                      title="Create new playlist"
+                    <button
+                      className="toggle-sidebar"
+                      onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
                     >
-                      +
+                      {sidebarCollapsed ? ">" : "<"}
                     </button>
                   </div>
-                  
-                  <div className="playlists-list">
-                    {playlists.length === 0 ? (
-                      <div className="no-playlists">
-                        <p>No playlists yet</p>
-                      </div>
-                    ) : (
-                      playlists.map(playlist => (
-                        <div
-                          key={playlist.id}
-                          className={`playlist-item ${currentPlaylist?.id === playlist.id ? 'selected' : ''}`}
-                          onClick={() => {
-                            setCurrentPlaylist(playlist);
-                            setSelectedSong(null);
-                          }}
+
+                  {/* Recently viewed songs section */}
+                  {recentlyViewed.length > 0 && !sidebarCollapsed && (
+                    <div className="recent-songs">
+                      <div className="recent-songs-header">
+                        <h3>Скорошни Избрани</h3>
+                        <button
+                          onClick={clearRecentlyViewed}
+                          className="clear-recent-btn"
+                          title="Clear recently viewed"
                         >
-                          <div className="playlist-item-name">{playlist.name}</div>
-                          <div className="playlist-item-count">{playlist.songIds?.length || 0}</div>
-                        </div>
-                      ))
+                          х
+                        </button>
+                      </div>
+                      <div className="recent-songs-list">
+                        {recentlyViewed.map((song) => (
+                          <div
+                            key={song._id}
+                            className="recent-song-item"
+                            onClick={() => setSelectedSong(song)}
+                            title={song.title}
+                          >
+                            {song.title}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="sidebar-content">
+                    {isLoading && (
+                      <div className="loading-spinner">Loading...</div>
                     )}
-                  </div>
-                </div>
-              </aside>
-              
-              <main className="content-area">
-                {currentPlaylist ? (
-                  <PlaylistView 
-                    playlist={currentPlaylist}
-                    songs={songs}
-                    onSelectSong={(song) => handleSelectSong(song, currentPlaylist)}
-                    selectedSongId={selectedSong?._id}
-                    onEditPlaylist={(playlist) => {
-                      setPlaylistToEdit(playlist);
-                      setShowPlaylistModal(true);
-                    }}
-                    onDeletePlaylist={handleDeletePlaylist}
-                    onRemoveSongFromPlaylist={removeSongFromPlaylist}
-                    favorites={favorites}
-                    toggleFavorite={toggleFavorite}
-                  />
-                ) : selectedSong ? (
-                  isEditing ? (
-                    <EditSong 
-                      song={selectedSong} 
-                      onSaveEdit={handleEditSong}
-                      onCancel={cancelEditMode}
+                    {error && (
+                      <div className="error-container">
+                        <h3>Something went wrong</h3>
+                        <p>{error.message || "Unable to load songs"}</p>
+                        <button className="retry-button" onClick={retryFetch}>
+                          Try Again
+                        </button>
+                      </div>
+                    )}
+                    {!isLoading && !error && filteredSongs.length === 0 && (
+                      <div className="empty-state-list">
+                        <div className="empty-icon">📝</div>
+                        <h3>Няма такава песен</h3>
+                        {searchTerm ? (
+                          <p>Пробвайте да потърсите отново</p>
+                        ) : (
+                          <p>Добавете първата ви песен</p>
+                        )}
+                        <button
+                          className="add-song-button"
+                          onClick={() => setCurrentView("add-song")}
+                        >
+                          Add a Song
+                        </button>
+                      </div>
+                    )}
+                    <SongList
+                      songs={filteredSongs}
+                      onSelectSong={handleSelectSong}
+                      selectedSongId={selectedSong?._id}
+                      favorites={favorites}
+                      toggleFavorite={toggleFavorite}
                     />
-                  ) : (
-                    <SongDetails
-                      song={selectedSong}
-                      onRemoveSong={handleDeleteClick}
-                      onEditSong={startEditMode}
-                      playlists={playlists}
-                      onAddToPlaylist={addSongToPlaylist}
-                      onCreatePlaylist={() => {
-                        setPlaylistToEdit(null);
+                  </div>
+
+                  {/* Playlists section */}
+                  <div className="playlists-section">
+                    <div className="playlists-header">
+                      <h3>Playlists</h3>
+                      <button
+                        onClick={() => {
+                          setPlaylistToEdit(null);
+                          setShowPlaylistModal(true);
+                        }}
+                        className="add-playlist-btn"
+                        title="Create new playlist"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <div className="playlists-list">
+                      {playlists.length === 0 ? (
+                        <div className="no-playlists">
+                          <p>No playlists yet</p>
+                        </div>
+                      ) : (
+                        playlists.map((playlist) => (
+                          <div
+                            key={playlist.id}
+                            className={`playlist-item ${
+                              currentPlaylist?.id === playlist.id
+                                ? "selected"
+                                : ""
+                            }`}
+                            onClick={() => {
+                              setCurrentPlaylist(playlist);
+                              setSelectedSong(null);
+                            }}
+                          >
+                            <div className="playlist-item-name">
+                              {playlist.name}
+                            </div>
+                            <div className="playlist-item-count">
+                              {playlist.songIds?.length || 0}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </aside>
+
+                <main className="content-area">
+                  {currentPlaylist ? (
+                    <PlaylistView
+                      playlist={currentPlaylist}
+                      songs={songs}
+                      onSelectSong={(song) =>
+                        handleSelectSong(song, currentPlaylist)
+                      }
+                      selectedSongId={selectedSong?._id}
+                      onEditPlaylist={(playlist) => {
+                        setPlaylistToEdit(playlist);
                         setShowPlaylistModal(true);
                       }}
-                      songSourcePlaylist={songSourcePlaylist}
-                      setCurrentPlaylist={setCurrentPlaylist}
+                      onDeletePlaylist={handleDeletePlaylist}
+                      onRemoveSongFromPlaylist={removeSongFromPlaylist}
+                      favorites={favorites}
+                      toggleFavorite={toggleFavorite}
                     />
-                  )
-                ) : (
-                  <div className="empty-state">
-                    <h2>Изберете песен за повече подробности.</h2>
-                    <p>Изберете песен от списъка отляво.</p>
-                  </div>
-                )}
-              </main>
-            </div>
-          ) : (
-            <Navigate to="/login" />
-          )
-        } />
-        <Route path="/add-song" element={
-          isLoggedIn && userRole === 'admin' ? (
-            <div className="add-song-page">
-              <div className="add-song-header">
-                <h1>Добави нова песен</h1>
-                <p>Добави нова песен към списъка</p>
+                  ) : selectedSong ? (
+                    isEditing ? (
+                      <EditSong
+                        song={selectedSong}
+                        onSaveEdit={handleEditSong}
+                        onCancel={cancelEditMode}
+                      />
+                    ) : (
+                      <SongDetails
+                        song={selectedSong}
+                        onRemoveSong={handleDeleteClick}
+                        onEditSong={startEditMode}
+                        playlists={playlists}
+                        onAddToPlaylist={addSongToPlaylist}
+                        onCreatePlaylist={() => {
+                          setPlaylistToEdit(null);
+                          setShowPlaylistModal(true);
+                        }}
+                        songSourcePlaylist={songSourcePlaylist}
+                        setCurrentPlaylist={setCurrentPlaylist}
+                      />
+                    )
+                  ) : (
+                    <div className="empty-state">
+                      <h2>Изберете песен за повече подробности.</h2>
+                      <p>Изберете песен от списъка отляво.</p>
+                    </div>
+                  )}
+                </main>
               </div>
-              <AddSong onAddSong={handleAddSong} />
-            </div>
-          ) : isLoggedIn ? (
-            <div className="unauthorized-page">
-              <h2>Unauthorized Access</h2>
-              <p>You need administrator privileges to add songs.</p>
-              <p>Your current role: {userRole || 'none'}</p>
-              <button onClick={() => navigate('/home')}>Return to Home</button>
-            </div>
-          ) : (
-            <Navigate to="/login" />
-          )
-        } />
-        <Route path="/profile" element={isLoggedIn ? <UserProfile /> : <Navigate to="/login" />} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/add-song"
+          element={
+            isLoggedIn && userRole === "admin" ? (
+              <div className="add-song-page">
+                <div className="add-song-header">
+                  <h1>Добави нова песен</h1>
+                  <p>Добави нова песен към списъка</p>
+                </div>
+                <AddSong onAddSong={handleAddSong} />
+              </div>
+            ) : isLoggedIn ? (
+              <div className="unauthorized-page">
+                <h2>Unauthorized Access</h2>
+                <p>You need administrator privileges to add songs.</p>
+                <p>Your current role: {userRole || "none"}</p>
+                <button onClick={() => navigate("/home")}>
+                  Return to Home
+                </button>
+              </div>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/profile"
+          element={isLoggedIn ? <UserProfile /> : <Navigate to="/login" />}
+        />
       </Routes>
       <ToastContainer position="bottom-right" />
-      <ConfirmModal 
-        show={showConfirmModal} 
-        onClose={handleCancelDelete} 
-        onConfirm={handleConfirmDelete} 
-        songTitle={songToDelete ? songToDelete.title : ''}
+      <ConfirmModal
+        show={showConfirmModal}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        songTitle={songToDelete ? songToDelete.title : ""}
       />
       <PlaylistModal
         show={showPlaylistModal}
@@ -306,38 +408,38 @@ function AppContent({
 function App() {
   // All your state and functions here
   const [songs, setSongs] = useState(() => {
-    const savedSongs = localStorage.getItem('songs');
+    const savedSongs = localStorage.getItem("songs");
     return savedSongs ? JSON.parse(savedSongs) : [];
   });
   const [searchTerm, setSearchTerm] = useState(() => {
-    return localStorage.getItem('searchTerm') || '';
+    return localStorage.getItem("searchTerm") || "";
   });
   const [currentView, setCurrentView] = useState(() => {
-    return localStorage.getItem('currentView') || 'home';
+    return localStorage.getItem("currentView") || "home";
   });
   const [selectedSong, setSelectedSong] = useState(() => {
-    const saved = localStorage.getItem('selectedSong');
+    const saved = localStorage.getItem("selectedSong");
     return saved ? JSON.parse(saved) : null;
   });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    return localStorage.getItem('sidebarCollapsed') === 'true';
+    return localStorage.getItem("sidebarCollapsed") === "true";
   });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [songToDelete, setSongToDelete] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [sortOrder, setSortOrder] = useState(() => {
-    return localStorage.getItem('sortOrder') || 'asc';
+    return localStorage.getItem("sortOrder") || "asc";
   });
   const [filterBy, setFilterBy] = useState(() => {
-    return localStorage.getItem('filterBy') || 'all';
+    return localStorage.getItem("filterBy") || "all";
   });
   const [error, setError] = useState(null);
   const [recentlyViewed, setRecentlyViewed] = useState(() => {
-    const saved = localStorage.getItem('recentlyViewed');
+    const saved = localStorage.getItem("recentlyViewed");
     return saved ? JSON.parse(saved) : [];
   });
   const [favorites, setFavorites] = useState(() => {
-    const savedFavorites = localStorage.getItem('songFavorites');
+    const savedFavorites = localStorage.getItem("songFavorites");
     return savedFavorites ? JSON.parse(savedFavorites) : [];
   });
   // Add this state for edit mode
@@ -345,7 +447,7 @@ function App() {
 
   // Add these states to your App component
   const [playlists, setPlaylists] = useState(() => {
-    const savedPlaylists = localStorage.getItem('playlists');
+    const savedPlaylists = localStorage.getItem("playlists");
     return savedPlaylists ? JSON.parse(savedPlaylists) : [];
   });
   const [currentPlaylist, setCurrentPlaylist] = useState(null);
@@ -354,24 +456,20 @@ function App() {
   const [songSourcePlaylist, setSongSourcePlaylist] = useState(null);
 
   // Authentication state
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem('token') ? true : false;
-  });
-  const [username, setUsername] = useState(() => {
-    return localStorage.getItem('username') || null;
-  });
-  const [userRole, setUserRole] = useState(() => {
-    return localStorage.getItem('userRole') || null;
-  });
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [isLoggedIn, setIsLoggedIn] = useState(!!token);
+  const [username, setUsername] = useState(localStorage.getItem("username"));
+  const [userRole, setUserRole] = useState(localStorage.getItem("userRole"));
 
   // Login handler
   const handleLogin = (username, role) => {
     setIsLoggedIn(true);
     setUsername(username);
     setUserRole(role);
-    localStorage.setItem('username', username);
-    localStorage.setItem('userRole', role);
-    console.log('Login handler - username:', username, 'role:', role);
+    localStorage.setItem("username", username);
+    localStorage.setItem("userRole", role);
+    console.log("Login handler - username:", username, "role:", role);
   };
 
   // Logout handler
@@ -379,10 +477,10 @@ function App() {
     setIsLoggedIn(false);
     setUsername(null);
     setUserRole(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('userRole');
-    toast.info('Logged out successfully');
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    localStorage.removeItem("userRole");
+    toast.info("Logged out successfully");
   };
 
   // Updated useEffect for loading songs with better error handling
@@ -390,38 +488,37 @@ function App() {
     const loadSongs = () => {
       setIsLoading(true);
       setError(null);
-      
-      
-      axios.get('http://localhost:5000/songs')
-        .then(response => {
-          
+
+      axios
+        .get("http://localhost:5000/songs")
+        .then((response) => {
           // Check if we got an empty array
           if (response.data.length === 0) {
-            console.warn('Server returned an empty array of songs');
-            toast.info('No songs found on the server. Try adding some songs!');
+            console.warn("Server returned an empty array of songs");
+            toast.info("No songs found on the server. Try adding some songs!");
           }
-          
+
           setSongs(response.data);
-          localStorage.setItem('songs', JSON.stringify(response.data));
+          localStorage.setItem("songs", JSON.stringify(response.data));
           setIsLoading(false);
         })
-        .catch(error => {
-          console.error('Error fetching songs:', error);
-          const cachedSongs = localStorage.getItem('songs');
+        .catch((error) => {
+          console.error("Error fetching songs:", error);
+          const cachedSongs = localStorage.getItem("songs");
           setIsLoading(false);
-          
+
           if (cachedSongs && JSON.parse(cachedSongs).length > 0) {
-            console.log('Using cached songs from localStorage');
+            console.log("Using cached songs from localStorage");
             setSongs(JSON.parse(cachedSongs));
-            toast.warning('Using cached data. Server connection failed.');
+            toast.warning("Using cached data. Server connection failed.");
           } else {
-            console.log('No cached songs available');
+            console.log("No cached songs available");
             setError(error);
-            toast.error('Could not load songs. Server may be offline.');
+            toast.error("Could not load songs. Server may be offline.");
           }
         });
     };
-    
+
     if (isLoggedIn) {
       loadSongs();
     }
@@ -431,65 +528,66 @@ function App() {
   const handleReloadSongs = () => {
     setIsLoading(true);
     setError(null);
-    
-    axios.get('http://localhost:5000/songs')
-      .then(response => {
+
+    axios
+      .get("http://localhost:5000/songs")
+      .then((response) => {
         setSongs(response.data);
-        localStorage.setItem('songs', JSON.stringify(response.data));
+        localStorage.setItem("songs", JSON.stringify(response.data));
         setIsLoading(false);
-        toast.success('Songs reloaded successfully!');
+        toast.success("Songs reloaded successfully!");
       })
-      .catch(error => {
-        console.error('Error reloading songs:', error);
+      .catch((error) => {
+        console.error("Error reloading songs:", error);
         setIsLoading(false);
         setError(error);
-        toast.error('Failed to reload songs from server');
+        toast.error("Failed to reload songs from server");
       });
   };
 
   useEffect(() => {
-    localStorage.setItem('songFavorites', JSON.stringify(favorites));
+    localStorage.setItem("songFavorites", JSON.stringify(favorites));
   }, [favorites]);
 
   useEffect(() => {
-    localStorage.setItem('searchTerm', searchTerm);
+    localStorage.setItem("searchTerm", searchTerm);
   }, [searchTerm]);
 
   useEffect(() => {
-    localStorage.setItem('currentView', currentView);
+    localStorage.setItem("currentView", currentView);
   }, [currentView]);
 
   useEffect(() => {
     if (selectedSong) {
-      localStorage.setItem('selectedSong', JSON.stringify(selectedSong));
+      localStorage.setItem("selectedSong", JSON.stringify(selectedSong));
     } else {
-      localStorage.removeItem('selectedSong');
+      localStorage.removeItem("selectedSong");
     }
   }, [selectedSong]);
 
   useEffect(() => {
-    localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
+    localStorage.setItem("sidebarCollapsed", sidebarCollapsed);
   }, [sidebarCollapsed]);
 
   useEffect(() => {
-    localStorage.setItem('sortOrder', sortOrder);
+    localStorage.setItem("sortOrder", sortOrder);
   }, [sortOrder]);
 
   useEffect(() => {
-    localStorage.setItem('filterBy', filterBy);
+    localStorage.setItem("filterBy", filterBy);
   }, [filterBy]);
 
   useEffect(() => {
-    localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
+    localStorage.setItem("recentlyViewed", JSON.stringify(recentlyViewed));
   }, [recentlyViewed]);
 
   useEffect(() => {
-    localStorage.setItem('songs', JSON.stringify(songs));
+    localStorage.setItem("songs", JSON.stringify(songs));
   }, [songs]);
 
   // Effect to save playlists to localStorage
   useEffect(() => {
-    localStorage.setItem('playlists', JSON.stringify(playlists));
+    localStorage.setItem("playlists", JSON.stringify(playlists));
   }, [playlists]);
 
   // Add this useEffect at the beginning of your component
@@ -498,26 +596,26 @@ function App() {
     const validateStoredReferences = () => {
       // Make sure selectedSong exists in the current songs array
       if (selectedSong) {
-        const songExists = songs.some(song => song._id === selectedSong._id);
+        const songExists = songs.some((song) => song._id === selectedSong._id);
         if (!songExists) {
           // If song no longer exists, clear the selection
           setSelectedSong(null);
-          localStorage.removeItem('selectedSong');
+          localStorage.removeItem("selectedSong");
         }
       }
-      
+
       // Filter recentlyViewed to include only existing songs
       if (recentlyViewed.length > 0) {
-        const validRecentSongs = recentlyViewed.filter(recentSong => 
-          songs.some(song => song._id === recentSong._id)
+        const validRecentSongs = recentlyViewed.filter((recentSong) =>
+          songs.some((song) => song._id === recentSong._id)
         );
-        
+
         if (validRecentSongs.length !== recentlyViewed.length) {
           setRecentlyViewed(validRecentSongs);
         }
       }
     };
-    
+
     // Only run this once songs are loaded
     if (songs.length > 0) {
       validateStoredReferences();
@@ -525,143 +623,148 @@ function App() {
   }, [songs]);
 
   const handleAddSong = (newSong) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-      toast.error('Authentication required. Please log in again.');
+      toast.error("Authentication required. Please log in again.");
       return;
     }
 
     setIsLoading(true);
 
-    axios.post('http://localhost:5000/songs', newSong, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-      .then(response => {
+    axios
+      .post("http://localhost:5000/songs", newSong, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
         // Update the songs array with the new song
         setSongs([...songs, response.data]);
-        
+
         // Show success message
-        toast.success('Song added successfully!');
-        
+        toast.success("Song added successfully!");
+
         // Redirect to home view
-        setCurrentView('home');
-        
+        setCurrentView("home");
+
         // Optionally, select the newly added song to show it
         setSelectedSong(response.data);
-        
+
         // Update recently viewed to include the new song
-        setRecentlyViewed(prev => {
-          const filtered = prev.filter(s => s._id !== response.data._id);
+        setRecentlyViewed((prev) => {
+          const filtered = prev.filter((s) => s._id !== response.data._id);
           return [response.data, ...filtered].slice(0, 5); // Keep 5 most recent
         });
-        
+
         setIsLoading(false);
       })
-      .catch(error => {
-        console.error('Error adding song:', error);
-        toast.error('Failed to add song.');
+      .catch((error) => {
+        console.error("Error adding song:", error);
+        toast.error("Failed to add song.");
         setIsLoading(false);
       });
   };
 
   // Update the handleRemoveSong function to use ID instead of title
   const handleRemoveSong = (id) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-      toast.error('Authentication required. Please log in again.');
+      toast.error("Authentication required. Please log in again.");
       return;
     }
 
-    axios.delete(`http://localhost:5000/songs/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-      .then(() => {
-        setSongs(songs.filter(song => song._id !== id));
-        setSelectedSong(null);
-        toast.success('Song removed successfully!');
+    axios
+      .delete(`http://localhost:5000/songs/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       })
-      .catch(error => {
-        console.error('Error removing song:', error);
-        toast.error('Failed to remove song.');
+      .then(() => {
+        setSongs(songs.filter((song) => song._id !== id));
+        setSelectedSong(null);
+        toast.success("Song removed successfully!");
+      })
+      .catch((error) => {
+        console.error("Error removing song:", error);
+        toast.error("Failed to remove song.");
       });
   };
 
   const handleEditSong = (updatedSong) => {
     if (!updatedSong || !updatedSong._id) {
-      console.error('Invalid song data or missing ID');
-      toast.error('Cannot edit song: missing or invalid data');
+      console.error("Invalid song data or missing ID");
+      toast.error("Cannot edit song: missing or invalid data");
       return;
     }
-    
+
     // Get the token from localStorage
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (!token) {
-      toast.error('Authentication required. Please log in again.');
+      toast.error("Authentication required. Please log in again.");
       return;
     }
-    
+
     // Make sure the URL is correct
     const url = `http://localhost:5000/songs/${updatedSong._id}`;
-    
+
     // Include the token in the Authorization header
-    axios.put(url, updatedSong, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-      .then(response => {
-        const updatedSongs = songs.map(song =>
+    axios
+      .put(url, updatedSong, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        const updatedSongs = songs.map((song) =>
           song._id === updatedSong._id ? response.data : song
         );
         setSongs(updatedSongs);
         setSelectedSong(response.data);
         setIsEditing(false);
-        toast.success('Song edited successfully!');
+        toast.success("Song edited successfully!");
       })
-      .catch(error => {
-        console.error('Error editing song:', error);
+      .catch((error) => {
+        console.error("Error editing song:", error);
         // Show more detailed error information
         if (error.response) {
-          console.error('Response error data:', error.response.data);
-          console.error('Response status:', error.response.status);
+          console.error("Response error data:", error.response.data);
+          console.error("Response status:", error.response.status);
         }
         toast.error(`Failed to edit song: ${error.message}`);
       });
   };
 
   const filteredSongs = songs
-  .filter((song) => {
-    // First apply the text search
-    const matchesSearch = song.title.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Then apply category filter if needed
-    if (filterBy !== 'all') {
-      return matchesSearch && song.category === filterBy;
-    }
-    
-    return matchesSearch;
-  })
-  .sort((a, b) => {
-    if (sortOrder === 'asc') {
-      return a.title.localeCompare(b.title);
-    } else if (sortOrder === 'desc') {
-      return b.title.localeCompare(a.title);
-    } else if (sortOrder === 'recent') {
-      // Sort by _id in reverse order (newest first)
-      // MongoDB ObjectIDs contain a timestamp in their first bytes
-      return b._id.localeCompare(a._id);
-    }
-    return 0;
-  });
+    .filter((song) => {
+      // First apply the text search
+      const matchesSearch = song.title
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+      // Then apply category filter if needed
+      if (filterBy !== "all") {
+        return matchesSearch && song.category === filterBy;
+      }
+
+      return matchesSearch;
+    })
+    .sort((a, b) => {
+      if (sortOrder === "asc") {
+        return a.title.localeCompare(b.title);
+      } else if (sortOrder === "desc") {
+        return b.title.localeCompare(a.title);
+      } else if (sortOrder === "recent") {
+        // Sort by _id in reverse order (newest first)
+        // MongoDB ObjectIDs contain a timestamp in their first bytes
+        return b._id.localeCompare(a._id);
+      }
+      return 0;
+    });
 
   const handleDeleteClick = (song) => {
     if (!song || !song.title) {
-      console.error('Invalid song object or missing title property:', song);
-      toast.error('Cannot delete song: invalid song data');
+      console.error("Invalid song object or missing title property:", song);
+      toast.error("Cannot delete song: invalid song data");
       return;
     }
     setSongToDelete(song);
@@ -675,8 +778,8 @@ function App() {
       setShowConfirmModal(false);
       setSongToDelete(null);
     } else {
-      console.error('Cannot delete: songToDelete is undefined or missing ID');
-      toast.error('Failed to delete song: missing song data');
+      console.error("Cannot delete: songToDelete is undefined or missing ID");
+      toast.error("Failed to delete song: missing song data");
       setShowConfirmModal(false);
     }
   };
@@ -688,12 +791,13 @@ function App() {
 
   const retryFetch = () => {
     setError(null);
-    axios.get('http://localhost:5000/songs')
-      .then(response => {
+    axios
+      .get("http://localhost:5000/songs")
+      .then((response) => {
         setSongs(response.data);
       })
-      .catch(error => {
-        console.error('Error fetching songs:', error);
+      .catch((error) => {
+        console.error("Error fetching songs:", error);
         setError(error);
       });
   };
@@ -703,17 +807,17 @@ function App() {
     setSelectedSong(song);
     setSongSourcePlaylist(fromPlaylist); // Track which playlist we came from
     setCurrentPlaylist(null); // Clear current playlist to show song details
-    
+
     // Add to recently viewed
-    setRecentlyViewed(prev => {
-      const filtered = prev.filter(s => s._id !== song._id);
+    setRecentlyViewed((prev) => {
+      const filtered = prev.filter((s) => s._id !== song._id);
       return [song, ...filtered].slice(0, 5); // Keep 5 most recent
     });
   };
 
   const toggleFavorite = (songId) => {
     if (favorites.includes(songId)) {
-      setFavorites(favorites.filter(id => id !== songId));
+      setFavorites(favorites.filter((id) => id !== songId));
     } else {
       setFavorites([...favorites, songId]);
     }
@@ -722,33 +826,33 @@ function App() {
   // Add this function to your App component
   const clearRecentlyViewed = () => {
     setRecentlyViewed([]);
-    localStorage.removeItem('recentlyViewed');
-    toast.info('Recently viewed songs cleared');
+    localStorage.removeItem("recentlyViewed");
+    toast.info("Recently viewed songs cleared");
   };
 
   // Add this function to your App component
   const clearStoredState = () => {
-    localStorage.removeItem('selectedSong');
-    localStorage.removeItem('searchTerm');
-    localStorage.removeItem('recentlyViewed');
-    localStorage.removeItem('sortOrder');
-    localStorage.removeItem('filterBy');
-    
+    localStorage.removeItem("selectedSong");
+    localStorage.removeItem("searchTerm");
+    localStorage.removeItem("recentlyViewed");
+    localStorage.removeItem("sortOrder");
+    localStorage.removeItem("filterBy");
+
     // Reset states
     setSelectedSong(null);
-    setSearchTerm('');
+    setSearchTerm("");
     setRecentlyViewed([]);
-    setSortOrder('asc');
-    setFilterBy('all');
-    
-    toast.info('Application state reset successfully');
+    setSortOrder("asc");
+    setFilterBy("all");
+
+    toast.info("Application state reset successfully");
   };
 
   // Add startEditMode function
   const startEditMode = (song) => {
     setIsEditing(true);
   };
-  
+
   // Add cancelEditMode function
   const cancelEditMode = () => {
     setIsEditing(false);
@@ -758,16 +862,22 @@ function App() {
   const handleSavePlaylist = (playlistData) => {
     if (playlistData.id) {
       // Update existing playlist
-      const updatedPlaylists = playlists.map(p => 
-        p.id === playlistData.id ? { ...p, ...playlistData, updatedAt: new Date().toISOString() } : p
+      const updatedPlaylists = playlists.map((p) =>
+        p.id === playlistData.id
+          ? { ...p, ...playlistData, updatedAt: new Date().toISOString() }
+          : p
       );
       setPlaylists(updatedPlaylists);
-      
+
       // If the updated playlist was the current one, update that too
       if (currentPlaylist && currentPlaylist.id === playlistData.id) {
-        setCurrentPlaylist({ ...currentPlaylist, ...playlistData, updatedAt: new Date().toISOString() });
+        setCurrentPlaylist({
+          ...currentPlaylist,
+          ...playlistData,
+          updatedAt: new Date().toISOString(),
+        });
       }
-      toast.success('Playlist updated!');
+      toast.success("Playlist updated!");
     } else {
       // Create new playlist
       const newPlaylist = {
@@ -775,10 +885,10 @@ function App() {
         id: Date.now().toString(),
         songIds: [],
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
       setPlaylists([...playlists, newPlaylist]);
-      toast.success('Playlist created!');
+      toast.success("Playlist created!");
     }
     setShowPlaylistModal(false);
     setPlaylistToEdit(null);
@@ -787,101 +897,101 @@ function App() {
   // Function to add a song to a playlist
   const addSongToPlaylist = (playlistId, songId) => {
     // Check if song exists
-    if (!songs.some(song => song._id === songId)) {
-      toast.error('Song not found');
+    if (!songs.some((song) => song._id === songId)) {
+      toast.error("Song not found");
       return;
     }
-    
+
     // Check if playlist exists
-    const playlist = playlists.find(p => p.id === playlistId);
+    const playlist = playlists.find((p) => p.id === playlistId);
     if (!playlist) {
-      toast.error('Playlist not found');
+      toast.error("Playlist not found");
       return;
     }
-    
+
     // Check if song is already in playlist
     if (playlist.songIds && playlist.songIds.includes(songId)) {
       toast.info(`Song is already in playlist "${playlist.name}"`);
       return;
     }
-    
+
     // Create a new array of songIds or use existing one
     const songIds = playlist.songIds ? [...playlist.songIds, songId] : [songId];
-    
-    const updatedPlaylists = playlists.map(p => {
+
+    const updatedPlaylists = playlists.map((p) => {
       if (p.id === playlistId) {
         return {
           ...p,
           songIds: songIds,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
         };
       }
       return p;
     });
-    
+
     setPlaylists(updatedPlaylists);
-    
+
     // If this was the current playlist, update that too
     if (currentPlaylist && currentPlaylist.id === playlistId) {
       setCurrentPlaylist({
         ...currentPlaylist,
         songIds: songIds,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       });
     }
-    
-    toast.success('Song added to playlist!');
+
+    toast.success("Song added to playlist!");
   };
 
   // Function to remove a song from a playlist
   const removeSongFromPlaylist = (playlistId, songId) => {
-    const updatedPlaylists = playlists.map(playlist => {
+    const updatedPlaylists = playlists.map((playlist) => {
       if (playlist.id === playlistId) {
         return {
           ...playlist,
-          songIds: playlist.songIds.filter(id => id !== songId),
-          updatedAt: new Date().toISOString()
+          songIds: playlist.songIds.filter((id) => id !== songId),
+          updatedAt: new Date().toISOString(),
         };
       }
       return playlist;
     });
-    
+
     setPlaylists(updatedPlaylists);
-    
+
     // If this was the current playlist, update that too
     if (currentPlaylist && currentPlaylist.id === playlistId) {
       setCurrentPlaylist({
         ...currentPlaylist,
-        songIds: currentPlaylist.songIds.filter(id => id !== songId),
-        updatedAt: new Date().toISOString()
+        songIds: currentPlaylist.songIds.filter((id) => id !== songId),
+        updatedAt: new Date().toISOString(),
       });
     }
-    
-    toast.success('Song removed from playlist');
+
+    toast.success("Song removed from playlist");
   };
 
   // Function to delete a playlist
   const handleDeletePlaylist = (playlistId) => {
-    const updatedPlaylists = playlists.filter(p => p.id !== playlistId);
+    const updatedPlaylists = playlists.filter((p) => p.id !== playlistId);
     setPlaylists(updatedPlaylists);
-    
+
     // If this was the current playlist, clear it
     if (currentPlaylist && currentPlaylist.id === playlistId) {
       setCurrentPlaylist(null);
     }
-    
-    toast.success('Playlist deleted');
+
+    toast.success("Playlist deleted");
   };
 
   useEffect(() => {
     // Set up token refresh mechanism
     setupTokenRefresh();
-    
+
     // Check if user is already logged in (from previous session)
-    const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
-    const userRole = localStorage.getItem('userRole');
-    
+    const token = localStorage.getItem("token");
+    const username = localStorage.getItem("username");
+    const userRole = localStorage.getItem("userRole");
+
     if (token && username) {
       // Auto login from stored credentials
       handleLogin(username, userRole);
@@ -889,13 +999,23 @@ function App() {
   }, []); // Empty dependency array means this runs once on mount
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, username, userRole, handleLogin, handleLogout }}>
+    <AuthContext.Provider
+      value={{
+        isLoggedIn,
+        user, // Make sure to include the full user object here
+        token,
+        username,
+        userRole,
+        handleLogin,
+        handleLogout,
+      }}
+    >
       <Router>
-        <AppContent 
+        <AppContent
           // Pass all state and handlers as props
           isLoggedIn={isLoggedIn}
           username={username}
-          userRole={userRole}  // Make sure this is properly passed
+          userRole={userRole} // Make sure this is properly passed
           handleLogin={handleLogin}
           handleLogout={handleLogout}
           songs={songs}

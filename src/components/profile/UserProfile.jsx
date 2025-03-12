@@ -11,6 +11,7 @@ import {
   FaUser,
   FaCheck,
   FaTimes,
+  FaPencilAlt,
 } from "react-icons/fa";
 import "./UserProfile.css";
 
@@ -200,36 +201,51 @@ function UserProfile() {
       <div className="user-profile-container">
         <h2>User Profile</h2>
 
-        {/* Profile Photo Section */}
-        <div className="profile-section">
-          <div
-            className="section-header"
-            onClick={() => setShowPhotoSection(!showPhotoSection)}
-          >
-            <FaCamera className="section-icon" />
-            <h3>Profile Photo</h3>
-            <button type="button" className="toggle-button">
-              {showPhotoSection ? <FaTimes /> : "Change"}
-            </button>
-          </div>
+        {/* Profile Photo at the top */}
+        <div
+          className="profile-photo-top"
+          onClick={() => setShowPhotoSection(true)}
+        >
+          {preview ? (
+            <div className="avatar-container">
+              <img src={preview} alt="Profile" className="avatar-image-large" />
+              <div className="avatar-edit-overlay">
+                <FaPencilAlt className="edit-icon" />
+              </div>
+            </div>
+          ) : (
+            <div className="avatar-container">
+              <div className="avatar-placeholder-large">
+                <FaUser />
+              </div>
+              <div className="avatar-edit-overlay">
+                <FaPencilAlt className="edit-icon" />
+              </div>
+            </div>
+          )}
+        </div>
 
-          <div
-            className={`section-content ${showPhotoSection ? "expanded" : ""}`}
-          >
-            <div className="current-photo">
-              {preview ? (
-                <img src={preview} alt="Profile" className="avatar-image" />
-              ) : (
-                <div className="avatar-placeholder">
-                  <FaUser />
-                </div>
-              )}
+        {/* Photo Editor Dialog */}
+        {showPhotoSection && (
+          <div className="photo-editor-dialog">
+            <div className="photo-editor-header">
+              <h3>Update Profile Photo</h3>
+              <button
+                className="close-button"
+                onClick={() => {
+                  setShowPhotoSection(false);
+                  setSrc(null);
+                }}
+              >
+                <FaTimes />
+              </button>
             </div>
 
-            {showPhotoSection && (
-              <div className="photo-editor-container">
+            <div className="photo-editor-container">
+              {!src ? (
                 <div className="file-input-container">
                   <label htmlFor="profile-photo" className="file-input-label">
+                    <FaCamera className="file-input-icon" />
                     <span>Select Image</span>
                     <input
                       type="file"
@@ -239,59 +255,54 @@ function UserProfile() {
                     />
                   </label>
                 </div>
+              ) : (
+                <>
+                  <div className="avatar-editor-container">
+                    <AvatarEditor
+                      ref={setEditor}
+                      image={src}
+                      width={250}
+                      height={250}
+                      border={50}
+                      borderRadius={125}
+                      scale={scale}
+                    />
+                  </div>
 
-                {src && (
-                  <>
-                    <div className="avatar-editor-container">
-                      <AvatarEditor
-                        ref={setEditor}
-                        image={src}
-                        width={250}
-                        height={250}
-                        border={50}
-                        borderRadius={125}
-                        scale={scale}
-                      />
-                    </div>
+                  <div className="zoom-control">
+                    <span>Zoom:</span>
+                    <input
+                      type="range"
+                      min="1"
+                      max="2"
+                      step="0.01"
+                      value={scale}
+                      onChange={handleScaleChange}
+                    />
+                  </div>
 
-                    <div className="zoom-control">
-                      <span>Zoom:</span>
-                      <input
-                        type="range"
-                        min="1"
-                        max="2"
-                        step="0.01"
-                        value={scale}
-                        onChange={handleScaleChange}
-                      />
-                    </div>
-
-                    <div className="photo-actions">
-                      <button
-                        type="button"
-                        className="cancel-button"
-                        onClick={() => {
-                          setSrc(null);
-                          setShowPhotoSection(false);
-                        }}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        className="save-button"
-                        onClick={handleUpdatePhoto}
-                        disabled={isLoading}
-                      >
-                        {isLoading ? "Updating..." : "Save Photo"}
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
+                  <div className="photo-actions">
+                    <button
+                      type="button"
+                      className="cancel-button"
+                      onClick={() => setSrc(null)}
+                    >
+                      Change Image
+                    </button>
+                    <button
+                      type="button"
+                      className="save-button"
+                      onClick={handleUpdatePhoto}
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Updating..." : "Save Photo"}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Email Section */}
         <div className="profile-section">
@@ -378,8 +389,6 @@ function UserProfile() {
               showPasswordSection ? "expanded" : ""
             }`}
           >
-            <p className="current-value">••••••••</p>
-
             {showPasswordSection && (
               <form onSubmit={handleUpdatePassword} className="update-form">
                 <div className="form-group">

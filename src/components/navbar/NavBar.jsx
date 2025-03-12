@@ -2,15 +2,12 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./NavBar.css";
 import { useAuth } from "../../App"; // Import the auth context
+import { FaUser } from "react-icons/fa"; // Import user icon for default avatar
 
 function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isLoggedIn, username, userRole, handleLogout } = useAuth(); // Added username here
+  const { isLoggedIn, username, userRole, handleLogout, user } = useAuth(); // Get full user object
   const navigate = useNavigate();
-
-  // Add these debug logs
-  console.log("NavBar - userRole:", userRole);
-  console.log("NavBar - isAdmin:", userRole === "admin");
 
   // Check if user is admin
   const isAdmin = userRole === "admin";
@@ -77,9 +74,23 @@ function NavBar() {
                     </Link>
                   </li>
                 )}
-                <li>
-                  <Link to="/profile" onClick={handleMenuItemClick}>
-                    Profile
+                <li className="profile-nav-item">
+                  <Link
+                    to="/profile"
+                    onClick={handleMenuItemClick}
+                    className="profile-link"
+                  >
+                    {user && user.profilePhoto ? (
+                      <img
+                        src={user.profilePhoto}
+                        alt={username || "Profile"}
+                        className="navbar-profile-photo"
+                      />
+                    ) : (
+                      <div className="navbar-profile-placeholder">
+                        <FaUser />
+                      </div>
+                    )}
                   </Link>
                 </li>
                 <li>

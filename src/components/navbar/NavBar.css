@@ -87,6 +87,52 @@
 	color: #f39c12;
 }
 
+/* Profile photo in navbar */
+.profile-nav-item {
+	display: flex;
+	align-items: center;
+}
+
+.profile-link {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 !important;
+}
+
+.navbar-profile-photo {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	object-fit: cover;
+	border: 2px solid #fff;
+	transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.navbar-profile-placeholder {
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background-color: rgba(255, 255, 255, 0.2);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	font-size: 16px;
+	border: 2px solid rgba(255, 255, 255, 0.5);
+	transition: transform 0.2s, background-color 0.2s;
+}
+
+.profile-link:hover .navbar-profile-photo,
+.profile-link:hover .navbar-profile-placeholder {
+	transform: scale(1.1);
+	box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6);
+}
+
+.profile-link:hover .navbar-profile-placeholder {
+	background-color: rgba(255, 255, 255, 0.3);
+}
+
 /* Media Queries for Responsiveness */
 @media (max-width: 768px) {
 	.navbar {
@@ -107,5 +153,11 @@
 	.navbar-links button {
 		width: 100%;
 		text-align: left;
+	}
+
+	.navbar-profile-photo,
+	.navbar-profile-placeholder {
+		width: 36px;
+		height: 36px;
 	}
 }

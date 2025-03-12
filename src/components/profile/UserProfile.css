@@ -100,6 +100,7 @@
 	max-height: 800px;
 	padding: 16px;
 	border-top: 1px solid #eaeaea;
+	animation: fadeIn 0.3s ease-out;
 }
 
 .current-value {
@@ -336,6 +337,141 @@
 	}
 }
 
-.section-content.expanded {
-	animation: fadeIn 0.3s ease-out;
+/* Add these new styles to your UserProfile.css file */
+
+/* Profile Photo Top Section */
+.profile-photo-top {
+	display: flex;
+	justify-content: center;
+	margin-bottom: 30px;
+	cursor: pointer;
 }
+
+.avatar-container {
+	position: relative;
+	width: 150px;
+	height: 150px;
+	border-radius: 50%;
+	border: 3px solid #fff;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	overflow: hidden;
+	transition: transform 0.2s ease;
+}
+
+.avatar-container:hover {
+	transform: scale(1.05);
+}
+
+.avatar-image-large {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.avatar-placeholder-large {
+	width: 100%;
+	height: 100%;
+	background-color: #e9ecef;
+	color: #adb5bd;
+	font-size: 64px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.avatar-edit-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	border-radius: 50%;
+}
+
+.avatar-container:hover .avatar-edit-overlay {
+	opacity: 1;
+}
+
+.edit-icon {
+	color: white;
+	font-size: 36px;
+	filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+}
+
+/* Photo Editor Dialog */
+.photo-editor-dialog {
+	margin: 0 auto 30px;
+	padding: 20px;
+	background-color: #f8f9fa;
+	border-radius: 12px;
+	border: 1px solid #dee2e6;
+	animation: fadeInDown 0.3s ease;
+}
+
+.photo-editor-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #dee2e6;
+}
+
+.photo-editor-header h3 {
+	margin: 0;
+	font-size: 18px;
+	color: #343a40;
+}
+
+.close-button {
+	background: none;
+	border: none;
+	color: #6c757d;
+	font-size: 20px;
+	cursor: pointer;
+	padding: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	transition: background-color 0.2s ease;
+}
+
+.close-button:hover {
+	background-color: #e9ecef;
+	color: #343a40;
+}
+
+.file-input-icon {
+	margin-right: 8px;
+	font-size: 18px;
+}
+
+@keyframes fadeInDown {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+/* Adjust existing styles for the new layout */
+.section-content.expanded {
+	max-height: 800px;
+	padding: 16px;
+	border-top: 1px solid #eaeaea;
+}
+
+/* Keep existing styles for other components */
