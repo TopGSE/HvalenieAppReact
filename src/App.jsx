@@ -17,6 +17,7 @@ import Register from "./components/auth/Register";
 import UserProfile from "./components/profile/UserProfile";
 import ForgotPassword from "./components/auth/ForgotPassword";
 import ResetPassword from "./components/auth/ResetPassword";
+import Statistics from "./components/admin/Statistics";
 import {
   BrowserRouter as Router,
   Route,
@@ -288,27 +289,40 @@ function AppContent({
                           <p>No playlists yet</p>
                         </div>
                       ) : (
-                        playlists.map((playlist) => (
-                          <div
-                            key={playlist.id}
-                            className={`playlist-item ${
-                              currentPlaylist?.id === playlist.id
-                                ? "selected"
-                                : ""
-                            }`}
-                            onClick={() => {
-                              setCurrentPlaylist(playlist);
-                              setSelectedSong(null);
-                            }}
-                          >
-                            <div className="playlist-item-name">
-                              {playlist.name}
+                        playlists
+                          .filter((playlist) => {
+                            // Get current user ID
+                            const userData = JSON.parse(
+                              localStorage.getItem("user") || "{}"
+                            );
+                            const userId = userData.id || userData._id;
+
+                            // Only show playlists for current user or playlists without userId (for backward compatibility)
+                            return (
+                              !playlist.userId || playlist.userId === userId
+                            );
+                          })
+                          .map((playlist) => (
+                            <div
+                              key={playlist.id}
+                              className={`playlist-item ${
+                                currentPlaylist?.id === playlist.id
+                                  ? "selected"
+                                  : ""
+                              }`}
+                              onClick={() => {
+                                setCurrentPlaylist(playlist);
+                                setSelectedSong(null);
+                              }}
+                            >
+                              <div className="playlist-item-name">
+                                {playlist.name}
+                              </div>
+                              <div className="playlist-item-count">
+                                {playlist.songIds?.length || 0}
+                              </div>
                             </div>
-                            <div className="playlist-item-count">
-                              {playlist.songIds?.length || 0}
-                            </div>
-                          </div>
-                        ))
+                          ))
                       )}
                     </div>
                   </div>
@@ -397,6 +411,25 @@ function AppContent({
           element={
             isLoggedIn ? (
               <UserProfile handleSavePlaylist={handleSavePlaylist} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/statistics"
+          element={
+            isLoggedIn && userRole === "admin" ? (
+              <Statistics />
+            ) : isLoggedIn ? (
+              <div className="unauthorized-page">
+                <h2>Unauthorized Access</h2>
+                <p>You need administrator privileges to view statistics.</p>
+                <p>Your current role: {userRole || "none"}</p>
+                <button onClick={() => navigate("/home")}>
+                  Return to Home
+                </button>
+              </div>
             ) : (
               <Navigate to="/login" />
             )
@@ -512,6 +545,9 @@ function App() {
           });
       }
     }
+
+    // Run the playlist migration after login
+    migrateUserPlaylists();
   };
 
   // Logout handler
@@ -909,11 +945,20 @@ function App() {
 
   // Function to create or update a playlist
   const handleSavePlaylist = (playlistData) => {
+    // Get current user ID from localStorage
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const userId = userData.id || userData._id || null;
+
     if (playlistData.id) {
-      // Update existing playlist
+      // Update existing playlist - only if it belongs to current user
       const updatedPlaylists = playlists.map((p) =>
-        p.id === playlistData.id
-          ? { ...p, ...playlistData, updatedAt: new Date().toISOString() }
+        p.id === playlistData.id && p.userId === userId
+          ? {
+              ...p,
+              ...playlistData,
+              userId, // Ensure userId is maintained
+              updatedAt: new Date().toISOString(),
+            }
           : p
       );
       setPlaylists(updatedPlaylists);
@@ -923,6 +968,7 @@ function App() {
         setCurrentPlaylist({
           ...currentPlaylist,
           ...playlistData,
+          userId,
           updatedAt: new Date().toISOString(),
         });
       }
@@ -932,7 +978,8 @@ function App() {
       const newPlaylist = {
         ...playlistData,
         id: Date.now().toString(),
-        songIds: playlistData.songIds || [], // Use passed songIds instead of overwriting with empty array
+        userId, // Add the current user's ID
+        songIds: playlistData.songIds || [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -945,6 +992,10 @@ function App() {
 
   // Function to add a song to a playlist
   const addSongToPlaylist = (playlistId, songId) => {
+    // Get current user ID
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const userId = userData.id || userData._id;
+
     // Check if song exists
     if (!songs.some((song) => song._id === songId)) {
       toast.error("Song not found");
@@ -955,6 +1006,12 @@ function App() {
     const playlist = playlists.find((p) => p.id === playlistId);
     if (!playlist) {
       toast.error("Playlist not found");
+      return;
+    }
+
+    // Check playlist ownership
+    if (playlist.userId && playlist.userId !== userId) {
+      toast.error("You don't have permission to modify this playlist");
       return;
     }
 
@@ -994,6 +1051,22 @@ function App() {
 
   // Function to remove a song from a playlist
   const removeSongFromPlaylist = (playlistId, songId) => {
+    // Get current user ID
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const userId = userData.id || userData._id;
+
+    const playlist = playlists.find((p) => p.id === playlistId);
+    if (!playlist) {
+      toast.error("Playlist not found");
+      return;
+    }
+
+    // Check playlist ownership
+    if (playlist.userId && playlist.userId !== userId) {
+      toast.error("You don't have permission to modify this playlist");
+      return;
+    }
+
     const updatedPlaylists = playlists.map((playlist) => {
       if (playlist.id === playlistId) {
         return {
@@ -1019,8 +1092,26 @@ function App() {
     toast.success("Song removed from playlist");
   };
 
-  // Function to delete a playlist
+  // Update the handleDeletePlaylist function to check for playlist ownership:
+
   const handleDeletePlaylist = (playlistId) => {
+    // Get current user ID
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const userId = userData.id || userData._id;
+
+    // Find the playlist
+    const playlist = playlists.find((p) => p.id === playlistId);
+    if (!playlist) {
+      toast.error("Playlist not found");
+      return;
+    }
+
+    // Check playlist ownership
+    if (playlist.userId && playlist.userId !== userId) {
+      toast.error("You don't have permission to delete this playlist");
+      return;
+    }
+
     const updatedPlaylists = playlists.filter((p) => p.id !== playlistId);
     setPlaylists(updatedPlaylists);
 
@@ -1091,6 +1182,42 @@ function App() {
         });
     }
   }, []);
+
+  // Add this function to your App component:
+
+  const migrateUserPlaylists = () => {
+    // This should run once on app initialization
+    const userData = JSON.parse(localStorage.getItem("user") || "{}");
+    const userId = userData.id || userData._id;
+
+    // Skip if no user is logged in
+    if (!userId) return;
+
+    // Get all playlists from localStorage
+    const storedPlaylists = localStorage.getItem("playlists");
+    if (!storedPlaylists) return;
+
+    let playlists = JSON.parse(storedPlaylists);
+
+    // Add userId to any playlists without one (legacy playlists)
+    let needsUpdate = false;
+    playlists = playlists.map((playlist) => {
+      if (!playlist.userId) {
+        needsUpdate = true;
+        return {
+          ...playlist,
+          userId,
+        };
+      }
+      return playlist;
+    });
+
+    // Store updated playlists if needed
+    if (needsUpdate) {
+      localStorage.setItem("playlists", JSON.stringify(playlists));
+      setPlaylists(playlists);
+    }
+  };
 
   return (
     <AuthContext.Provider

@@ -133,6 +133,23 @@
 	background-color: rgba(255, 255, 255, 0.3);
 }
 
+/* Statistics Nav Item */
+.admin-nav-item {
+	display: flex;
+	align-items: center;
+}
+
+.stats-link {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.stats-link svg {
+	font-size: 16px;
+	color: #007bff;
+}
+
 /* Media Queries for Responsiveness */
 @media (max-width: 768px) {
 	.navbar {
@@ -159,5 +176,9 @@
 	.navbar-profile-placeholder {
 		width: 36px;
 		height: 36px;
+	}
+
+	.stats-link {
+		padding: 10px 0;
 	}
 }

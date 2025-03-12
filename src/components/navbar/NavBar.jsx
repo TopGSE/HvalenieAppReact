@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./NavBar.css";
 import { useAuth } from "../../App"; // Import the auth context
-import { FaUser } from "react-icons/fa"; // Import user icon for default avatar
+import { FaUser, FaChartBar } from "react-icons/fa"; // Added FaChartBar for statistics icon
 
 function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isLoggedIn, username, userRole, user } = useAuth(); // Remove handleLogout
+  const { isLoggedIn, username, userRole, user } = useAuth();
   const navigate = useNavigate();
 
   // Check if user is admin
@@ -58,11 +58,22 @@ function NavBar() {
                   </Link>
                 </li>
                 {isAdmin && (
-                  <li>
-                    <Link to="/add-song" onClick={handleMenuItemClick}>
-                      Add Song
-                    </Link>
-                  </li>
+                  <>
+                    <li>
+                      <Link to="/add-song" onClick={handleMenuItemClick}>
+                        Add Song
+                      </Link>
+                    </li>
+                    <li className="admin-nav-item">
+                      <Link
+                        to="/statistics"
+                        onClick={handleMenuItemClick}
+                        className="stats-link"
+                      >
+                        <FaChartBar /> Statistics
+                      </Link>
+                    </li>
+                  </>
                 )}
                 <li className="profile-nav-item">
                   <Link
@@ -83,7 +94,6 @@ function NavBar() {
                     )}
                   </Link>
                 </li>
-                {/* Removed logout button from here */}
               </>
             ) : (
               <>
