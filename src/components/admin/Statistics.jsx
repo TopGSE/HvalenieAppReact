@@ -5,6 +5,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "./AdminStyles.css";
 import { FaUsers, FaMusic, FaListAlt, FaChartBar } from "react-icons/fa";
+import UserManagementModal from "./UserManagementModal";
 
 function Statistics() {
   const navigate = useNavigate();
@@ -14,10 +15,10 @@ function Statistics() {
     totalPlaylists: 0,
     categoryCounts: {},
     userRoles: {},
-    // Remove recentlyAddedSongs from here
   });
   const [loading, setLoading] = useState(true);
   const { isLoggedIn, userRole } = useAuth();
+  const [showUserModal, setShowUserModal] = useState(false);
 
   useEffect(() => {
     if (isLoggedIn && userRole === "admin") {
@@ -62,15 +63,12 @@ function Statistics() {
         return acc;
       }, {});
 
-      // Remove the sorting and filtering for recently added songs
-
       setStats({
         totalUsers,
         totalSongs: songs.length,
         totalPlaylists: playlists.length,
         categoryCounts,
         userRoles: {}, // Keep this empty for now
-        // Remove recentlyAddedSongs from here
       });
     } catch (error) {
       console.error("Error fetching statistics:", error);
@@ -115,13 +113,17 @@ function Statistics() {
       ) : (
         <div className="stats-grid">
           {/* Summary Cards */}
-          <div className="stats-card">
+          <div
+            className="stats-card clickable-card"
+            onClick={() => setShowUserModal(true)}
+          >
             <div className="stats-card-icon">
               <FaUsers />
             </div>
             <div className="stats-card-content">
               <h3>Total Users</h3>
               <div className="stat-value">{stats.totalUsers}</div>
+              <div className="card-click-hint">Click to manage users</div>
             </div>
           </div>
 
@@ -172,10 +174,14 @@ function Statistics() {
               </div>
             </div>
           )}
-
-          {/* Remove the Recently Added Songs section */}
         </div>
       )}
+
+      {/* User Management Modal */}
+      <UserManagementModal
+        show={showUserModal}
+        onClose={() => setShowUserModal(false)}
+      />
     </div>
   );
 }
