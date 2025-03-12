@@ -14,7 +14,7 @@ function Statistics() {
     totalPlaylists: 0,
     categoryCounts: {},
     userRoles: {},
-    recentlyAddedSongs: [],
+    // Remove recentlyAddedSongs from here
   });
   const [loading, setLoading] = useState(true);
   const { isLoggedIn, userRole } = useAuth();
@@ -50,6 +50,8 @@ function Statistics() {
         totalUsers = usersResponse.data.count;
       } catch (userError) {
         console.error("Error fetching user count:", userError);
+        // Don't show a toast error for this - it's not critical
+        totalUsers = "N/A";
       }
 
       // Calculate category counts
@@ -60,24 +62,15 @@ function Statistics() {
         return acc;
       }, {});
 
-      // Sort songs by date or ID
-      const recentlyAddedSongs = [...songs]
-        .sort((a, b) => {
-          if (a.createdAt && b.createdAt) {
-            return new Date(b.createdAt) - new Date(a.createdAt);
-          }
-          // Fallback to _id for MongoDB ObjectIDs (contain timestamp)
-          return b._id?.localeCompare(a._id) || 0;
-        })
-        .slice(0, 5);
+      // Remove the sorting and filtering for recently added songs
 
       setStats({
         totalUsers,
         totalSongs: songs.length,
         totalPlaylists: playlists.length,
         categoryCounts,
-        userRoles: {}, // We'll keep this empty for now
-        recentlyAddedSongs,
+        userRoles: {}, // Keep this empty for now
+        // Remove recentlyAddedSongs from here
       });
     } catch (error) {
       console.error("Error fetching statistics:", error);
@@ -180,38 +173,7 @@ function Statistics() {
             </div>
           )}
 
-          {/* Recent Songs */}
-          <div className="stats-card">
-            <h3>Recently Added Songs</h3>
-            {stats.recentlyAddedSongs.length > 0 ? (
-              <ul className="songs-list">
-                {stats.recentlyAddedSongs.map((song) => (
-                  <li key={song._id || Math.random()}>
-                    <div className="song-title">{song.title}</div>
-                    <div className="song-meta">
-                      {song.category && (
-                        <span
-                          className="category-badge"
-                          style={{
-                            backgroundColor: getCategoryColor(song.category),
-                          }}
-                        >
-                          {song.category}
-                        </span>
-                      )}
-                      {song.createdAt && (
-                        <span>
-                          {new Date(song.createdAt).toLocaleDateString()}
-                        </span>
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="empty-state">No songs found</p>
-            )}
-          </div>
+          {/* Remove the Recently Added Songs section */}
         </div>
       )}
     </div>

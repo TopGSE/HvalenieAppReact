@@ -70,7 +70,7 @@ function NavBar() {
                         onClick={handleMenuItemClick}
                         className="stats-link"
                       >
-                        <FaChartBar /> Statistics
+                        Statistics
                       </Link>
                     </li>
                   </>

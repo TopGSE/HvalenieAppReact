@@ -1,8 +1,8 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User.cjs');
-const authMiddleware = require('../middleware/authMiddleware.cjs');
-const nodemailer = require('nodemailer'); // Ensure nodemailer is installed
+const { authMiddleware, adminMiddleware } = require('../middleware/authMiddleware.cjs');
+const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
 const router = express.Router();

@@ -7,32 +7,32 @@
 	background-color: white;
 	border-radius: 12px;
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-	overflow-y: auto;
-	/* Change from 'visible' to 'auto' to add scrollbar when needed */
-	max-height: 80vh;
-	/* Limit height to 80% of viewport height */
-	height: calc(100vh - 160px);
-	/* Alternative fixed height calculation */
+	overflow: visible;
+	/* Change from 'auto' to 'visible' to remove scrollbar */
+	height: auto;
+	/* Allow height to adjust to content */
 }
 
-/* Style the scrollbar for better appearance */
+/* Remove scrollbar styling since it's no longer needed */
+/* 
 .admin-container::-webkit-scrollbar {
-	width: 8px;
+    width: 8px;
 }
 
 .admin-container::-webkit-scrollbar-track {
-	background: #f1f1f1;
-	border-radius: 4px;
+    background: #f1f1f1;
+    border-radius: 4px;
 }
 
 .admin-container::-webkit-scrollbar-thumb {
-	background: #c1c1c1;
-	border-radius: 4px;
+    background: #c1c1c1;
+    border-radius: 4px;
 }
 
 .admin-container::-webkit-scrollbar-thumb:hover {
-	background: #a1a1a1;
+    background: #a1a1a1;
 }
+*/
 
 .unauthorized-container {
 	max-width: 600px;
@@ -93,11 +93,11 @@
 /* Statistics Grid */
 .stats-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	grid-template-columns: repeat(3, 1fr);
+	/* Force exactly 3 columns for main stats */
 	gap: 20px;
 	overflow: visible;
-	margin-bottom: 30px;
-	/* Increase bottom margin */
+	margin-bottom: 20px;
 }
 
 .stats-card {
@@ -108,9 +108,7 @@
 	border: 1px solid #eaeaea;
 	transition: transform 0.2s, box-shadow 0.2s;
 	overflow: hidden;
-	/* Keep content inside cards */
 	height: fit-content;
-	/* Only take space needed */
 }
 
 .stats-card:hover {
@@ -119,7 +117,8 @@
 }
 
 .wide-card {
-	grid-column: span 2;
+	grid-column: 1 / -1;
+	/* Span all columns */
 }
 
 .stats-card h3 {
@@ -204,6 +203,7 @@
 	font-weight: 500;
 }
 
+/* Keep category badge for potential future use */
 .category-badge {
 	display: inline-block;
 	padding: 2px 6px;
@@ -243,39 +243,15 @@
 	color: #007bff;
 }
 
+/* Remove the songs list styles */
 /* Songs List */
-.songs-list {
-	list-style: none;
-	padding: 0;
-	margin: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-	max-height: 350px;
-	overflow-y: auto;
-}
+/* .songs-list, .song-title, .song-meta related styles removed */
 
-.songs-list li {
-	padding: 10px;
-	border-radius: 6px;
-	background-color: #f8f9fa;
-	transition: background-color 0.2s;
-}
-
-.songs-list li:hover {
-	background-color: #e9ecef;
-}
-
-.song-title {
-	font-weight: 500;
-	margin-bottom: 5px;
-}
-
-.song-meta {
-	display: flex;
-	justify-content: space-between;
-	font-size: 0.85rem;
+/* Empty state message */
+.empty-state {
+	text-align: center;
 	color: #6c757d;
+	padding: 20px 0;
 }
 
 /* User Management Table */
@@ -314,12 +290,6 @@
 
 .role-button:hover {
 	background-color: #0069d9;
-}
-
-.empty-state {
-	text-align: center;
-	color: #6c757d;
-	padding: 20px 0;
 }
 
 /* Responsive */
