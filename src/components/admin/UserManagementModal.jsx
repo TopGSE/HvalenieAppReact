@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-<<<<<<< HEAD
 import {
   FaTimes,
   FaUserCog,
@@ -9,9 +8,6 @@ import {
   FaSearch,
   FaSpinner,
 } from "react-icons/fa";
-=======
-import { FaTimes, FaUserCog, FaUserShield, FaSearch, FaSpinner } from "react-icons/fa";
->>>>>>> 42cf276c15669b4c871574debad4a0dd932de515
 import "./AdminStyles.css";
 
 function UserManagementModal({ show, onClose }) {
@@ -52,7 +48,6 @@ function UserManagementModal({ show, onClose }) {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Update local state
       setUsers(
         users.map((user) =>
           user._id === userId ? { ...user, role: newRole } : user
@@ -69,15 +64,9 @@ function UserManagementModal({ show, onClose }) {
   };
 
   const filteredUsers = users.filter(
-<<<<<<< HEAD
     (user) =>
       user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchTerm.toLowerCase())
-=======
-    user => 
-      user.username.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
->>>>>>> 42cf276c15669b4c871574debad4a0dd932de515
   );
 
   if (!show) return null;
@@ -87,22 +76,14 @@ function UserManagementModal({ show, onClose }) {
       className="modal-overlay"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="modal-container user-management-modal">
+      <div
+        className="modal-container user-management-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
-<<<<<<< HEAD
           <h2>
             <FaUserShield /> User Management
           </h2>
-=======
-          <h2>User Management</h2>
->>>>>>> 42cf276c15669b4c871574debad4a0dd932de515
-          <button
-            onClick={onClose}
-            className="modal-close-btn"
-            aria-label="Close modal"
-          >
-            <FaTimes />
-          </button>
         </div>
 
         <div className="modal-toolbar">
@@ -110,7 +91,6 @@ function UserManagementModal({ show, onClose }) {
             <FaSearch className="search-icon" />
             <input
               type="text"
-<<<<<<< HEAD
               placeholder="Search by username or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -119,15 +99,6 @@ function UserManagementModal({ show, onClose }) {
             />
             {searchTerm && (
               <button
-=======
-              placeholder="Search users..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="user-search-input"
-            />
-            {searchTerm && (
-              <button 
->>>>>>> 42cf276c15669b4c871574debad4a0dd932de515
                 className="clear-search"
                 onClick={() => setSearchTerm("")}
                 aria-label="Clear search"
@@ -137,11 +108,7 @@ function UserManagementModal({ show, onClose }) {
             )}
           </div>
           <div className="user-count">
-<<<<<<< HEAD
             {filteredUsers.length} user{filteredUsers.length !== 1 ? "s" : ""}
-=======
-            {filteredUsers.length} user{filteredUsers.length !== 1 ? 's' : ''}
->>>>>>> 42cf276c15669b4c871574debad4a0dd932de515
           </div>
         </div>
 
@@ -185,7 +152,6 @@ function UserManagementModal({ show, onClose }) {
                           <td>
                             {user.role === "reader" ? (
                               <button
-<<<<<<< HEAD
                                 onClick={() =>
                                   changeUserRole(user._id, "admin")
                                 }
@@ -211,27 +177,6 @@ function UserManagementModal({ show, onClose }) {
                                 ) : (
                                   "Make Reader"
                                 )}
-=======
-                                onClick={() => changeUserRole(user._id, "admin")}
-                                className="role-button"
-                                disabled={processingUser === user._id}
-                              >
-                                {processingUser === user._id ? 
-                                  <FaSpinner className="button-spinner" /> : 
-                                  "Make Admin"
-                                }
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => changeUserRole(user._id, "reader")}
-                                className="role-button reader-button"
-                                disabled={processingUser === user._id}
-                              >
-                                {processingUser === user._id ? 
-                                  <FaSpinner className="button-spinner" /> : 
-                                  "Make Reader"
-                                }
->>>>>>> 42cf276c15669b4c871574debad4a0dd932de515
                               </button>
                             )}
                           </td>
@@ -242,30 +187,14 @@ function UserManagementModal({ show, onClose }) {
                 </div>
               ) : (
                 <div className="empty-state">
-<<<<<<< HEAD
                   {searchTerm
                     ? `No users found matching "${searchTerm}"`
                     : "No users found"}
-=======
-                  {searchTerm ? 
-                    `No users found matching "${searchTerm}"` : 
-                    "No users found"
-                  }
->>>>>>> 42cf276c15669b4c871574debad4a0dd932de515
                 </div>
               )}
             </>
           )}
         </div>
-<<<<<<< HEAD
-=======
-
-        <div className="modal-footer">
-          <button onClick={onClose} className="close-modal-btn">
-            Close
-          </button>
-        </div>
->>>>>>> 42cf276c15669b4c871574debad4a0dd932de515
       </div>
     </div>
   );

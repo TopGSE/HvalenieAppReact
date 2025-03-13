@@ -51,8 +51,6 @@ function Statistics() {
         totalUsers = usersResponse.data.count;
       } catch (userError) {
         console.error("Error fetching user count:", userError);
-        // Don't show a toast error for this - it's not critical
-        totalUsers = "N/A";
       }
 
       // Calculate category counts
@@ -68,11 +66,7 @@ function Statistics() {
         totalSongs: songs.length,
         totalPlaylists: playlists.length,
         categoryCounts,
-<<<<<<< HEAD
-        userRoles: {},
-=======
         userRoles: {}, // Keep this empty for now
->>>>>>> 42cf276c15669b4c871574debad4a0dd932de515
       });
     } catch (error) {
       console.error("Error fetching statistics:", error);
@@ -120,10 +114,7 @@ function Statistics() {
           <div
             className="stats-card clickable-card"
             onClick={() => setShowUserModal(true)}
-<<<<<<< HEAD
             title="Click to manage users"
-=======
->>>>>>> 42cf276c15669b4c871574debad4a0dd932de515
           >
             <div className="stats-card-icon">
               <FaUsers />
@@ -185,7 +176,6 @@ function Statistics() {
         </div>
       )}
 
-      {/* User Management Modal */}
       <UserManagementModal
         show={showUserModal}
         onClose={() => setShowUserModal(false)}
