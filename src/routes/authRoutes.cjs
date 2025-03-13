@@ -153,7 +153,14 @@ router.delete('/profile', authMiddleware, async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.json({ message: 'Account deleted successfully' });
+
+    // For logging purposes only (not needed for functionality)
+    console.log(`User deleted: ${user.username} (${user._id})`);
+    
+    res.json({ 
+      message: 'Account deleted successfully',
+      userId: user._id // Return the deleted userId for client-side cleanup
+    });
   } catch (err) {
     console.error('Error deleting account:', err);
     res.status(500).json({ message: err.message });

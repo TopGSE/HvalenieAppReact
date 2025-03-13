@@ -561,7 +561,7 @@ function App() {
   };
 
   // Logout handler
-  const handleLogout = () => {
+  const handleLogout = (deletedUserId) => {
     // Clear all user data from localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("username");
@@ -574,6 +574,20 @@ function App() {
     setUsername(null);
     setUserRole(null);
     setUser(null); // Also reset the user object in state
+
+    // If a userId was provided (account deletion), clean up associated playlists
+    if (deletedUserId) {
+      const storedPlaylists = localStorage.getItem("playlists");
+      if (storedPlaylists) {
+        const parsedPlaylists = JSON.parse(storedPlaylists);
+        const filteredPlaylists = parsedPlaylists.filter(
+          (playlist) => playlist.userId !== deletedUserId
+        );
+
+        localStorage.setItem("playlists", JSON.stringify(filteredPlaylists));
+        setPlaylists(filteredPlaylists);
+      }
+    }
 
     // Other logout actions you might have...
   };

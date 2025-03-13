@@ -19,6 +19,7 @@ function Statistics() {
   const [loading, setLoading] = useState(true);
   const { isLoggedIn, userRole } = useAuth();
   const [showUserModal, setShowUserModal] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
 
   useEffect(() => {
     if (isLoggedIn && userRole === "admin") {
@@ -35,22 +36,35 @@ function Statistics() {
       const songsResponse = await axios.get("http://localhost:5000/songs");
       const songs = songsResponse.data;
 
-      // Get playlists from localStorage
-      const storedPlaylists = localStorage.getItem("playlists");
-      const playlists = storedPlaylists ? JSON.parse(storedPlaylists) : [];
-
-      // Fetch users count (admin only)
-      let totalUsers = "N/A";
+      // Fetch all users first to know which user IDs are valid
+      let users = [];
       try {
         const usersResponse = await axios.get(
-          "http://localhost:5000/auth/users/count",
+          "http://localhost:5000/auth/users",
           {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        totalUsers = usersResponse.data.count;
+        users = usersResponse.data;
+        setAllUsers(users);
       } catch (userError) {
-        console.error("Error fetching user count:", userError);
+        console.error("Error fetching users:", userError);
+      }
+
+      // Get playlists from localStorage and filter valid ones
+      const storedPlaylists = localStorage.getItem("playlists");
+      let allPlaylists = storedPlaylists ? JSON.parse(storedPlaylists) : [];
+
+      // Only count playlists with valid userIds (belonging to existing users) or admin playlists
+      const validUserIds = users.map((user) => user._id);
+      const validPlaylists = allPlaylists.filter(
+        (playlist) => !playlist.userId || validUserIds.includes(playlist.userId)
+      );
+
+      // Also clean up the localStorage by removing orphaned playlists
+      if (allPlaylists.length !== validPlaylists.length) {
+        localStorage.setItem("playlists", JSON.stringify(validPlaylists));
+        toast.info("Cleaned up orphaned playlists from deleted users");
       }
 
       // Calculate category counts
@@ -62,11 +76,11 @@ function Statistics() {
       }, {});
 
       setStats({
-        totalUsers,
+        totalUsers: users.length,
         totalSongs: songs.length,
-        totalPlaylists: playlists.length,
+        totalPlaylists: validPlaylists.length,
         categoryCounts,
-        userRoles: {}, // Keep this empty for now
+        userRoles: {},
       });
     } catch (error) {
       console.error("Error fetching statistics:", error);
@@ -179,6 +193,7 @@ function Statistics() {
       <UserManagementModal
         show={showUserModal}
         onClose={() => setShowUserModal(false)}
+        users={allUsers}
       />
     </div>
   );

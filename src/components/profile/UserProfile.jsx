@@ -202,11 +202,17 @@ function UserProfile() {
       setIsLoading(true);
       try {
         const token = localStorage.getItem("token");
-        await axios.delete("http://localhost:5000/auth/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const userData = JSON.parse(localStorage.getItem("user") || "{}");
+        const userId = userData._id || userData.id;
 
-        handleLogout();
+        const response = await axios.delete(
+          "http://localhost:5000/auth/profile",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        handleLogout(userId); // Pass the userId to clean up playlists
         toast.success("Account deleted successfully");
       } catch (error) {
         console.error("Error deleting account:", error);
