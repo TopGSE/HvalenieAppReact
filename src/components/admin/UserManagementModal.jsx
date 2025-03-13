@@ -7,6 +7,10 @@ import {
   FaUserShield,
   FaSearch,
   FaSpinner,
+  FaSortAlphaDown,
+  FaFilter,
+  FaEllipsisV,
+  FaExclamationTriangle,
 } from "react-icons/fa";
 import "./AdminStyles.css";
 
@@ -15,6 +19,8 @@ function UserManagementModal({ show, onClose }) {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [processingUser, setProcessingUser] = useState(null);
+  const [sortBy, setSortBy] = useState("username");
+  const [filterRole, setFilterRole] = useState("all");
 
   useEffect(() => {
     if (show) {
@@ -54,7 +60,7 @@ function UserManagementModal({ show, onClose }) {
         )
       );
 
-      toast.success(`User role updated to ${newRole}`);
+      toast.success(`User role updated successfully to ${newRole}`);
     } catch (error) {
       console.error("Error updating role:", error);
       toast.error("Failed to update user role");
@@ -63,35 +69,52 @@ function UserManagementModal({ show, onClose }) {
     }
   };
 
-  const filteredUsers = users.filter(
+  // Filter users based on search term and role filter
+  let filteredUsers = users.filter(
     (user) =>
-      user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+      (user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email?.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (filterRole === "all" || user.role === filterRole)
   );
+
+  // Sort users based on selected sort option
+  filteredUsers = filteredUsers.sort((a, b) => {
+    if (sortBy === "username") {
+      return a.username.localeCompare(b.username);
+    } else if (sortBy === "email") {
+      return a.email.localeCompare(b.email);
+    } else if (sortBy === "role") {
+      return a.role.localeCompare(b.role);
+    }
+    return 0;
+  });
 
   if (!show) return null;
 
   return (
     <div
-      className="modal-overlay"
+      className="user-modal-overlay"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="modal-container user-management-modal"
+        className="user-modal-container"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="modal-header">
+        <div className="user-modal-header">
           <h2>
             <FaUserShield /> User Management
           </h2>
+          <button className="user-modal-close" onClick={onClose}>
+            <FaTimes />
+          </button>
         </div>
 
-        <div className="modal-toolbar">
-          <div className="search-container">
-            <FaSearch className="search-icon" />
+        <div className="user-modal-toolbar">
+          <div className="user-search-container">
+            <FaSearch className="user-search-icon" />
             <input
               type="text"
-              placeholder="Search by username or email..."
+              placeholder="Search users..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="user-search-input"
@@ -99,7 +122,7 @@ function UserManagementModal({ show, onClose }) {
             />
             {searchTerm && (
               <button
-                className="clear-search"
+                className="user-search-clear"
                 onClick={() => setSearchTerm("")}
                 aria-label="Clear search"
               >
@@ -107,89 +130,134 @@ function UserManagementModal({ show, onClose }) {
               </button>
             )}
           </div>
-          <div className="user-count">
-            {filteredUsers.length} user{filteredUsers.length !== 1 ? "s" : ""}
+
+          <div className="user-filter-controls">
+            <div className="user-filter-dropdown">
+              <select
+                value={filterRole}
+                onChange={(e) => setFilterRole(e.target.value)}
+                className="user-filter-select"
+              >
+                <option value="all">All Roles</option>
+                <option value="admin">Admins</option>
+                <option value="reader">Readers</option>
+              </select>
+              <FaFilter className="user-filter-icon" />
+            </div>
+
+            <div className="user-sort-dropdown">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="user-sort-select"
+              >
+                <option value="username">Sort by Name</option>
+                <option value="email">Sort by Email</option>
+                <option value="role">Sort by Role</option>
+              </select>
+              <FaSortAlphaDown className="user-sort-icon" />
+            </div>
           </div>
         </div>
 
-        <div className="modal-content">
+        <div className="user-modal-stats">
+          <div className="user-count-badge">
+            {filteredUsers.length} user{filteredUsers.length !== 1 ? "s" : ""}{" "}
+            found
+          </div>
+          <div className="user-role-breakdown">
+            <span className="role-count admin">
+              <FaUserShield /> {users.filter((u) => u.role === "admin").length}{" "}
+              Admin(s)
+            </span>
+            <span className="role-count reader">
+              <FaUserCog /> {users.filter((u) => u.role === "reader").length}{" "}
+              Reader(s)
+            </span>
+          </div>
+        </div>
+
+        <div className="user-modal-content">
           {loading ? (
-            <div className="loading-container">
-              <FaSpinner className="spinner" />
+            <div className="user-loading-container">
+              <div className="user-loading-spinner">
+                <FaSpinner />
+              </div>
               <p>Loading users...</p>
             </div>
           ) : (
             <>
               {filteredUsers.length > 0 ? (
-                <div className="table-container">
-                  <table className="users-table">
-                    <thead>
-                      <tr>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredUsers.map((user) => (
-                        <tr key={user._id}>
-                          <td className="username-cell">{user.username}</td>
-                          <td>{user.email}</td>
-                          <td>
-                            <span className={`role-badge ${user.role}`}>
-                              {user.role === "admin" ? (
-                                <>
-                                  <FaUserShield /> Admin
-                                </>
-                              ) : (
-                                <>
-                                  <FaUserCog /> Reader
-                                </>
-                              )}
-                            </span>
-                          </td>
-                          <td>
-                            {user.role === "reader" ? (
-                              <button
-                                onClick={() =>
-                                  changeUserRole(user._id, "admin")
-                                }
-                                className="role-button"
-                                disabled={processingUser === user._id}
-                              >
-                                {processingUser === user._id ? (
-                                  <FaSpinner className="button-spinner" />
-                                ) : (
-                                  "Make Admin"
-                                )}
-                              </button>
+                <div className="user-grid">
+                  {filteredUsers.map((user) => (
+                    <div key={user._id} className="user-card">
+                      <div className="user-card-header">
+                        <div className="user-avatar">
+                          {user.username?.charAt(0).toUpperCase() || "U"}
+                        </div>
+                        <div className="user-info">
+                          <h3 className="user-name">{user.username}</h3>
+                          <p className="user-email">{user.email}</p>
+                        </div>
+                        <div className="user-role-tag">
+                          <span className={`role-badge ${user.role}`}>
+                            {user.role === "admin" ? (
+                              <>
+                                <FaUserShield /> Admin
+                              </>
                             ) : (
-                              <button
-                                onClick={() =>
-                                  changeUserRole(user._id, "reader")
-                                }
-                                className="role-button reader-button"
-                                disabled={processingUser === user._id}
-                              >
-                                {processingUser === user._id ? (
-                                  <FaSpinner className="button-spinner" />
-                                ) : (
-                                  "Make Reader"
-                                )}
-                              </button>
+                              <>
+                                <FaUserCog /> Reader
+                              </>
                             )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          </span>
+                        </div>
+                      </div>
+                      <div className="user-card-actions">
+                        {user.role === "reader" ? (
+                          <button
+                            onClick={() => changeUserRole(user._id, "admin")}
+                            className="user-role-button promote"
+                            disabled={processingUser === user._id}
+                          >
+                            {processingUser === user._id ? (
+                              <>
+                                <FaSpinner className="button-spinner" />{" "}
+                                Processing...
+                              </>
+                            ) : (
+                              <>Make Admin</>
+                            )}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => changeUserRole(user._id, "reader")}
+                            className="user-role-button demote"
+                            disabled={processingUser === user._id}
+                          >
+                            {processingUser === user._id ? (
+                              <>
+                                <FaSpinner className="button-spinner" />{" "}
+                                Processing...
+                              </>
+                            ) : (
+                              <>Make Reader</>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
-                <div className="empty-state">
+                <div className="user-empty-state">
+                  <FaExclamationTriangle />
                   {searchTerm
                     ? `No users found matching "${searchTerm}"`
                     : "No users found"}
+                  <button className="user-refresh-button" onClick={fetchUsers}>
+                    Refresh
+                  </button>
                 </div>
               )}
             </>
