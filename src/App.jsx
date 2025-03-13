@@ -396,10 +396,6 @@ function AppContent({
           element={
             isLoggedIn && userRole === "admin" ? (
               <div className="add-song-page">
-                <div className="add-song-header">
-                  <h1>Добави нова песен</h1>
-                  <p>Добави нова песен към списъка</p>
-                </div>
                 <AddSong onAddSong={handleAddSong} />
               </div>
             ) : isLoggedIn ? (

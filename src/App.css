@@ -789,21 +789,6 @@ button[type="submit"]:hover {
 	overflow-y: auto;
 }
 
-.add-song-header {
-	margin-top: 3rem;
-	text-align: center;
-	color: #000;
-}
-
-.add-song-header h1 {
-	margin-bottom: 0.5rem;
-	color: #333;
-}
-
-.add-song-header p {
-	color: #666;
-}
-
 @media (max-width: 768px) {
 	.add-song-page {
 		padding: 1rem;
