@@ -13,6 +13,7 @@ import {
   FaExclamationTriangle,
 } from "react-icons/fa";
 import "./AdminStyles.css";
+import API_URL from "../../utils/api";
 
 function UserManagementModal({ show, onClose }) {
   const [users, setUsers] = useState([]);
@@ -32,7 +33,7 @@ function UserManagementModal({ show, onClose }) {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/auth/users", {
+      const response = await axios.get(`${API_URL}/auth/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(response.data);
@@ -50,7 +51,7 @@ function UserManagementModal({ show, onClose }) {
       setProcessingUser(userId);
       const token = localStorage.getItem("token");
       await axios.put(
-        `http://localhost:5000/auth/users/${userId}/role`,
+        `${API_URL}/auth/users/${userId}/role`,
         { role: newRole },
         { headers: { Authorization: `Bearer ${token}` } }
       );

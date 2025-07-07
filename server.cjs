@@ -19,7 +19,8 @@ app.use(cors({
     ? [
         'https://hvalenieapp-89e57e2c3558.herokuapp.com', 
         'https://hvalenieapp.herokuapp.com',
-        'https://hvalenie-app-78cc997f9b98.herokuapp.com'
+        'https://hvalenie-app-78cc997f9b98.herokuapp.com',
+        '*' // Temporarily allow all origins while debugging
       ] 
     : 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],

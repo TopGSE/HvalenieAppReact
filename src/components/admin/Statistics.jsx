@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import "./AdminStyles.css";
 import { FaUsers, FaMusic, FaListAlt, FaChartBar } from "react-icons/fa";
 import UserManagementModal from "./UserManagementModal";
+import API_URL from "../../utils/api";
 
 function Statistics() {
   const navigate = useNavigate();
@@ -33,18 +34,15 @@ function Statistics() {
       const token = localStorage.getItem("token");
 
       // Fetch songs
-      const songsResponse = await axios.get("http://localhost:5000/songs");
+      const songsResponse = await axios.get(`${API_URL}/songs`);
       const songs = songsResponse.data;
 
       // Fetch all users first to know which user IDs are valid
       let users = [];
       try {
-        const usersResponse = await axios.get(
-          "http://localhost:5000/auth/users",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const usersResponse = await axios.get(`${API_URL}/auth/users`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         users = usersResponse.data;
         setAllUsers(users);
       } catch (userError) {

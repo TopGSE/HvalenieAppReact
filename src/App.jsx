@@ -334,7 +334,7 @@ function AppContent({
                               </div>
                             </div>
                           ))
-                      )}
+                      }
                     </div>
                   </div>
                 </aside>
@@ -539,7 +539,7 @@ function App() {
       const token = localStorage.getItem("token");
       if (token) {
         axios
-          .get("http://localhost:5000/auth/profile", {
+          .get(`${API_URL}/auth/profile`, {
             headers: { Authorization: `Bearer ${token}` },
           })
           .then((response) => {
@@ -1190,7 +1190,7 @@ function App() {
 
       // Fetch fresh user data from server
       axios
-        .get("http://localhost:5000/auth/profile", {
+        .get(`${API_URL}/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {

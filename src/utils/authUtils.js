@@ -1,4 +1,5 @@
 import axios from 'axios';
+import API_URL from "./api";
 
 let refreshingToken = null;
 
@@ -42,7 +43,7 @@ export const setupTokenRefresh = () => {
       try {
         // Use a shared refreshing token promise to prevent multiple refresh requests
         if (!refreshingToken) {
-          refreshingToken = axios.post('http://localhost:5000/auth/refresh-token', {
+          refreshingToken = axios.post(`${API_URL}/auth/refresh-token`, {
             refreshToken
           }).then(res => {
             refreshingToken = null;
@@ -81,7 +82,7 @@ export const logout = async () => {
   try {
     if (refreshToken) {
       // Notify the server to invalidate this refresh token
-      await axios.post('http://localhost:5000/auth/logout', { refreshToken });
+      await axios.post(`${API_URL}/auth/logout`, { refreshToken });
     }
   } catch (error) {
     console.error('Error during logout:', error);

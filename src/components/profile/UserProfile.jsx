@@ -18,6 +18,7 @@ import {
 } from "react-icons/fa";
 import RandomSongGenerator from "../modals/RandomSongGenerator";
 import "./UserProfile.css";
+import API_URL from "../../utils/api";
 
 function UserProfile() {
   const { user, handleLogout } = useAuth();
@@ -44,7 +45,7 @@ function UserProfile() {
     const fetchUserProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get("http://localhost:5000/auth/profile", {
+        const response = await axios.get(`${API_URL}/auth/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setEmail(response.data.email);
@@ -60,7 +61,7 @@ function UserProfile() {
     // Fetch songs for random generator
     const fetchSongs = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/songs");
+        const response = await axios.get(`${API_URL}/songs`);
         setSongs(response.data);
       } catch (error) {
         console.error("Error fetching songs:", error);
@@ -141,7 +142,7 @@ function UserProfile() {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        "http://localhost:5000/auth/profile/email",
+        `${API_URL}/auth/profile/email`,
         { email, password: currentPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -174,7 +175,7 @@ function UserProfile() {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        "http://localhost:5000/auth/profile/password",
+        `${API_URL}/auth/profile/password`,
         { currentPassword, newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -205,12 +206,9 @@ function UserProfile() {
         const userData = JSON.parse(localStorage.getItem("user") || "{}");
         const userId = userData._id || userData.id;
 
-        const response = await axios.delete(
-          "http://localhost:5000/auth/profile",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const response = await axios.delete(`${API_URL}/auth/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         handleLogout(userId); // Pass the userId to clean up playlists
         toast.success("Account deleted successfully");
