@@ -11,7 +11,7 @@ const crypto = require('crypto');
 const path = require('path');
 
 const app = express();
-const port = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5000;
 
 // Update CORS settings for production
 app.use(cors({
@@ -24,9 +24,17 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' })); // Increased limit for image uploads
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://hvaleniedb:hvaleniepass123@hvaleniedb.cb3j7nt.mongodb.net/?retryWrites=true&w=majority&appName=hvaleniedb')
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error:', err));
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+  family: 4 // Use IPv4, skip trying IPv6
+})
+.then(() => console.log('Connected to MongoDB'))
+.catch(err => {
+  console.error('MongoDB connection error:', err);
+  // Don't crash the app on connection error, try to continue
+});
 
 const songSchema = new mongoose.Schema({
   title: String,
@@ -238,6 +246,15 @@ app.post('/auth/forgot-password', async (req, res) => {
   }
 });
 
+// Add near the top of your routes
+app.get('/api/debug', (req, res) => {
+  res.json({
+    message: 'API is working',
+    environment: process.env.NODE_ENV,
+    mongoConnectionState: mongoose.connection.readyState
+  });
+});
+
 // Serve static files from the React app in production
 if (process.env.NODE_ENV === 'production') {
   // Serve static files from the React app
@@ -249,6 +266,6 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
