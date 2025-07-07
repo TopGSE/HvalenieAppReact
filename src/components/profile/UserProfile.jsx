@@ -97,8 +97,9 @@ function UserProfile() {
       // Compress image more aggressively
       const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
 
+      // Use API_URL instead of hardcoded localhost
       await axios.put(
-        "http://localhost:5000/auth/profile/photo",
+        `${API_URL}/auth/profile/photo`,
         { profilePhoto: dataUrl },
         {
           headers: {
