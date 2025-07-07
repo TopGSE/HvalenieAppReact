@@ -16,7 +16,11 @@ const PORT = process.env.PORT || 5000;
 // Update CORS settings for production
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://hvalenieapp-89e57e2c3558.herokuapp.com', 'https://hvalenieapp.herokuapp.com'] 
+    ? [
+        'https://hvalenieapp-89e57e2c3558.herokuapp.com', 
+        'https://hvalenieapp.herokuapp.com',
+        'https://hvalenie-app-78cc997f9b98.herokuapp.com'
+      ] 
     : 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -218,7 +222,7 @@ app.post('/auth/forgot-password', async (req, res) => {
     
     // Construct the reset URL (frontend URL)
     const resetUrl = `${process.env.NODE_ENV === 'production' 
-      ? 'https://hvalenie-app-78cc997f9b98.herokuapp.com' 
+      ? 'https://hvalenieapp-89e57e2c3558.herokuapp.com' 
       : 'http://localhost:3000'}/reset-password/${resetToken}`;
     
     // Email content
@@ -271,6 +275,64 @@ app.get('/api/debug/auth', (req, res) => {
   });
 });
 
+// Add this before your app.listen call
+app.get('/api/debug/mongodb', async (req, res) => {
+  try {
+    const connectionState = {
+      0: 'disconnected',
+      1: 'connected',
+      2: 'connecting',
+      3: 'disconnecting',
+      99: 'uninitialized'
+    };
+    
+    // Check database connection
+    const dbStatus = {
+      state: connectionState[mongoose.connection.readyState] || 'unknown',
+      readyState: mongoose.connection.readyState,
+      host: mongoose.connection.host,
+      database: mongoose.connection.name
+    };
+    
+    // Check collections and counts
+    let collections = {};
+    if (mongoose.connection.readyState === 1) {
+      collections.songs = await Song.countDocuments();
+      collections.users = await User.countDocuments();
+      
+      // List first few songs
+      const songs = await Song.find({}).select('title artist category').limit(5).lean();
+      collections.songSamples = songs;
+      
+      // List first few users (excluding sensitive data)
+      const users = await User.find({}).select('username email role').limit(5).lean();
+      collections.userSamples = users.map(u => ({
+        username: u.username,
+        email: u.email,
+        role: u.role || 'user'
+      }));
+    }
+    
+    // Return masked MongoDB URI (hide password)
+    const maskedUri = process.env.MONGODB_URI ? 
+      process.env.MONGODB_URI.replace(/mongodb\+srv:\/\/([^:]+):([^@]+)@/, 'mongodb+srv://$1:****@') : 
+      'Not set';
+    
+    res.json({
+      connection: dbStatus,
+      collections,
+      mongodbUri: maskedUri,
+      environment: process.env.NODE_ENV
+    });
+  } catch (err) {
+    console.error('Debug endpoint error:', err);
+    res.status(500).json({ 
+      error: err.message,
+      stack: process.env.NODE_ENV === 'production' ? null : err.stack
+    });
+  }
+});
+
 // Serve static files from the React app in production
 if (process.env.NODE_ENV === 'production') {
   // Serve static files from the React app
@@ -281,6 +343,45 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
   });
 }
+
+// Add this before your app.listen call
+// IMPORTANT: Remove this endpoint after you've created your admin user!
+app.get('/api/debug/create-admin', async (req, res) => {
+  try {
+    // Check if admin already exists
+    const existingAdmin = await User.findOne({ role: 'admin' });
+    if (existingAdmin) {
+      return res.json({ 
+        message: 'Admin user already exists',
+        username: existingAdmin.username,
+        email: existingAdmin.email
+      });
+    }
+    
+    // Create admin user with bcrypt password
+    const bcrypt = require('bcrypt');
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    
+    const newAdmin = new User({
+      username: 'admin',
+      email: 'admin@example.com',
+      password: hashedPassword,
+      role: 'admin'
+    });
+    
+    await newAdmin.save();
+    
+    res.json({ 
+      message: 'Admin user created successfully',
+      username: 'admin',
+      email: 'admin@example.com',
+      loginWith: { username: 'admin', password: 'admin123' }
+    });
+  } catch (err) {
+    console.error('Error creating admin:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
