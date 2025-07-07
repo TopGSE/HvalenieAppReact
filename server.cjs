@@ -206,7 +206,9 @@ app.post('/auth/forgot-password', async (req, res) => {
     });
     
     // Construct the reset URL (frontend URL)
-    const resetUrl = `http://localhost:3000/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.NODE_ENV === 'production' 
+      ? 'https://hvalenie-app-78cc997f9b98.herokuapp.com' 
+      : 'http://localhost:3000'}/reset-password/${resetToken}`;
     
     // Email content
     const mailOptions = {
