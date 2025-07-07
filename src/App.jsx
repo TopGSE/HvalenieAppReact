@@ -876,7 +876,7 @@ function App() {
     setShowConfirmModal(true);
   };
 
-  // Update the handleConfirmDelete function
+  // Update the handleConfirmDelete
   const handleConfirmDelete = () => {
     if (songToDelete && songToDelete._id) {
       handleRemoveSong(songToDelete._id);
