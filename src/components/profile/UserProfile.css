@@ -570,3 +570,118 @@
 .danger-zone {
 	margin-top: 30px;
 }
+
+/* Add these responsive styles at the end of your file */
+@media (max-width: 768px) {
+
+	/* Tablet adjustments */
+	.user-profile-container {
+		padding: 20px;
+		max-width: 100%;
+		margin: 0;
+	}
+
+	.profile-photo-top {
+		width: 120px;
+		height: 120px;
+	}
+
+	.avatar-image-large,
+	.avatar-placeholder-large {
+		width: 120px;
+		height: 120px;
+	}
+
+	.photo-editor-dialog {
+		width: 90%;
+		max-width: 450px;
+	}
+
+	.avatar-editor-container canvas {
+		max-width: 100% !important;
+		height: auto !important;
+	}
+
+	.section-header {
+		padding: 15px;
+	}
+
+	.form-actions {
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.form-actions button {
+		width: 100%;
+	}
+}
+
+@media (max-width: 480px) {
+
+	/* Phone adjustments */
+	.user-profile-container {
+		padding: 15px;
+	}
+
+	.profile-photo-top {
+		width: 100px;
+		height: 100px;
+	}
+
+	.avatar-image-large,
+	.avatar-placeholder-large {
+		width: 100px;
+		height: 100px;
+	}
+
+	.section-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 10px;
+		padding: 12px;
+	}
+
+	.section-header h3 {
+		margin: 0;
+	}
+
+	.toggle-button {
+		align-self: flex-end;
+		margin-top: -30px;
+	}
+
+	.form-group {
+		margin-bottom: 15px;
+	}
+
+	.form-group label {
+		margin-bottom: 5px;
+		font-size: 14px;
+	}
+
+	.form-group input {
+		padding: 10px;
+		font-size: 16px;
+		/* Prevent zoom on iOS */
+	}
+
+	.photo-editor-container {
+		padding: 10px;
+	}
+
+	.photo-editor-dialog {
+		width: 95%;
+		padding: 15px;
+	}
+
+	.avatar-editor-container {
+		max-width: 100%;
+		overflow: hidden;
+	}
+
+	/* Fix for AvatarEditor on mobile */
+	.avatar-editor-container canvas {
+		max-width: 100% !important;
+		height: auto !important;
+	}
+}

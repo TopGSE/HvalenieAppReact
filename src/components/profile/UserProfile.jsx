@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../../App";
@@ -39,6 +39,9 @@ function UserProfile() {
   const [showPhotoSection, setShowPhotoSection] = useState(false);
   const [showEmailSection, setShowEmailSection] = useState(false);
   const [showPasswordSection, setShowPasswordSection] = useState(false);
+
+  // Add a ref for the AvatarEditor to better handle resizing
+  const editorRef = useRef(null);
 
   useEffect(() => {
     // Fetch user profile data
@@ -246,6 +249,19 @@ function UserProfile() {
     toast.info("You have been logged out");
   };
 
+  // Add this effect to handle window resizing
+  useEffect(() => {
+    function handleResize() {
+      if (editorRef.current && editor) {
+        // Force a re-render of the editor on window resize
+        setScale(scale);
+      }
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [editor, scale]);
+
   return (
     <Scrollbars style={{ height: "100vh" }}>
       <div className="user-profile-container">
@@ -306,7 +322,7 @@ function UserProfile() {
                 </div>
               ) : (
                 <>
-                  <div className="avatar-editor-container">
+                  <div className="avatar-editor-container" ref={editorRef}>
                     <AvatarEditor
                       ref={setEditor}
                       image={src}
@@ -315,6 +331,7 @@ function UserProfile() {
                       border={50}
                       borderRadius={125}
                       scale={scale}
+                      style={{ maxWidth: "100%", height: "auto" }}
                     />
                   </div>
 
