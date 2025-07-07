@@ -5,6 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../App";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import "./AuthForm.css";
+import API_URL from "../../utils/api";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -42,7 +43,7 @@ function Login() {
 
     setIsLoading(true);
     try {
-      const response = await axios.post("http://localhost:5000/auth/login", {
+      const response = await axios.post(`${API_URL}/auth/login`, {
         email,
         password,
         rememberMe,
@@ -60,12 +61,9 @@ function Login() {
 
       // After login, fetch the full user profile to get profile photo
       try {
-        const profileResponse = await axios.get(
-          "http://localhost:5000/auth/profile",
-          {
-            headers: { Authorization: `Bearer ${response.data.token}` },
-          }
-        );
+        const profileResponse = await axios.get(`${API_URL}/auth/profile`, {
+          headers: { Authorization: `Bearer ${response.data.token}` },
+        });
 
         // Store full user data including profile photo
         const userData = profileResponse.data;

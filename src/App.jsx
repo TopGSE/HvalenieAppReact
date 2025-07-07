@@ -28,6 +28,7 @@ import {
 } from "react-router-dom";
 import { setupTokenRefresh } from "./utils/authUtils";
 import RandomSongGenerator from "./components/modals/RandomSongGenerator";
+import API_URL from "./utils/api";
 
 // Modify the AuthContext section
 export const AuthContext = createContext(null);
@@ -595,7 +596,7 @@ function App() {
       setError(null);
 
       axios
-        .get("http://localhost:5000/songs")
+        .get(`${API_URL}/songs`)
         .then((response) => {
           // Check if we got an empty array
           if (response.data.length === 0) {
@@ -635,7 +636,7 @@ function App() {
     setError(null);
 
     axios
-      .get("http://localhost:5000/songs")
+      .get(`${API_URL}/songs`)
       .then((response) => {
         setSongs(response.data);
         localStorage.setItem("songs", JSON.stringify(response.data));
@@ -737,7 +738,7 @@ function App() {
     setIsLoading(true);
 
     axios
-      .post("http://localhost:5000/songs", newSong, {
+      .post(`${API_URL}/songs`, newSong, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -779,7 +780,7 @@ function App() {
     }
 
     axios
-      .delete(`http://localhost:5000/songs/${id}`, {
+      .delete(`${API_URL}/songs/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -810,7 +811,7 @@ function App() {
     }
 
     // Make sure the URL is correct
-    const url = `http://localhost:5000/songs/${updatedSong._id}`;
+    const url = `${API_URL}/songs/${updatedSong._id}`;
 
     // Include the token in the Authorization header
     axios
@@ -897,7 +898,7 @@ function App() {
   const retryFetch = () => {
     setError(null);
     axios
-      .get("http://localhost:5000/songs")
+      .get(`${API_URL}/songs`)
       .then((response) => {
         setSongs(response.data);
       })

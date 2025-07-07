@@ -2,19 +2,20 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const authRoutes = require('./src/routes/authRoutes.cjs'); // Import auth routes
+const authRoutes = require('./src/routes/authRoutes.cjs');
 const adminMiddleware = require('./src/middleware/adminMiddleware.cjs');
-const jwt = require('jsonwebtoken');
 const User = require('./src/models/User.cjs');
 const authMiddleware = require('./src/middleware/authMiddleware.cjs');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 5000;
 
+// Update CORS settings for production
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: process.env.NODE_ENV === 'production' ? '*' : 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -23,7 +24,7 @@ app.use(cors({
 app.use(express.json({ limit: '50mb' })); // Increased limit for image uploads
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/church-songs')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb+srv://hvaleniedb:hvaleniepass123@hvaleniedb.cb3j7nt.mongodb.net/?retryWrites=true&w=majority&appName=hvaleniedb')
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
@@ -234,6 +235,17 @@ app.post('/auth/forgot-password', async (req, res) => {
     res.status(500).json({ message: 'Error sending password reset email' });
   }
 });
+
+// Serve static files from the React app in production
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files from the React app
+  app.use(express.static(path.join(__dirname, 'dist')));
+  
+  // Handle React routing, return all requests to React app
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  });
+}
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
