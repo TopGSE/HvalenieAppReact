@@ -15,7 +15,9 @@ const PORT = process.env.PORT || 5000;
 
 // Update CORS settings for production
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? '*' : 'http://localhost:3000',
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://hvalenieapp-89e57e2c3558.herokuapp.com', 'https://hvalenieapp.herokuapp.com'] 
+    : 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -253,6 +255,19 @@ app.get('/api/debug', (req, res) => {
     message: 'API is working',
     environment: process.env.NODE_ENV,
     mongoConnectionState: mongoose.connection.readyState
+  });
+});
+
+// Add this before your app.listen call
+app.get('/api/debug/auth', (req, res) => {
+  res.json({
+    message: 'Auth API is working',
+    environment: process.env.NODE_ENV,
+    cors: {
+      origin: process.env.NODE_ENV === 'production' 
+        ? ['https://hvalenieapp-89e57e2c3558.herokuapp.com', 'https://hvalenieapp.herokuapp.com'] 
+        : 'http://localhost:3000'
+    }
   });
 });
 
