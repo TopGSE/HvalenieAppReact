@@ -27,7 +27,8 @@ app.use(express.json({ limit: '50mb' })); // Increased limit for image uploads
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+  serverSelectionTimeoutMS: 10000, // Increase timeout for Heroku's slower connections
+  socketTimeoutMS: 45000, // Increase timeout for operations
   family: 4 // Use IPv4, skip trying IPv6
 })
 .then(() => console.log('Connected to MongoDB'))
