@@ -3,12 +3,12 @@ const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware.cjs');
 
 // Define a simple test route
-router.get('/test', (req, res) => {
+router.get('/test', function(req, res) {
   res.json({ message: 'Playlist routes working' });
 });
 
-// Define the share route with simplified syntax
-router.post('/share', authMiddleware, (req, res) => {
+// Define the share route with explicit function declaration
+router.post('/share', authMiddleware, function(req, res) {
   try {
     const { recipientIds } = req.body;
     

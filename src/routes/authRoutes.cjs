@@ -469,11 +469,17 @@ router.get('/admin/users', authMiddleware, adminMiddleware, async (req, res) => 
 // Public route for sharing functionality
 router.get('/users/share', authMiddleware, async (req, res) => {
   try {
-    // Only return basic user info for privacy
-    const users = await User.find({}, 'username email profilePhoto createdAt');
+    // Get current user ID from token
+    const currentUserId = req.user.id || req.user._id;
+    
+    // Find all users except current user, exclude password
+    const users = await User.find({ _id: { $ne: currentUserId } })
+      .select('username email profilePhoto createdAt')
+      .sort({ username: 1 });
+      
     res.json(users);
   } catch (error) {
-    console.error('Error fetching users:', error);
+    console.error('Error fetching users for sharing:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
