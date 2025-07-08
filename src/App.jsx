@@ -357,12 +357,16 @@ function AppContent({
                               </div>
                             </div>
                           ))
-                      }
+                      )}
                     </div>
                   </div>
                 </aside>
 
-                <main className={`content-area ${mobileContentActive ? "active" : ""}`}>
+                <main
+                  className={`content-area ${
+                    mobileContentActive ? "active" : ""
+                  }`}
+                >
                   {/* Add the back button for mobile */}
                   {isMobile && mobileContentActive && (
                     <button
