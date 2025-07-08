@@ -2,14 +2,15 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware.cjs');
 
-// Define the route properly - using normal function syntax instead of arrow function
-router.post('/share', authMiddleware, function(req, res) {
-  try {
-    const { playlistId, playlistName, recipientIds, message, playlistData } = req.body;
-    const senderId = req.user.id || req.user._id;
+// Define a simple test route
+router.get('/test', (req, res) => {
+  res.json({ message: 'Playlist routes working' });
+});
 
-    // For now, just return success
-    // In a future implementation, you could create notifications or emails
+// Define the share route with simplified syntax
+router.post('/share', authMiddleware, (req, res) => {
+  try {
+    const { recipientIds } = req.body;
     
     res.json({ 
       success: true, 
