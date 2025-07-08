@@ -9,7 +9,7 @@ const authMiddleware = require('./src/middleware/authMiddleware.cjs');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const path = require('path');
-// const playlistRoutes = require('./src/routes/playlistRoutes.cjs');
+const playlistRoutes = require('./src/routes/playlistRoutes.cjs');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -386,7 +386,12 @@ app.get('/api/debug/create-admin', async (req, res) => {
 });
 
 // Use playlist routes
-// app.use('/playlists', playlistRoutes);
+app.use('/playlists', playlistRoutes);
+
+// Test route
+app.get('/test-route', (req, res) => {
+  res.json({ message: 'Test route working!' });
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
