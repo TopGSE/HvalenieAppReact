@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto'); // Make sure to require crypto
 
 const refreshTokenSchema = new mongoose.Schema({
   token: { type: String, required: true },
@@ -31,19 +32,27 @@ userSchema.methods.comparePassword = function (candidatePassword) {
 };
 
 // Add a method to generate a refresh token
-userSchema.methods.generateRefreshToken = function () {
-  const token = require('crypto').randomBytes(40).toString('hex');
-  const expires = new Date();
-  expires.setDate(expires.getDate() + 30); // 30 days expiry
+userSchema.methods.generateRefreshToken = function() {
+  // Generate a random token
+  const token = crypto.randomBytes(40).toString('hex');
   
-  this.refreshTokens.push({ token, expires });
+  // Set expiration to 3 hours from now
+  const expires = new Date(Date.now() + 3 * 60 * 60 * 1000); // 3 hours in milliseconds
+  
+  // Add to user's refreshTokens array
+  this.refreshTokens.push({
+    token,
+    expires
+  });
+  
+  // Return the token object
   return { token, expires };
 };
 
 // Method to remove expired tokens
-userSchema.methods.removeExpiredRefreshTokens = function () {
+userSchema.methods.removeExpiredRefreshTokens = function() {
   const now = new Date();
-  this.refreshTokens = this.refreshTokens.filter(rt => rt.expires > now);
+  this.refreshTokens = this.refreshTokens.filter(token => token.expires > now);
 };
 
 const User = mongoose.model('User', userSchema);

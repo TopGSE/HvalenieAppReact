@@ -59,6 +59,9 @@ router.post('/login', async (req, res) => {
       const refreshTokenObj = user.generateRefreshToken();
       refreshToken = refreshTokenObj.token;
       await user.save();
+      
+      // Log the expiration time for debugging
+      console.log(`Refresh token created, expires: ${refreshTokenObj.expires}`);
     }
     
     // Response with or without refresh token
@@ -198,7 +201,7 @@ router.post('/refresh-token', async (req, res) => {
     const accessToken = jwt.sign(
       { userId: user._id, role: user.role }, 
       JWT_SECRET, 
-      { expiresIn: '1h' }
+      { expiresIn: '1h' } // Keep the access token at 1 hour
     );
     
     // Return new access token
