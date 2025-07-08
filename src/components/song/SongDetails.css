@@ -911,6 +911,40 @@
 		background-color: #fff;
 		overflow-y: auto;
 	}
+
+	/* Fix container height */
+	.song-details-container {
+		height: auto !important;
+		min-height: calc(100vh - 60px) !important;
+		max-height: none !important;
+		overflow: visible !important;
+	}
+	
+	/* Fix card height */
+	.song-details-card {
+		height: auto !important;
+		min-height: auto !important;
+		overflow: visible !important;
+		display: flex;
+		flex-direction: column;
+	}
+	
+	/* Fix content display */
+	.song-content {
+		flex: 1;
+		overflow: visible !important;
+		height: auto !important;
+	}
+	
+	/* Improve text display */
+	.lyrics-text, 
+	.chords-text {
+		width: 100% !important;
+		height: auto !important;
+		overflow-x: auto !important;
+		overflow-y: visible !important;
+		white-space: pre-wrap !important;
+	}
 }
 
 /* For very small mobile screens */
