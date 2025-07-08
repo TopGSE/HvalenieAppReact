@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { toast } from 'react-toastify';
 import './PlaylistView.css';
 
 function PlaylistView({ 
@@ -16,6 +17,7 @@ function PlaylistView({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('default');
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const songRefs = useRef({});
 
@@ -24,6 +26,64 @@ function PlaylistView({
     if (!dateString) return 'N/A';
     const date = new Date(dateString);
     return date.toLocaleDateString();
+  };
+
+  // Share functionality
+  const handleShare = async () => {
+    const playlistData = {
+      name: playlist.name,
+      description: playlist.description || '',
+      songCount: playlist.songIds?.length || 0,
+      songs: songs
+        .filter(song => playlist.songIds && playlist.songIds.includes(song._id))
+        .map(song => ({
+          title: song.title,
+          artist: song.artist || '',
+          category: song.category || ''
+        }))
+    };
+
+    const shareText = `🎵 ${playlistData.name}\n\n${playlistData.description ? `${playlistData.description}\n\n` : ''}📋 ${playlistData.songCount} songs:\n${playlistData.songs.map((song, index) => `${index + 1}. ${song.title}${song.artist ? ` - ${song.artist}` : ''}`).join('\n')}\n\nShared from Hvalenie App`;
+
+    // Try to use Web Share API first (mobile devices)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Playlist: ${playlistData.name}`,
+          text: shareText,
+          url: window.location.href
+        });
+        toast.success('Playlist shared successfully!');
+        return;
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error('Error sharing:', error);
+        }
+      }
+    }
+
+    // Fallback to clipboard copy
+    try {
+      await navigator.clipboard.writeText(shareText);
+      toast.success('Playlist copied to clipboard!');
+      setShowShareModal(true);
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+      // Final fallback - show the share modal
+      setShowShareModal(true);
+    }
+  };
+
+  // Copy playlist link
+  const copyPlaylistLink = async () => {
+    try {
+      const url = `${window.location.origin}${window.location.pathname}?playlist=${encodeURIComponent(playlist.name)}`;
+      await navigator.clipboard.writeText(url);
+      toast.success('Playlist link copied to clipboard!');
+    } catch (error) {
+      console.error('Error copying link:', error);
+      toast.error('Failed to copy link');
+    }
   };
 
   // Filter songs by playlist's songIds
@@ -67,9 +127,21 @@ function PlaylistView({
         <div className="playlist-info">
           <h3>{playlist.name}</h3>
           <p className="playlist-song-count">{playlist.songIds ? playlist.songIds.length : 0} songs</p>
+          {playlist.description && (
+            <p className="playlist-description">{playlist.description}</p>
+          )}
         </div>
         
         <div className="playlist-actions">
+          <button 
+            className="share-playlist-btn" 
+            onClick={handleShare}
+            title="Share this playlist"
+          >
+            <span className="btn-icon">📤</span>
+            <span className="btn-text">Share</span>
+          </button>
+          
           <button 
             className="edit-playlist-btn" 
             onClick={() => onEditPlaylist(playlist)}
@@ -196,6 +268,68 @@ function PlaylistView({
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Share Modal */}
+      {showShareModal && (
+        <div className="share-modal-overlay" onClick={() => setShowShareModal(false)}>
+          <div className="share-modal-content" onClick={e => e.stopPropagation()}>
+            <div className="share-modal-header">
+              <h3>Share Playlist</h3>
+              <button 
+                className="close-share-modal"
+                onClick={() => setShowShareModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="share-modal-body">
+              <p>Choose how you'd like to share "<strong>{playlist.name}</strong>":</p>
+              
+              <div className="share-options">
+                <button 
+                  className="share-option-btn copy-link-btn"
+                  onClick={copyPlaylistLink}
+                >
+                  <span className="share-icon">🔗</span>
+                  <span>Copy Link</span>
+                </button>
+                
+                <button 
+                  className="share-option-btn copy-text-btn"
+                  onClick={async () => {
+                    const playlistData = {
+                      name: playlist.name,
+                      description: playlist.description || '',
+                      songCount: playlist.songIds?.length || 0,
+                      songs: songs
+                        .filter(song => playlist.songIds && playlist.songIds.includes(song._id))
+                        .map(song => ({
+                          title: song.title,
+                          artist: song.artist || '',
+                          category: song.category || ''
+                        }))
+                    };
+
+                    const shareText = `🎵 ${playlistData.name}\n\n${playlistData.description ? `${playlistData.description}\n\n` : ''}📋 ${playlistData.songCount} songs:\n${playlistData.songs.map((song, index) => `${index + 1}. ${song.title}${song.artist ? ` - ${song.artist}` : ''}`).join('\n')}\n\nShared from Hvalenie App`;
+
+                    try {
+                      await navigator.clipboard.writeText(shareText);
+                      toast.success('Playlist details copied to clipboard!');
+                      setShowShareModal(false);
+                    } catch (error) {
+                      toast.error('Failed to copy to clipboard');
+                    }
+                  }}
+                >
+                  <span className="share-icon">📋</span>
+                  <span>Copy Details</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

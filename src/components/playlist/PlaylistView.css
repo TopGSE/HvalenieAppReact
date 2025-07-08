@@ -68,11 +68,13 @@
 
 .playlist-actions {
 	display: flex;
-	gap: 10px;
+	gap: 8px;
+	flex-wrap: wrap;
 }
 
 .edit-playlist-btn,
-.delete-playlist-btn {
+.delete-playlist-btn,
+.share-playlist-btn {
 	display: flex;
 	align-items: center;
 	gap: 5px;
@@ -94,12 +96,21 @@
 	color: white;
 }
 
+.share-playlist-btn {
+	background-color: var(--share-btn, #9c27b0);
+	color: white;
+}
+
 .edit-playlist-btn:hover {
 	background-color: var(--edit-btn-hover, #0b7dda);
 }
 
 .delete-playlist-btn:hover {
 	background-color: var(--delete-btn-hover, #d32f2f);
+}
+
+.share-playlist-btn:hover {
+	background-color: var(--share-btn-hover, #7b1fa2);
 }
 
 .confirm-delete {
@@ -358,95 +369,220 @@
 	border: 1px solid #ffcc80;
 }
 
-.confirm-yes {
-	background-color: #f44336;
-	color: white;
-	border: none;
-	padding: 4px 12px;
-	border-radius: 4px;
-	cursor: pointer;
+/* Share Modal Styles */
+.share-modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.6);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+	backdrop-filter: blur(4px);
+	animation: fade-in 0.2s ease-out;
 }
 
-.confirm-no {
-	background-color: #e0e0e0;
-	border: none;
-	padding: 4px 12px;
-	border-radius: 4px;
-	cursor: pointer;
+.share-modal-content {
+	width: 100%;
+	max-width: 450px;
+	background-color: var(--card-bg, #fff);
+	border-radius: 12px;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+	animation: slide-up 0.3s ease-out;
+	max-height: 90vh;
+	overflow-y: auto;
 }
 
-/* High contrast styles for playlist view */
-.high-contrast .playlist-view {
+.share-modal-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 20px 24px;
+	border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.08));
+}
+
+.share-modal-header h3 {
+	margin: 0;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: var(--text-color, #333);
+}
+
+.close-share-modal {
+	background: none;
+	border: none;
+	font-size: 1.5rem;
+	line-height: 1;
+	color: var(--text-color-secondary, #666);
+	cursor: pointer;
+	transition: color 0.2s;
+	padding: 4px;
+	border-radius: 4px;
+}
+
+.close-share-modal:hover {
+	color: var(--danger-color, #f44336);
+	background-color: rgba(244, 67, 54, 0.1);
+}
+
+.share-modal-body {
+	padding: 24px;
+}
+
+.share-modal-body p {
+	margin: 0 0 20px 0;
+	color: var(--text-color, #333);
+	line-height: 1.5;
+}
+
+.share-options {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.share-option-btn {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 16px 20px;
+	border: 2px solid var(--border-color, #e2e8f0);
+	border-radius: 8px;
+	background: var(--card-bg, #fff);
+	color: var(--text-color, #333);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-size: 16px;
+	font-weight: 500;
+	text-align: left;
+}
+
+.share-option-btn:hover {
+	border-color: var(--primary-color, #006eef);
+	background-color: rgba(0, 110, 239, 0.05);
+	transform: translateY(-1px);
+}
+
+.copy-link-btn:hover {
+	border-color: #9c27b0;
+	background-color: rgba(156, 39, 176, 0.05);
+}
+
+.copy-text-btn:hover {
+	border-color: #4caf50;
+	background-color: rgba(76, 175, 80, 0.05);
+}
+
+.share-icon {
+	font-size: 20px;
+	min-width: 24px;
+	text-align: center;
+}
+
+/* Responsive adjustments for share modal */
+@media (max-width: 768px) {
+	.share-modal-content {
+		margin: 20px;
+		max-width: none;
+	}
+
+	.share-modal-header {
+		padding: 16px 20px;
+	}
+
+	.share-modal-body {
+		padding: 20px;
+	}
+
+	.share-option-btn {
+		padding: 14px 16px;
+		font-size: 15px;
+	}
+
+	/* Stack playlist action buttons on mobile */
+	.playlist-actions {
+		flex-direction: column;
+		width: 100%;
+	}
+
+	.share-playlist-btn,
+	.edit-playlist-btn,
+	.delete-playlist-btn {
+		width: 100%;
+		justify-content: center;
+	}
+}
+
+@media (max-width: 480px) {
+	.playlist-header {
+		flex-direction: column;
+		gap: 15px;
+	}
+
+	.playlist-info {
+		width: 100%;
+		text-align: center;
+	}
+
+	.playlist-actions {
+		width: 100%;
+	}
+}
+
+/* Dark mode support for share modal */
+.dark .share-modal-content {
+	background-color: var(--card-bg-dark, #2a2a2a);
+}
+
+.dark .share-modal-header {
+	border-bottom-color: var(--border-color-dark, #444);
+}
+
+.dark .share-modal-header h3 {
+	color: var(--text-color-dark, #e0e0e0);
+}
+
+.dark .share-modal-body p {
+	color: var(--text-color-dark, #e0e0e0);
+}
+
+.dark .share-option-btn {
+	background-color: var(--input-bg-dark, #333);
+	border-color: var(--border-color-dark, #444);
+	color: var(--text-color-dark, #eee);
+}
+
+.dark .share-option-btn:hover {
+	background-color: var(--hover-bg-dark, #444);
+}
+
+/* High contrast support */
+.high-contrast .share-playlist-btn {
+	background-color: var(--button-bg);
+	color: var(--button-text);
+	border: 2px solid var(--border-color);
+}
+
+.high-contrast .share-playlist-btn:hover {
+	outline: var(--focus-outline);
+}
+
+.high-contrast .share-modal-content {
 	border: var(--separator);
 	background-color: var(--card-bg);
 }
 
-.high-contrast .playlist-header {
-	border-bottom: var(--separator);
-}
-
-.high-contrast .playlist-info h3 {
-	color: var(--text-color);
-}
-
-.high-contrast .playlist-song-count {
-	color: var(--text-color);
-}
-
-.high-contrast .edit-playlist-btn,
-.high-contrast .delete-playlist-btn {
+.high-contrast .share-option-btn {
+	border: 2px solid var(--border-color);
 	background-color: var(--button-bg);
 	color: var(--button-text);
-	border: 2px solid var(--border-color);
 }
 
-.high-contrast .edit-playlist-btn:hover,
-.high-contrast .delete-playlist-btn:hover {
+.high-contrast .share-option-btn:hover {
 	outline: var(--focus-outline);
-}
-
-.high-contrast .playlist-search-input {
-	border: 2px solid var(--border-color);
-	background-color: var(--input-bg);
-	color: var(--input-text);
-}
-
-.high-contrast .sort-select {
-	border: 2px solid var(--border-color);
-	background-color: var(--input-bg);
-	color: var(--input-text);
-}
-
-.high-contrast .playlist-song-item {
-	border: var(--separator);
-}
-
-.high-contrast .playlist-song-item.selected {
-	background-color: var(--primary-color);
-	color: var(--bg-color);
-	border: 2px solid var(--text-color);
-}
-
-.high-contrast .song-number {
-	color: var(--text-color);
-	font-weight: bold;
-}
-
-.high-contrast .song-category {
-	background-color: var(--secondary-color);
-	color: var(--bg-color);
-	border: 1px solid var(--text-color);
-}
-
-.high-contrast .favorite-btn,
-.high-contrast .remove-btn {
-	border: 1px solid var(--border-color);
-	background-color: var(--button-bg);
-	color: var(--button-text);
-}
-
-.high-contrast .empty-playlist {
-	border: var(--separator);
 }
 
 /* Responsive */
