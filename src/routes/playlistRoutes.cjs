@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware.cjs');
 
-// Move this from authRoutes.cjs to playlistRoutes.cjs
-router.post('/share', authMiddleware, async (req, res) => {
+// Define the route properly
+router.post('/share', authMiddleware, function(req, res) {
   try {
     const { playlistId, playlistName, recipientIds, message, playlistData } = req.body;
     const senderId = req.user.id || req.user._id;
@@ -14,7 +14,7 @@ router.post('/share', authMiddleware, async (req, res) => {
     res.json({ 
       success: true, 
       message: 'Playlist shared successfully',
-      recipients: recipientIds.length
+      recipients: recipientIds ? recipientIds.length : 0
     });
   } catch (error) {
     console.error('Error sharing playlist:', error);
