@@ -1500,3 +1500,109 @@ body {
 		display: none;
 	}
 }
+
+/* Mobile content view improvements */
+@media (max-width: 768px) {
+  /* Initially hide the content area on mobile */
+  .mobile-layout .content-area {
+    display: none;
+    position: fixed;
+    top: 60px; /* Below navbar */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: calc(100vh - 60px);
+    z-index: 20; /* Above sidebar */
+    background-color: white;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+  }
+  
+  /* When content is active, show it full screen */
+  .mobile-layout .content-area.active {
+    display: block;
+    animation: slideInRight 0.3s ease;
+  }
+  
+  /* Make sidebar take full height when content is hidden */
+  .mobile-layout .sidebar {
+    max-height: calc(100vh - 60px);
+    height: calc(100vh - 60px);
+  }
+  
+  /* When content is shown, hide the sidebar */
+  .mobile-layout.content-active .sidebar {
+    display: none;
+  }
+  
+  /* Back button for returning to song list */
+  .mobile-back-button {
+    display: none; /* Hidden by default on desktop */
+  }
+  
+  /* Show back button only on mobile when content is active */
+  .mobile-layout.content-active .mobile-back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background-color: #f5f5f5;
+    border: none;
+    border-bottom: 1px solid #eaeaea;
+    width: 100%;
+    font-size: 16px;
+    text-align: left;
+    cursor: pointer;
+  }
+  
+  .mobile-back-button:hover {
+    background-color: #e8e8e8;
+  }
+  
+  .mobile-back-button .back-icon {
+    font-size: 18px;
+  }
+  
+  /* Adjust song details container for mobile full screen */
+  .mobile-layout.content-active .song-details-container {
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  
+  /* Animation for sliding in content */
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  
+  /* Animation for sliding out content */
+  @keyframes slideOutRight {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+  
+  /* Adjust content padding when back button is present */
+  .mobile-layout.content-active .song-details-card {
+    padding-top: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  
+  /* Ensure sidebar content is scrollable and takes full height */
+  .mobile-layout .sidebar-content {
+    max-height: calc(100vh - 200px);
+  }
+}

@@ -101,6 +101,10 @@ function AppContent({
   const navigate = useNavigate(); // Add this line to get the navigate function
 
   const [showRandomSongGenerator, setShowRandomSongGenerator] = useState(false); // Add this state
+  const [mobileContentActive, setMobileContentActive] = useState(false); // Add this state
+
+  // Check if it's a mobile device
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   console.log("AppContent - userRole:", userRole); // Debug log to see the role
   console.log("AppContent - isAdmin check:", userRole === "admin");
@@ -116,6 +120,21 @@ function AppContent({
       // The navigation will be handled by the <Navigate> component in the Routes.
     }
   }, [isLoggedIn, location]);
+
+  // Add this useEffect to handle content activation when a song is selected
+  useEffect(() => {
+    if (isMobile && (selectedSong || currentPlaylist)) {
+      setMobileContentActive(true);
+    }
+  }, [selectedSong, currentPlaylist, isMobile]);
+
+  // Handler for the back button
+  const handleBackToList = () => {
+    setMobileContentActive(false);
+    // Optionally clear the selection
+    // setSelectedSong(null);
+    // setCurrentPlaylist(null);
+  };
 
   return (
     <div className="app-container">
@@ -145,7 +164,11 @@ function AppContent({
           path="/home"
           element={
             isLoggedIn ? (
-              <div className="main-layout mobile-layout">
+              <div
+                className={`main-layout mobile-layout ${
+                  mobileContentActive ? "content-active" : ""
+                }`}
+              >
                 <aside
                   className={`sidebar ${sidebarCollapsed ? "collapsed" : ""}`}
                 >
@@ -334,12 +357,23 @@ function AppContent({
                               </div>
                             </div>
                           ))
-                      )}
+                      }
                     </div>
                   </div>
                 </aside>
 
-                <main className="content-area">
+                <main className={`content-area ${mobileContentActive ? "active" : ""}`}>
+                  {/* Add the back button for mobile */}
+                  {isMobile && mobileContentActive && (
+                    <button
+                      className="mobile-back-button"
+                      onClick={handleBackToList}
+                    >
+                      <span className="back-icon">←</span>
+                      <span>Back to songs</span>
+                    </button>
+                  )}
+
                   {currentPlaylist ? (
                     <PlaylistView
                       playlist={currentPlaylist}
@@ -1318,3 +1352,24 @@ function App() {
 }
 
 export default App;
+
+// Add this custom hook to detect mobile viewport
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(
+    () => window.matchMedia(query).matches
+  );
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(query);
+    const handleChange = (event) => {
+      setMatches(event.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => {
+      mediaQuery.removeEventListener("change", handleChange);
+    };
+  }, [query]);
+
+  return matches;
+}
