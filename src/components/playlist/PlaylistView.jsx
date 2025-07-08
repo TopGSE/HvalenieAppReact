@@ -40,9 +40,7 @@ function PlaylistView({
       // This is the key fix - use the correct URL
       // Don't use localhost in production!
       const baseUrl =
-        window.location.hostname === "localhost"
-          ? "http://localhost:5000"
-          : "";
+        window.location.hostname === "localhost" ? "http://localhost:5000" : "";
 
       const response = await axios.get(`${baseUrl}/auth/users/share`, {
         headers: {
@@ -61,7 +59,9 @@ function PlaylistView({
       console.error("Error fetching users:", error);
       // Show a more helpful error message
       const errorMsg =
-        error.response?.data?.message || error.message || "Failed to load users";
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to load users";
       toast.error(errorMsg);
     } finally {
       setIsLoadingUsers(false);
@@ -125,8 +125,8 @@ function PlaylistView({
               category: song.category || "",
               _id: song._id,
             })),
+        }, // Remove the semicolon and extra closing brace here
       };
-
       await axios.post(`${API_URL}/playlists/share`, shareData, {
         headers: {
           Authorization: `Bearer ${token}`,
