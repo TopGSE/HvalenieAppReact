@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware.cjs');
 
-// Define the route properly
+// Define the route properly - using normal function syntax instead of arrow function
 router.post('/share', authMiddleware, function(req, res) {
   try {
     const { playlistId, playlistName, recipientIds, message, playlistData } = req.body;
