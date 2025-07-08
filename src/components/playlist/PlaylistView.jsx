@@ -38,7 +38,8 @@ function PlaylistView({
       const token = localStorage.getItem('token');
       const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
       
-      const response = await axios.get(`${API_URL}/auth/users`, {
+      // Updated URL to use the new endpoint
+      const response = await axios.get(`${API_URL}/auth/users/share`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
