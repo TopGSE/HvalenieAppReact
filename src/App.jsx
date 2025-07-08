@@ -357,7 +357,7 @@ function AppContent({
                               </div>
                             </div>
                           ))
-                      )}
+                      }
                     </div>
                   </div>
                 </aside>
@@ -1193,7 +1193,40 @@ function App() {
 
     if (token && username) {
       // Auto login from stored credentials
-      handleLogin(username, userRole);
+      setIsLoggedIn(true);
+      setUsername(username);
+      setUserRole(userRole);
+      
+      // Get stored user data while we fetch the fresh data
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser);
+        } catch (e) {
+          console.error("Error parsing stored user data", e);
+        }
+      }
+      
+      // Now fetch fresh data with error handling
+      axios
+        .get(`${API_URL}/auth/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((response) => {
+          const userData = response.data;
+          setUser(userData);
+          localStorage.setItem("user", JSON.stringify(userData));
+        })
+        .catch((error) => {
+          console.error("Error fetching user profile:", error);
+          
+          // If unauthorized, token may have expired - log the user out
+          if (error.response && error.response.status === 401) {
+            handleLogout();
+            toast.error("Your session has expired. Please log in again.");
+          }
+        });
     }
   }, []); // Empty dependency array means this runs once on mount
 
