@@ -102,6 +102,7 @@ function AppContent({
 
   const [showRandomSongGenerator, setShowRandomSongGenerator] = useState(false); // Add this state
   const [mobileContentActive, setMobileContentActive] = useState(false); // Add this state
+  const [showBackToTop, setShowBackToTop] = useState(false); // Add this state
 
   // Check if it's a mobile device
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -131,7 +132,7 @@ function AppContent({
   // Improved handler for the back button
   const handleBackToList = () => {
     setMobileContentActive(false);
-    
+
     // Optional: add a small delay before scrolling to maintain smooth transition
     setTimeout(() => {
       window.scrollTo(0, 0);
@@ -141,14 +142,35 @@ function AppContent({
   // Prevent body scrolling when mobile content is active
   useEffect(() => {
     if (isMobile) {
-      document.body.style.overflow = mobileContentActive ? 'hidden' : 'auto';
+      document.body.style.overflow = mobileContentActive ? "hidden" : "auto";
     }
-    
+
     // Cleanup
     return () => {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = "auto";
     };
   }, [mobileContentActive, isMobile]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show back-to-top button when scrolled down 300px
+      if (window.scrollY > 300) {
+        setShowBackToTop(true);
+      } else {
+        setShowBackToTop(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <div className="app-container">
@@ -517,6 +539,15 @@ function AppContent({
         songs={songs}
         onCreatePlaylist={handleSavePlaylist}
       />
+      {isMobile && showBackToTop && (
+        <button
+          className={`back-to-top ${showBackToTop ? "visible" : ""}`}
+          onClick={scrollToTop}
+          aria-label="Back to top"
+        >
+          ↑
+        </button>
+      )}
     </div>
   );
 }

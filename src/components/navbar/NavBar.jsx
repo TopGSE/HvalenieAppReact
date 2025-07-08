@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./NavBar.css";
 import { useAuth } from "../../App"; // Import the auth context
@@ -15,17 +15,26 @@ function NavBar() {
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
     // Toggle body scroll when menu is open
-    if (!mobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = !mobileMenuOpen ? "hidden" : "";
   };
 
   const handleMenuItemClick = () => {
     setMobileMenuOpen(false);
     document.body.style.overflow = "";
   };
+
+  // Handle clicks outside to close menu
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (mobileMenuOpen && e.target.classList.contains("menu-overlay")) {
+        setMobileMenuOpen(false);
+        document.body.style.overflow = "";
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [mobileMenuOpen]);
 
   return (
     <>
@@ -36,6 +45,7 @@ function NavBar() {
           </Link>
         </div>
 
+        {/* Hamburger menu always visible in top-right */}
         <div className="hamburger-menu" onClick={toggleMobileMenu}>
           <span
             className={`hamburger-line ${mobileMenuOpen ? "open" : ""}`}
@@ -113,9 +123,11 @@ function NavBar() {
         </div>
       </nav>
 
-      {mobileMenuOpen && (
-        <div className="menu-overlay" onClick={toggleMobileMenu}></div>
-      )}
+      {/* Improved overlay that becomes visible when menu is open */}
+      <div
+        className={`menu-overlay ${mobileMenuOpen ? "visible" : ""}`}
+        onClick={toggleMobileMenu}
+      ></div>
     </>
   );
 }
