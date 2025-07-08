@@ -9,6 +9,7 @@ const authMiddleware = require('./src/middleware/authMiddleware.cjs');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const path = require('path');
+const playlistRoutes = require('./src/routes/playlistRoutes.cjs');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -383,6 +384,8 @@ app.get('/api/debug/create-admin', async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+app.use('/playlists', playlistRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

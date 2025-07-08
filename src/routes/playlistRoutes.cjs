@@ -1,3 +1,7 @@
+const express = require('express');
+const router = express.Router();
+const authMiddleware = require('../middleware/authMiddleware.cjs');
+
 // Move this from authRoutes.cjs to playlistRoutes.cjs
 router.post('/share', authMiddleware, async (req, res) => {
   try {
@@ -17,3 +21,5 @@ router.post('/share', authMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+module.exports = router;
