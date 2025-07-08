@@ -145,7 +145,7 @@ function AppContent({
           path="/home"
           element={
             isLoggedIn ? (
-              <div className="main-layout">
+              <div className="main-layout mobile-layout">
                 <aside
                   className={`sidebar ${sidebarCollapsed ? "collapsed" : ""}`}
                 >
@@ -334,7 +334,7 @@ function AppContent({
                               </div>
                             </div>
                           ))
-                      )}
+                      }
                     </div>
                   </div>
                 </aside>
