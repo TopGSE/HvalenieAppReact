@@ -385,6 +385,7 @@ app.get('/api/debug/create-admin', async (req, res) => {
   }
 });
 
+// Use playlist routes
 app.use('/playlists', playlistRoutes);
 
 app.listen(PORT, () => {
