@@ -357,7 +357,7 @@ function AppContent({
                               </div>
                             </div>
                           ))
-                      }
+                      )}
                     </div>
                   </div>
                 </aside>
@@ -1196,7 +1196,7 @@ function App() {
       setIsLoggedIn(true);
       setUsername(username);
       setUserRole(userRole);
-      
+
       // Get stored user data while we fetch the fresh data
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
@@ -1207,7 +1207,7 @@ function App() {
           console.error("Error parsing stored user data", e);
         }
       }
-      
+
       // Now fetch fresh data with error handling
       axios
         .get(`${API_URL}/auth/profile`, {
@@ -1220,7 +1220,7 @@ function App() {
         })
         .catch((error) => {
           console.error("Error fetching user profile:", error);
-          
+
           // If unauthorized, token may have expired - log the user out
           if (error.response && error.response.status === 401) {
             handleLogout();
