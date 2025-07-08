@@ -1582,7 +1582,7 @@ body {
 
 /* Fix mobile layout issues */
 @media (max-width: 768px) {
-  /* Content area positioning */
+  /* Fix content area positioning and scrolling */
   .mobile-layout .content-area {
     position: fixed;
     top: 60px; /* Position below navbar */
@@ -1591,26 +1591,74 @@ body {
     bottom: 0;
     width: 100%;
     height: calc(100vh - 60px);
-    z-index: 30; /* Higher z-index to ensure it appears above all other elements */
+    z-index: 30;
     background-color: #fff;
-    transform: none; /* Remove any transforms that might hide it */
-    transition: opacity 0.3s ease; /* Change to opacity transition */
+    transition: opacity 0.3s ease;
     opacity: 0;
     visibility: hidden;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    transform: translateX(100%); /* Start off-screen */
   }
 
-  /* When content is active, bring it into view */
+  /* When content is active, bring it into view properly */
   .mobile-layout .content-area.active {
     opacity: 1;
     visibility: visible;
     display: block;
+    transform: translateX(0); /* Move into view */
+    padding-bottom: 100px; /* Extra padding to ensure content isn't cut off */
   }
   
-  /* Make sure the content doesn't get cut off at the bottom */
-  .mobile-layout.content-active .song-details-container,
-  .mobile-layout.content-active .playlist-view {
+  /* Ensure the song details container takes up full height and scrolls properly */
+  .mobile-layout.content-active .song-details-container {
+    margin: 0;
+    padding: 0;
     min-height: calc(100vh - 60px);
-    padding-bottom: 70px; /* Add padding to prevent content from being cut off */
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+
+  /* Fix song details card to ensure it displays properly */
+  .mobile-layout.content-active .song-details-card {
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
+    padding: 15px;
+    height: auto;
+    min-height: calc(100vh - 110px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Ensure the song content section scrolls properly */
+  .mobile-layout.content-active .song-content {
+    padding: 15px;
+    padding-bottom: 80px; /* Extra padding at bottom */
+    flex: 1;
+    overflow: visible;
+  }
+
+  /* Ensure lyrics text is properly displayed */
+  .mobile-layout.content-active .lyrics-text,
+  .mobile-layout.content-active .chords-text {
+    font-size: 16px;
+    padding: 15px;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    width: 100%;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #fafafa;
+  }
+  
+  /* Fix the actions bar positioning */
+  .mobile-layout.content-active .song-actions-bar {
+    position: relative;
+    margin-top: 20px;
+    bottom: auto;
+    width: 100%;
+    z-index: 5;
   }
 }
