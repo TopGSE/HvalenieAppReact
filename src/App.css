@@ -1576,138 +1576,114 @@ body {
 	.mobile-layout.content-active .song-details-container {
 		margin: 0;
 		padding: 0;
-		max-width: 100%;
-		border-radius: 0;
-		box-shadow: none;
 	}
 
-	/* Animation for sliding in content */
-	@keyframes slideInRight {
-		from {
-			transform: translateX(100%);
-		}
-
-		to {
-			transform: translateX(0);
-		}
-	}
-
-	/* Animation for sliding out content */
-	@keyframes slideOutRight {
-		from {
-			transform: translateX(0);
-		}
-
-		to {
-			transform: translateX(100%);
-		}
-	}
-
-	/* Adjust content padding when back button is present */
 	.mobile-layout.content-active .song-details-card {
-		padding-top: 0;
 		border-radius: 0;
 		box-shadow: none;
 	}
 
-	/* Ensure sidebar content is scrollable and takes full height */
-	.mobile-layout .sidebar-content {
-		max-height: calc(100vh - 200px);
+	/* Fix lyrics display in mobile view */
+	.mobile-layout.content-active .lyrics-text,
+	.mobile-layout.content-active .chords-text {
+		font-size: 16px;
+		padding: 15px;
+		overflow-x: auto;
+		white-space: pre-wrap;
 	}
 }
 
-/* Update the lyrics text display styles */
-.lyrics-text,
-.chords-text {
-	font-family: 'Roboto Mono', monospace;
-	white-space: pre-wrap;
-	line-height: 1.6;
-	font-size: 16px;
-	color: #333;
-	margin: 0;
-	padding: 15px;
-	width: 100%;
-	overflow-x: auto;
-	background-color: #fafafa;
-	border-radius: 6px;
-	border: 1px solid #eaeaea;
-	min-height: 150px; /* Ensure minimum height for content */
-	box-sizing: border-box;
-}
-
-/* Fix 1: Update the song content layout structure */
-.song-content {
-	margin-bottom: 2rem;
-	padding: 15px;
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-}
-
-/* Fix 2: Restructure lyrics/chords sections to match JSX */
-.lyrics-section,
-.chords-section {
-	margin-bottom: 24px;
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-}
-
-/* Fix 3: Proper styling for section headings */
-.lyrics-section h3,
-.chords-section h3 {
-	margin-bottom: 1rem;
-	font-weight: 500;
-	color: #555;
-}
-
-/* Fix 4: Correct styling for pre elements to ensure consistent display */
-.lyrics-text,
-.chords-text {
-	font-family: 'Roboto Mono', monospace;
-	white-space: pre-wrap;
-	line-height: 1.6;
-	font-size: 16px;
-	color: #333;
-	margin: 0;
-	padding: 15px;
-	width: 100%;
-	overflow-x: auto;
-	background-color: #fafafa;
-	border-radius: 6px;
-	border: 1px solid #eaeaea;
-	min-height: 150px; /* Ensure minimum height for content */
-	box-sizing: border-box;
-}
-
-/* Fix 5: Remove conflicting container styles */
-.lyrics-container,
-.chords-container {
-	display: none; /* These classes are not used in the current JSX structure */
-}
-
-/* Fix 6: Ensure proper display in fullscreen mode */
-.song-content.fullscreen .lyrics-text,
-.song-content.fullscreen .chords-text {
-	font-size: 1.2rem;
-	line-height: 1.8;
-	padding: 20px;
-}
-
-/* Fix 7: Better mobile experience */
+/* Fix mobile layout issues - update these styles */
 @media (max-width: 768px) {
-	.lyrics-text,
-	.chords-text {
-		font-size: 14px;
-		padding: 10px;
-		min-height: 100px;
+
+	/* Initial mobile layout setup */
+	.mobile-layout {
+		position: relative;
+		overflow: hidden;
+		height: calc(100vh - 60px);
+		width: 100%;
 	}
-	
-	.song-details-card {
-		padding: 10px;
+
+	/* Content area positioning */
+	.mobile-layout .content-area {
+		position: fixed;
+		top: 60px;
+		/* Position below navbar */
+		left: 0;
+		width: 100%;
+		height: calc(100vh - 60px);
+		z-index: 30;
+		/* Higher z-index to ensure it appears above all other elements */
+		background-color: #fff;
+		transform: translateX(100%);
+		/* Start off-screen */
+		transition: transform 0.3s ease;
+		display: block;
+		/* Always display but transformed off-screen */
+		overflow-y: auto;
+		overflow-x: hidden;
+		visibility: hidden;
+		/* Hide it until active */
 	}
-	
-	.song-content {
-		padding: 5px;
+
+	/* When content is active, bring it into view */
+	.mobile-layout .content-area.active {
+		transform: translateX(0);
+		visibility: visible;
+	}
+
+	/* Ensure sidebar doesn't overlap */
+	.mobile-layout .sidebar {
+		z-index: 20;
+		/* Lower than content area */
+		height: calc(100vh - 60px);
+		overflow-y: auto;
+	}
+
+	/* Hide sidebar when content is active */
+	.mobile-layout.content-active .sidebar {
+		display: none;
+	}
+
+	/* Style the back button properly */
+	.mobile-back-button {
+		position: sticky;
+		top: 0;
+		left: 0;
+		width: 100%;
+		z-index: 35;
+		/* Above content */
+		background-color: #f5f5f5;
+		border-bottom: 1px solid #ddd;
+		padding: 12px 16px;
+		display: none;
+		align-items: center;
+		gap: 8px;
+		font-weight: 500;
+		cursor: pointer;
+	}
+
+	.mobile-layout.content-active .mobile-back-button {
+		display: flex;
+	}
+
+	/* Ensure song details display properly */
+	.mobile-layout.content-active .song-details-container {
+		margin: 0;
+		padding: 0;
+	}
+
+	.mobile-layout.content-active .song-details-card {
+		border-radius: 0;
+		box-shadow: none;
+	}
+
+	/* Fix lyrics display in mobile view */
+	.mobile-layout.content-active .lyrics-text,
+	.mobile-layout.content-active .chords-text {
+		font-size: 16px;
+		padding: 15px;
+		overflow-x: auto;
+		white-space: pre-wrap;
 	}
 }

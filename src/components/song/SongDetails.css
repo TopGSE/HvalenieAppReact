@@ -830,91 +830,42 @@
 	.song-details-container {
 		margin: 0;
 		padding: 0;
+		max-width: 100%;
 	}
 
 	.song-details-card {
 		border-radius: 0;
 		box-shadow: none;
 		margin: 0;
+		padding: 15px;
 	}
 
 	.song-header {
-		flex-direction: column;
 		padding: 15px;
 	}
 
-	.song-title-section {
-		width: 100%;
-		margin-bottom: 15px;
-	}
-
-	.song-title-section h1 {
-		font-size: 22px;
-	}
-
-	.song-title-section h2 {
-		font-size: 16px;
-	}
-
-	.quick-actions {
-		align-self: flex-end;
-		margin-bottom: 10px;
-	}
-
-	.content-tabs {
-		display: flex;
-		overflow-x: auto;
-		margin: 0 -15px;
-		padding: 0 15px;
-	}
-
-	.tab-button {
-		flex: 1;
-		white-space: nowrap;
-		min-width: 80px;
-	}
-
-	.action-buttons-container {
-		flex-direction: column;
-		gap: 15px;
-		margin-top: 15px;
-	}
-
-	.left-actions,
-	.right-actions {
-		width: 100%;
-		justify-content: space-between;
-	}
-
-	.action-button {
-		flex: 1;
-		margin: 0 5px;
-	}
-
-	.playlist-dropdown-wrapper {
-		position: static;
-		width: 100%;
-	}
-
-	.playlist-dropdown.modern {
-		position: fixed;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		width: 90%;
-		max-width: 350px;
-		max-height: 70vh;
-		z-index: 1001;
-	}
-
-	.song-content {
-		padding: 15px;
-	}
-
+	/* Ensure lyrics are properly visible */
 	.lyrics-text,
 	.chords-text {
+		width: 100%;
+		overflow-x: auto;
+		padding: 10px;
 		font-size: 16px;
-		line-height: 1.5;
+		line-height: 1.6;
+	}
+
+	/* Fix position of playlist dropdown for better mobile view */
+	.playlist-dropdown.modern {
+		position: fixed;
+		top: 50% !important;
+		left: 50% !important;
+		transform: translate(-50%, -50%) !important;
+		width: 90% !important;
+		max-width: 350px !important;
+		max-height: 70vh !important;
+		bottom: auto !important;
+		box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3) !important;
+		z-index: 1000 !important;
 	}
 }
 
