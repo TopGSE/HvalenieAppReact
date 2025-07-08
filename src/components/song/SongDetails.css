@@ -831,6 +831,9 @@
 		margin: 0;
 		padding: 0;
 		max-width: 100%;
+		height: 100%; /* Ensure container takes full height */
+		display: flex;
+		flex-direction: column;
 	}
 
 	.song-details-card {
@@ -838,34 +841,75 @@
 		box-shadow: none;
 		margin: 0;
 		padding: 15px;
+		flex: 1; /* Allow card to grow and fill space */
+		overflow: visible; /* Prevent content from being cut off */
+		display: flex;
+		flex-direction: column;
 	}
 
 	.song-header {
 		padding: 15px;
+		flex-shrink: 0; /* Prevent header from shrinking */
 	}
 
-	/* Ensure lyrics are properly visible */
+	.song-content {
+		flex: 1; /* Allow content to grow */
+		overflow-y: auto; /* Enable scrolling for content */
+		padding-bottom: 80px; /* Add extra padding to prevent content from being cut off */
+		-webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+	}
+
+	/* Fix lyrics container to prevent overflow issues */
+	.lyrics-section, 
+	.chords-section {
+		width: 100%;
+		overflow: visible;
+	}
+
+	/* Ensure lyrics text is properly visible */
 	.lyrics-text,
 	.chords-text {
 		width: 100%;
 		overflow-x: auto;
-		padding: 10px;
+		padding: 15px;
 		font-size: 16px;
 		line-height: 1.6;
+		white-space: pre-wrap;
+		border: 1px solid #eee;
+		border-radius: 8px;
+		background-color: #fafafa;
+	}
+	
+	/* Fix the actions bar at the bottom */
+	.song-actions-bar {
+		margin-top: auto; /* Push to bottom */
+		position: relative; /* Ensure it's on top of content */
+		z-index: 10;
+		width: 100%;
+		left: 0;
+		border-radius: 0;
+	}
+	
+	/* Make sure content doesn't get hidden behind fixed elements */
+	.mobile-layout.content-active .content-area {
+		padding-bottom: 60px;
 	}
 
-	/* Fix position of playlist dropdown for better mobile view */
-	.playlist-dropdown.modern {
+	/* Prevent content area from disappearing by removing any transform that might hide it */
+	.mobile-layout .content-area.active {
+		transform: none !important;
+		display: block !important;
+		visibility: visible !important;
 		position: fixed;
-		top: 50% !important;
-		left: 50% !important;
-		transform: translate(-50%, -50%) !important;
-		width: 90% !important;
-		max-width: 350px !important;
-		max-height: 70vh !important;
-		bottom: auto !important;
-		box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3) !important;
-		z-index: 1000 !important;
+		top: 60px;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		height: calc(100vh - 60px);
+		z-index: 30; /* Ensure it's above other elements */
+		background-color: #fff;
+		overflow-y: auto;
 	}
 }
 
