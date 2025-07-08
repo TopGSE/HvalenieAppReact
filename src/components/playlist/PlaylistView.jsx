@@ -36,16 +36,22 @@ function PlaylistView({
     setIsLoadingUsers(true);
     try {
       const token = localStorage.getItem("token");
-      const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
-      // Updated URL to use the new endpoint
-      const response = await axios.get(`${API_URL}/auth/users/share`, {
+      // This is the key fix - use the correct URL
+      // Don't use localhost in production!
+      const baseUrl =
+        window.location.hostname === "localhost"
+          ? "http://localhost:5000"
+          : "";
+
+      const response = await axios.get(`${baseUrl}/auth/users/share`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      // Filter out current user
+      // Filter out current user just in case
+      const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
       const filteredUsers = response.data.filter(
         (user) => user._id !== currentUser.id && user._id !== currentUser._id
       );
@@ -53,7 +59,10 @@ function PlaylistView({
       setUsers(filteredUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
-      toast.error("Failed to load users");
+      // Show a more helpful error message
+      const errorMsg =
+        error.response?.data?.message || error.message || "Failed to load users";
+      toast.error(errorMsg);
     } finally {
       setIsLoadingUsers(false);
     }
@@ -116,7 +125,6 @@ function PlaylistView({
               category: song.category || "",
               _id: song._id,
             })),
-        },
       };
 
       await axios.post(`${API_URL}/playlists/share`, shareData, {
