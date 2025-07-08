@@ -469,6 +469,8 @@ input[type="text"] {
 
 .song-content {
 	margin-bottom: 2rem;
+	padding: 15px;
+	width: 100%;
 }
 
 .lyrics-container,
@@ -1005,6 +1007,8 @@ button[type="submit"]:hover {
 .song-content.fullscreen pre {
 	font-size: 1.2rem;
 	line-height: 1.8;
+	max-width: 100%;
+	overflow-x: auto;
 }
 
 @media (max-width: 768px) {
@@ -1263,10 +1267,9 @@ body {
 /* Specific styling for lyrics and chords containers */
 .lyrics-container pre,
 .chords-container pre {
-	max-height: 60vh;
-	overflow-y: auto;
+	max-height: none;
+	overflow-y: visible;
 	padding-right: 12px;
-	/* Add padding for scrollbar */
 }
 
 /* Styling for recent songs list horizontal scrollbar */
@@ -1476,14 +1479,15 @@ body {
 /* Improve collapsed sidebar on mobile */
 @media (max-width: 768px) {
 	.sidebar.collapsed {
-		max-height: 50px; /* Just enough to show the toggle button */
+		max-height: 50px;
+		/* Just enough to show the toggle button */
 		overflow: hidden;
 	}
-	
+
 	.sidebar.collapsed .sidebar-header {
 		padding: 10px;
 	}
-	
+
 	/* Keep the toggle button visible when collapsed */
 	.sidebar.collapsed .toggle-sidebar {
 		display: flex;
@@ -1492,7 +1496,7 @@ body {
 		top: 50%;
 		transform: translateY(-50%) rotate(-90deg);
 	}
-	
+
 	/* Hide everything except the toggle button when collapsed */
 	.sidebar.collapsed .sidebar-header-top,
 	.sidebar.collapsed .search-container input,
@@ -1503,106 +1507,182 @@ body {
 
 /* Mobile content view improvements */
 @media (max-width: 768px) {
-  /* Initially hide the content area on mobile */
-  .mobile-layout .content-area {
-    display: none;
-    position: fixed;
-    top: 60px; /* Below navbar */
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: calc(100vh - 60px);
-    z-index: 20; /* Above sidebar */
-    background-color: white;
-    padding: 0;
-    margin: 0;
-    overflow-y: auto;
-  }
-  
-  /* When content is active, show it full screen */
-  .mobile-layout .content-area.active {
-    display: block;
-    animation: slideInRight 0.3s ease;
-  }
-  
-  /* Make sidebar take full height when content is hidden */
-  .mobile-layout .sidebar {
-    max-height: calc(100vh - 60px);
-    height: calc(100vh - 60px);
-  }
-  
-  /* When content is shown, hide the sidebar */
-  .mobile-layout.content-active .sidebar {
-    display: none;
-  }
-  
-  /* Back button for returning to song list */
-  .mobile-back-button {
-    display: none; /* Hidden by default on desktop */
-  }
-  
-  /* Show back button only on mobile when content is active */
-  .mobile-layout.content-active .mobile-back-button {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 16px;
-    background-color: #f5f5f5;
-    border: none;
-    border-bottom: 1px solid #eaeaea;
-    width: 100%;
-    font-size: 16px;
-    text-align: left;
-    cursor: pointer;
-  }
-  
-  .mobile-back-button:hover {
-    background-color: #e8e8e8;
-  }
-  
-  .mobile-back-button .back-icon {
-    font-size: 18px;
-  }
-  
-  /* Adjust song details container for mobile full screen */
-  .mobile-layout.content-active .song-details-container {
-    margin: 0;
-    padding: 0;
-    max-width: 100%;
-    border-radius: 0;
-    box-shadow: none;
-  }
-  
-  /* Animation for sliding in content */
-  @keyframes slideInRight {
-    from {
-      transform: translateX(100%);
-    }
-    to {
-      transform: translateX(0);
-    }
-  }
-  
-  /* Animation for sliding out content */
-  @keyframes slideOutRight {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(100%);
-    }
-  }
-  
-  /* Adjust content padding when back button is present */
-  .mobile-layout.content-active .song-details-card {
-    padding-top: 0;
-    border-radius: 0;
-    box-shadow: none;
-  }
-  
-  /* Ensure sidebar content is scrollable and takes full height */
-  .mobile-layout .sidebar-content {
-    max-height: calc(100vh - 200px);
-  }
+
+	/* Initially hide the content area on mobile */
+	.mobile-layout .content-area {
+		display: none;
+		position: fixed;
+		top: 60px;
+		/* Below navbar */
+		left: 0;
+		right: 0;
+		bottom: 0;
+		width: 100%;
+		height: calc(100vh - 60px);
+		z-index: 20;
+		/* Above sidebar */
+		background-color: white;
+		padding: 0;
+		margin: 0;
+		overflow-y: auto;
+	}
+
+	/* When content is active, show it full screen */
+	.mobile-layout .content-area.active {
+		display: block;
+		animation: slideInRight 0.3s ease;
+	}
+
+	/* Make sidebar take full height when content is hidden */
+	.mobile-layout .sidebar {
+		max-height: calc(100vh - 60px);
+		height: calc(100vh - 60px);
+	}
+
+	/* When content is shown, hide the sidebar */
+	.mobile-layout.content-active .sidebar {
+		display: none;
+	}
+
+	/* Back button for returning to song list */
+	.mobile-back-button {
+		display: none;
+		/* Hidden by default on desktop */
+	}
+
+	/* Show back button only on mobile when content is active */
+	.mobile-layout.content-active .mobile-back-button {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		padding: 12px 16px;
+		background-color: #e3c9c9;
+		border: none;
+		border-bottom: 1px solid #eaeaea;
+		width: 100%;
+		font-size: 16px;
+		text-align: left;
+		cursor: pointer;
+	}
+
+	.mobile-back-button:hover {
+		background-color: #e8e8e8;
+	}
+
+	.mobile-back-button .back-icon {
+		font-size: 18px;
+	}
+
+	/* Adjust song details container for mobile full screen */
+	.mobile-layout.content-active .song-details-container {
+		margin: 0;
+		padding: 0;
+		max-width: 100%;
+		border-radius: 0;
+		box-shadow: none;
+	}
+
+	/* Animation for sliding in content */
+	@keyframes slideInRight {
+		from {
+			transform: translateX(100%);
+		}
+
+		to {
+			transform: translateX(0);
+		}
+	}
+
+	/* Animation for sliding out content */
+	@keyframes slideOutRight {
+		from {
+			transform: translateX(0);
+		}
+
+		to {
+			transform: translateX(100%);
+		}
+	}
+
+	/* Adjust content padding when back button is present */
+	.mobile-layout.content-active .song-details-card {
+		padding-top: 0;
+		border-radius: 0;
+		box-shadow: none;
+	}
+
+	/* Ensure sidebar content is scrollable and takes full height */
+	.mobile-layout .sidebar-content {
+		max-height: calc(100vh - 200px);
+	}
+}
+
+/* Update the lyrics text display styles */
+.lyrics-text,
+.chords-text {
+	font-family: 'Roboto Mono', monospace;
+	white-space: pre-wrap;
+	line-height: 1.6;
+	font-size: 16px;
+	color: #333;
+	margin: 0;
+	padding: 10px;
+	width: 100%;
+	overflow-x: auto;
+	overflow-y: visible;
+	display: block;
+	background-color: #fafafa;
+	border-radius: 6px;
+	border: 1px solid #eaeaea;
+}
+
+/* Fix scrollbars for lyrics containers */
+.lyrics-container pre,
+.chords-container pre {
+	max-height: none;
+	overflow-y: visible;
+	padding-right: 12px;
+}
+
+/* Improve song content container */
+.song-content {
+	margin-bottom: 2rem;
+	padding: 15px;
+	width: 100%;
+}
+
+/* Improve lyrics section display */
+.lyrics-section,
+.chords-section {
+	margin-bottom: 24px;
+	width: 100%;
+}
+
+/* Ensure the container doesn't collapse */
+.song-details-card {
+	display: flex;
+	flex-direction: column;
+	min-height: 300px;
+}
+
+/* Fix fullscreen mode to display lyrics properly */
+.song-content.fullscreen pre {
+	font-size: 1.2rem;
+	line-height: 1.8;
+	max-width: 100%;
+	overflow-x: auto;
+}
+
+/* Make sure lyrics are visible on mobile */
+@media (max-width: 768px) {
+
+	.lyrics-text,
+	.chords-text {
+		font-size: 14px;
+		padding: 8px;
+	}
+
+	.song-content {
+		padding: 10px;
+	}
 }
