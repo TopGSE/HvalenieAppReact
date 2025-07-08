@@ -181,3 +181,23 @@ body.high-contrast.dark {
 	outline-offset: 3px;
 	box-shadow: 0 0 0 3px var(--bg-color);
 }
+
+/* Add these rules to prevent iOS zoom on inputs */
+
+input,
+select,
+textarea,
+button {
+	font-size: 16px;
+	/* Prevent iOS zoom */
+}
+
+@media (max-width: 768px) {
+
+	.form-group input,
+	.form-group select,
+	.form-group textarea {
+		font-size: 16px;
+		padding: 10px;
+	}
+}

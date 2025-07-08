@@ -31,8 +31,8 @@ body {
 	flex-direction: row;
 	margin-top: 60px;
 	/* Space for fixed navbar */
-	overflow: hidden;
-	/* Remove scrollbars from the main layout */
+	height: calc(100vh - 60px);
+	width: 100%;
 }
 
 /* Navigation */
@@ -60,17 +60,18 @@ body {
 	flex-direction: column;
 	height: calc(100vh - 60px);
 	/* Account for navbar height */
-	overflow: hidden;
-	/* Prevent sidebar itself from overflowing */
-	width: 450px;
+	width: 350px;
+	min-width: 300px;
 	background-color: #ffffff;
 	border-right: 1px solid #eaeaea;
-	transition: width 0.3s ease;
-	color: #000000;
+	transition: all 0.3s ease;
+	position: relative;
+	z-index: 10;
 }
 
 .sidebar.collapsed {
 	width: 60px;
+	min-width: 60px;
 }
 
 /* Sidebar header improvements */
@@ -241,7 +242,6 @@ input[type="text"] {
 	align-items: center;
 	justify-content: center;
 	transition: transform 0.3s ease;
-	margin-left: 5px;
 }
 
 /* Add these styles to fix layout issues */
@@ -689,23 +689,21 @@ button[type="submit"]:hover {
 	}
 
 	.sidebar {
-		height: auto;
-		max-height: 50vh;
 		width: 100%;
+		min-width: 100%;
+		max-height: 50vh;
 		border-right: none;
 		border-bottom: 1px solid #eaeaea;
-		max-height: 40vh;
-		overflow-y: auto;
 	}
 
 	.sidebar.collapsed {
 		max-height: 60px;
 		width: 100%;
+		min-width: 100%;
+		overflow: hidden;
 	}
 
 	.toggle-sidebar {
-		right: 1rem;
-		top: 1rem;
 		transform: rotate(90deg);
 	}
 
@@ -714,72 +712,86 @@ button[type="submit"]:hover {
 	}
 
 	.content-area {
-		padding: 1rem;
 		width: 100%;
+		padding: 15px;
+		max-height: 50vh;
 	}
 
-	.song-details-container {
-		padding: 1.5rem;
+	/* Better handle sidebar sections on mobile */
+	.sidebar-header {
 		padding: 10px;
 	}
 
-	.add-song-form-container {
-		padding: 1.5rem;
-	}
-
-	.song-list,
-	.content-area {
-		-webkit-overflow-scrolling: touch;
-	}
-
-	/* On smaller screens, we can optionally hide the scrollbar for cleaner look */
-	.song-list {
-		scrollbar-width: none;
-	}
-
-	.song-list::-webkit-scrollbar {
-		width: 0;
-		display: none;
-	}
-
 	.sidebar-content {
-		max-height: 30vh;
+		max-height: calc(50vh - 180px);
 	}
 
 	.playlists-section {
-		max-height: 20vh;
+		max-height: 30vh;
 	}
 
-	.playlists-list {
-		max-height: 15vh;
-	}
-}
-
-@media (max-width: 480px) {
-	.song-actions {
-		flex-direction: column;
-		flex-wrap: wrap;
+	.search-container {
+		width: 100%;
+		margin-bottom: 10px;
 	}
 
-	.lyrics-container,
-	.chords-container {
-		padding: 1rem;
-	}
-
-	.add-song-form-container {
-		padding: 1rem;
-	}
-
-	.form-actions {
-		justify-content: center;
-	}
-
-	.primary-button {
+	.search-bar {
 		width: 100%;
 	}
 
-	.song-actions button {
-		margin-top: 10px;
+	.search-bar input {
+		font-size: 16px;
+		/* Prevent auto-zoom on iOS */
+		padding: 8px 30px 8px 36px;
+	}
+
+	.toggle-sidebar {
+		top: 50%;
+		transform: translateY(-50%) rotate(90deg);
+	}
+
+	.sidebar.collapsed .toggle-sidebar {
+		transform: translateY(-50%) rotate(-90deg);
+	}
+
+	.sort-filter-controls {
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	.recent-songs {
+		display: none;
+		/* Hide on very small screens to save space */
+	}
+
+	.sidebar.collapsed .sidebar-header,
+	.sidebar.collapsed .playlists-section {
+		display: none;
+	}
+}
+
+/* Smaller mobile screens */
+@media (max-width: 480px) {
+	.sidebar-header {
+		padding: 8px;
+	}
+
+	.search-container {
+		margin-bottom: 8px;
+	}
+
+	.sort-filter-controls {
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	.sort-select,
+	.filter-select {
+		width: 100%;
+	}
+
+	.content-area {
+		padding: 10px;
 	}
 }
 
@@ -1386,4 +1398,76 @@ body {
 .clickable-card:hover .card-click-hint {
 	opacity: 1;
 	color: #006eef;
+}
+
+/* Add these styles for improved search and filter responsiveness */
+
+/* Enhanced search container for mobile */
+@media (max-width: 768px) {
+	.search-container {
+		width: 100%;
+		margin-bottom: 10px;
+	}
+
+	.search-bar {
+		width: 100%;
+	}
+
+	.search-bar input {
+		font-size: 16px;
+		/* Prevent auto-zoom on iOS */
+		padding: 8px 30px 8px 36px;
+	}
+
+	.toggle-sidebar {
+		top: 50%;
+		transform: translateY(-50%) rotate(90deg);
+	}
+
+	.sidebar.collapsed .toggle-sidebar {
+		transform: translateY(-50%) rotate(-90deg);
+	}
+
+	.sort-filter-controls {
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+
+	.recent-songs {
+		display: none;
+		/* Hide on very small screens to save space */
+	}
+
+	.sidebar.collapsed .sidebar-header,
+	.sidebar.collapsed .playlists-section {
+		display: none;
+	}
+}
+
+/* Improved recent songs display for mobile */
+
+@media (max-width: 768px) {
+	.recent-songs {
+		max-height: 80px;
+		overflow: hidden;
+	}
+
+	.recent-songs-list {
+		display: flex;
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		padding-bottom: 8px;
+		max-height: 50px;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.recent-song-item {
+		flex: 0 0 auto;
+		max-width: 150px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		font-size: 12px;
+		padding: 6px 10px;
+	}
 }

@@ -453,24 +453,55 @@
 @media (max-width: 768px) {
 	.playlist-header {
 		flex-direction: column;
+		padding: 15px;
+		gap: 15px;
 	}
 
-	.playlist-actions {
-		margin-top: 16px;
+	.playlist-title-section {
 		width: 100%;
 	}
 
-	.playlist-tools {
-		flex-direction: column;
+	.playlist-actions {
+		width: 100%;
+		justify-content: space-between;
 	}
 
-	.song-info {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 4px;
+	.playlist-song-item {
+		padding: 12px 10px;
 	}
 
-	.song-number {
-		margin-bottom: 8px;
+	.playlist-song-details {
+		max-width: 75%;
+	}
+
+	.playlist-song-actions {
+		gap: 5px;
+	}
+
+	.playlist-empty-state {
+		padding: 20px;
+	}
+}
+
+@media (max-width: 480px) {
+	.playlist-header {
+		padding: 12px;
+	}
+
+	.playlist-title {
+		font-size: 20px;
+	}
+
+	.playlist-action-button {
+		padding: 6px 10px;
+		font-size: 13px;
+	}
+
+	.playlist-song-title {
+		font-size: 14px;
+	}
+
+	.playlist-song-artist {
+		font-size: 12px;
 	}
 }

@@ -1,0 +1,66 @@
+/* Global Responsive Styles */
+
+/* Tablets (768px and below) */
+@media (max-width: 768px) {
+
+	/* General layout adjustments */
+	body {
+		font-size: 15px;
+	}
+
+	.app-container {
+		overflow-x: hidden;
+	}
+
+	/* Fix scrolling issues */
+	html,
+	body {
+		overflow: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	/* Adjust modal sizes */
+	.modal-content {
+		width: 90%;
+		max-width: none;
+		max-height: 80vh;
+		padding: 15px;
+	}
+
+	/* Form controls */
+	input,
+	select,
+	textarea,
+	button {
+		font-size: 16px;
+		/* Prevent iOS zoom */
+	}
+}
+
+/* Mobile Phones (480px and below) */
+@media (max-width: 480px) {
+	body {
+		font-size: 14px;
+	}
+
+	.app-container {
+		overflow-x: hidden;
+	}
+
+	/* Further reduce paddings */
+	.modal-content {
+		padding: 12px;
+		width: 95%;
+		max-height: 85vh;
+	}
+
+	/* Stack buttons vertically in action groups */
+	.form-actions {
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.form-actions button {
+		width: 100%;
+	}
+}
