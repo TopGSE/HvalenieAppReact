@@ -842,7 +842,6 @@
 		margin: 0;
 		padding: 15px;
 		flex: 1; /* Allow card to grow and fill space */
-		overflow: visible; /* Prevent content from being cut off */
 		display: flex;
 		flex-direction: column;
 	}
@@ -1134,3 +1133,58 @@
 }
 
 /* Add similar high contrast styles to your PlaylistView.css and other component CSS files */
+
+/* Fix mobile layout issues for song details */
+@media (max-width: 768px) {
+  .song-details-container {
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .song-details-card {
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0;
+    padding: 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .song-header {
+    padding: 15px;
+    flex-shrink: 0;
+  }
+  
+  .song-content {
+    flex: 1;
+    overflow-y: visible;
+    padding-bottom: 80px;
+  }
+  
+  /* Ensure proper text display */
+  .lyrics-text,
+  .chords-text {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    white-space: pre-wrap;
+    padding: 15px;
+    font-size: 16px;
+    line-height: 1.6;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background-color: #fafafa;
+  }
+  
+  /* Ensure the song actions bar doesn't cover content */
+  .song-actions-bar {
+    position: relative;
+    margin-top: 20px;
+    z-index: 5;
+  }
+}

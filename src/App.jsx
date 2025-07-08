@@ -128,13 +128,27 @@ function AppContent({
     }
   }, [selectedSong, currentPlaylist, isMobile]);
 
-  // Handler for the back button
+  // Improved handler for the back button
   const handleBackToList = () => {
     setMobileContentActive(false);
-    // Optionally clear the selection
-    // setSelectedSong(null);
-    // setCurrentPlaylist(null);
+    
+    // Optional: add a small delay before scrolling to maintain smooth transition
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 50);
   };
+
+  // Prevent body scrolling when mobile content is active
+  useEffect(() => {
+    if (isMobile) {
+      document.body.style.overflow = mobileContentActive ? 'hidden' : 'auto';
+    }
+    
+    // Cleanup
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [mobileContentActive, isMobile]);
 
   return (
     <div className="app-container">

@@ -247,3 +247,19 @@ button {
     padding-bottom: 100px;
   }
 }
+
+/* Remove conflicting overflow styles */
+@media (max-width: 768px) {
+  html, body {
+    position: static !important;
+    overflow: visible !important;
+    height: auto !important;
+    width: 100% !important;
+  }
+  
+  /* Ensure smooth scrolling for content areas */
+  .content-area {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+  }
+}
