@@ -1,6 +1,9 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 import './PlaylistView.css';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 function PlaylistView({ 
   playlist, 
@@ -13,23 +16,136 @@ function PlaylistView({
   favorites = [],
   toggleFavorite
 }) {
-  // Add these missing states
+  // Existing states
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('default');
+  
+  // Updated share states
   const [showShareModal, setShowShareModal] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [shareStep, setShareStep] = useState(1); // 1: select users, 2: share options
 
   const songRefs = useRef({});
 
-  // Format date helper function
-  const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
+  // Fetch users from database
+  const fetchUsers = async () => {
+    setIsLoadingUsers(true);
+    try {
+      const token = localStorage.getItem('token');
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      
+      const response = await axios.get(`${API_URL}/auth/users`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Filter out current user
+      const filteredUsers = response.data.filter(user => 
+        user._id !== currentUser.id && user._id !== currentUser._id
+      );
+
+      setUsers(filteredUsers);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      toast.error('Failed to load users');
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  // Filter users based on search
+  const filteredUsers = users.filter(user => 
+    user.username.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(userSearchTerm.toLowerCase())
+  );
+
+  // Handle user selection
+  const handleUserToggle = (userId) => {
+    setSelectedUsers(prev => {
+      if (prev.includes(userId)) {
+        return prev.filter(id => id !== userId);
+      } else {
+        return [...prev, userId];
+      }
+    });
   };
 
   // Share functionality
   const handleShare = async () => {
+    setShowShareModal(true);
+    setShareStep(1);
+    setSelectedUsers([]);
+    setUserSearchTerm('');
+    await fetchUsers();
+  };
+
+  // Send playlist share
+  const handleSendShare = async () => {
+    if (selectedUsers.length === 0) {
+      toast.error('Please select at least one user to share with');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+
+      const shareData = {
+        playlistId: playlist.id,
+        playlistName: playlist.name,
+        recipientIds: selectedUsers,
+        message: `${currentUser.username} shared a playlist with you: "${playlist.name}"`,
+        playlistData: {
+          name: playlist.name,
+          description: playlist.description || '',
+          songIds: playlist.songIds || [],
+          songs: songs
+            .filter(song => playlist.songIds && playlist.songIds.includes(song._id))
+            .map(song => ({
+              title: song.title,
+              artist: song.artist || '',
+              category: song.category || '',
+              _id: song._id
+            }))
+        }
+      };
+
+      await axios.post(`${API_URL}/playlists/share`, shareData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      toast.success(`Playlist shared with ${selectedUsers.length} user(s)!`);
+      setShowShareModal(false);
+      setShareStep(1);
+      setSelectedUsers([]);
+    } catch (error) {
+      console.error('Error sharing playlist:', error);
+      toast.error('Failed to share playlist');
+    }
+  };
+
+  // Copy playlist link
+  const copyPlaylistLink = async () => {
+    try {
+      const url = `${window.location.origin}${window.location.pathname}?playlist=${encodeURIComponent(playlist.name)}`;
+      await navigator.clipboard.writeText(url);
+      toast.success('Playlist link copied to clipboard!');
+    } catch (error) {
+      console.error('Error copying link:', error);
+      toast.error('Failed to copy link');
+    }
+  };
+
+  // Copy playlist details as text
+  const copyPlaylistDetails = async () => {
     const playlistData = {
       name: playlist.name,
       description: playlist.description || '',
@@ -45,44 +161,11 @@ function PlaylistView({
 
     const shareText = `🎵 ${playlistData.name}\n\n${playlistData.description ? `${playlistData.description}\n\n` : ''}📋 ${playlistData.songCount} songs:\n${playlistData.songs.map((song, index) => `${index + 1}. ${song.title}${song.artist ? ` - ${song.artist}` : ''}`).join('\n')}\n\nShared from Hvalenie App`;
 
-    // Try to use Web Share API first (mobile devices)
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `Playlist: ${playlistData.name}`,
-          text: shareText,
-          url: window.location.href
-        });
-        toast.success('Playlist shared successfully!');
-        return;
-      } catch (error) {
-        if (error.name !== 'AbortError') {
-          console.error('Error sharing:', error);
-        }
-      }
-    }
-
-    // Fallback to clipboard copy
     try {
       await navigator.clipboard.writeText(shareText);
-      toast.success('Playlist copied to clipboard!');
-      setShowShareModal(true);
+      toast.success('Playlist details copied to clipboard!');
     } catch (error) {
-      console.error('Error copying to clipboard:', error);
-      // Final fallback - show the share modal
-      setShowShareModal(true);
-    }
-  };
-
-  // Copy playlist link
-  const copyPlaylistLink = async () => {
-    try {
-      const url = `${window.location.origin}${window.location.pathname}?playlist=${encodeURIComponent(playlist.name)}`;
-      await navigator.clipboard.writeText(url);
-      toast.success('Playlist link copied to clipboard!');
-    } catch (error) {
-      console.error('Error copying link:', error);
-      toast.error('Failed to copy link');
+      toast.error('Failed to copy to clipboard');
     }
   };
 
@@ -105,17 +188,15 @@ function PlaylistView({
         case 'category':
           return (a.category || '').localeCompare(b.category || '');
         default:
-          return 0; // Original order
+          return 0;
       }
     });
     
-  // Handle favorite toggle with event stop propagation
   const handleFavoriteToggle = (e, songId) => {
     e.stopPropagation();
     toggleFavorite(songId);
   };
   
-  // Handle remove song with event stop propagation
   const handleRemoveSong = (e, songId) => {
     e.stopPropagation();
     onRemoveSongFromPlaylist(playlist.id, songId);
@@ -276,7 +357,9 @@ function PlaylistView({
         <div className="share-modal-overlay" onClick={() => setShowShareModal(false)}>
           <div className="share-modal-content" onClick={e => e.stopPropagation()}>
             <div className="share-modal-header">
-              <h3>Share Playlist</h3>
+              <h3>
+                {shareStep === 1 ? 'Who would you like to share this playlist with?' : 'Share Options'}
+              </h3>
               <button 
                 className="close-share-modal"
                 onClick={() => setShowShareModal(false)}
@@ -286,48 +369,132 @@ function PlaylistView({
             </div>
             
             <div className="share-modal-body">
-              <p>Choose how you'd like to share "<strong>{playlist.name}</strong>":</p>
-              
-              <div className="share-options">
-                <button 
-                  className="share-option-btn copy-link-btn"
-                  onClick={copyPlaylistLink}
-                >
-                  <span className="share-icon">🔗</span>
-                  <span>Copy Link</span>
-                </button>
-                
-                <button 
-                  className="share-option-btn copy-text-btn"
-                  onClick={async () => {
-                    const playlistData = {
-                      name: playlist.name,
-                      description: playlist.description || '',
-                      songCount: playlist.songIds?.length || 0,
-                      songs: songs
-                        .filter(song => playlist.songIds && playlist.songIds.includes(song._id))
-                        .map(song => ({
-                          title: song.title,
-                          artist: song.artist || '',
-                          category: song.category || ''
-                        }))
-                    };
+              {shareStep === 1 ? (
+                <>
+                  <p>Select users to share "<strong>{playlist.name}</strong>" with:</p>
+                  
+                  {/* User Search */}
+                  <div className="user-search">
+                    <input
+                      type="text"
+                      placeholder="Search users by name or email..."
+                      value={userSearchTerm}
+                      onChange={(e) => setUserSearchTerm(e.target.value)}
+                      className="user-search-input"
+                    />
+                  </div>
 
-                    const shareText = `🎵 ${playlistData.name}\n\n${playlistData.description ? `${playlistData.description}\n\n` : ''}📋 ${playlistData.songCount} songs:\n${playlistData.songs.map((song, index) => `${index + 1}. ${song.title}${song.artist ? ` - ${song.artist}` : ''}`).join('\n')}\n\nShared from Hvalenie App`;
+                  {/* Users List */}
+                  <div className="users-container">
+                    {isLoadingUsers ? (
+                      <div className="loading-users">
+                        <div className="spinner"></div>
+                        <p>Loading users...</p>
+                      </div>
+                    ) : filteredUsers.length === 0 ? (
+                      <div className="no-users">
+                        <p>No users found</p>
+                      </div>
+                    ) : (
+                      <div className="users-list">
+                        {filteredUsers.map(user => (
+                          <div
+                            key={user._id}
+                            className={`user-item ${selectedUsers.includes(user._id) ? 'selected' : ''}`}
+                            onClick={() => handleUserToggle(user._id)}
+                          >
+                            <div className="user-info">
+                              <div className="user-avatar">
+                                {user.profilePhoto ? (
+                                  <img src={user.profilePhoto} alt={user.username} />
+                                ) : (
+                                  <span>{user.username.charAt(0).toUpperCase()}</span>
+                                )}
+                              </div>
+                              <div className="user-details">
+                                <h4>{user.username}</h4>
+                                <p>{user.email}</p>
+                              </div>
+                            </div>
+                            <div className="user-checkbox">
+                              {selectedUsers.includes(user._id) ? '✓' : ''}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
-                    try {
-                      await navigator.clipboard.writeText(shareText);
-                      toast.success('Playlist details copied to clipboard!');
-                      setShowShareModal(false);
-                    } catch (error) {
-                      toast.error('Failed to copy to clipboard');
-                    }
-                  }}
-                >
-                  <span className="share-icon">📋</span>
-                  <span>Copy Details</span>
-                </button>
-              </div>
+                  {/* Selected Users Summary */}
+                  {selectedUsers.length > 0 && (
+                    <div className="selected-users-summary">
+                      <p>Selected {selectedUsers.length} user(s)</p>
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div className="share-actions">
+                    <button 
+                      className="cancel-share-btn"
+                      onClick={() => setShowShareModal(false)}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      className="continue-share-btn"
+                      onClick={() => setShareStep(2)}
+                      disabled={selectedUsers.length === 0}
+                    >
+                      Continue ({selectedUsers.length})
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p>How would you like to share this playlist?</p>
+                  
+                  <div className="share-options">
+                    <button 
+                      className="share-option-btn send-to-users-btn"
+                      onClick={handleSendShare}
+                    >
+                      <span className="share-icon">👥</span>
+                      <span>Send to Selected Users</span>
+                    </button>
+                    
+                    <button 
+                      className="share-option-btn copy-link-btn"
+                      onClick={() => {
+                        copyPlaylistLink();
+                        setShowShareModal(false);
+                      }}
+                    >
+                      <span className="share-icon">🔗</span>
+                      <span>Copy Link</span>
+                    </button>
+                    
+                    <button 
+                      className="share-option-btn copy-text-btn"
+                      onClick={() => {
+                        copyPlaylistDetails();
+                        setShowShareModal(false);
+                      }}
+                    >
+                      <span className="share-icon">📋</span>
+                      <span>Copy Details</span>
+                    </button>
+                  </div>
+
+                  <div className="share-actions">
+                    <button 
+                      className="back-share-btn"
+                      onClick={() => setShareStep(1)}
+                    >
+                      ← Back
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
