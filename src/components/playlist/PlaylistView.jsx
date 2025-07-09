@@ -265,7 +265,10 @@ function PlaylistView({
 
   const handleRemoveSong = (e, songId) => {
     e.stopPropagation();
-    onRemoveSongFromPlaylist(playlist.id, songId);
+    // Use playlist._id instead of playlist.id
+    const playlistId = playlist._id || playlist.id;
+    console.log("Removing song from playlist:", { playlistId, songId }); // Debug log
+    onRemoveSongFromPlaylist(playlistId, songId);
   };
 
   return (
@@ -304,7 +307,12 @@ function PlaylistView({
               <span>Are you sure?</span>
               <button
                 className="confirm-yes"
-                onClick={() => onDeletePlaylist(playlist.id)}
+                onClick={() => {
+                  // Use playlist._id instead of playlist.id
+                  const playlistId = playlist._id || playlist.id;
+                  console.log("Deleting playlist with ID:", playlistId); // Debug log
+                  onDeletePlaylist(playlistId);
+                }}
               >
                 Yes
               </button>

@@ -393,7 +393,7 @@ function AppContent({
                               </div>
                             </div>
                           ))
-                      )}
+                      }
                     </div>
                   </div>
                 </aside>
@@ -1184,6 +1184,14 @@ function App() {
   // Delete a playlist
   const handleDeletePlaylist = async (playlistId) => {
     try {
+      // Add validation for playlistId
+      if (!playlistId) {
+        console.error("Cannot delete playlist: Missing playlist ID");
+        toast.error("Failed to delete playlist: Invalid ID");
+        return;
+      }
+
+      console.log("Deleting playlist with ID:", playlistId); // Add this log
       const token = localStorage.getItem("token");
 
       await axios.delete(
