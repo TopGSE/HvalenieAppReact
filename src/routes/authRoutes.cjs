@@ -2,7 +2,8 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User.cjs');
 const Notification = require('../models/Notification.cjs'); // Import Notification model
-const { authMiddleware, adminMiddleware } = require('../middleware/authMiddleware.cjs');
+const authMiddleware = require('../middleware/authMiddleware.cjs');
+const adminMiddleware = require('../middleware/adminMiddleware.cjs');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
@@ -437,8 +438,6 @@ router.put('/profile/password', authMiddleware, async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
-// Add this route to your authRoutes.cjs file
 
 /**
  * Count users - admin only
