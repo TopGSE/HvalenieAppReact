@@ -4,9 +4,7 @@ import "./NavBar.css";
 import { useAuth } from "../../App";
 import { FaUser, FaChartBar, FaBell } from "react-icons/fa";
 import axios from "axios";
-
-// Import API_URL correctly
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import API_URL from "../../utils/api"; // Use the proper import
 
 function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

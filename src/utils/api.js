@@ -5,7 +5,7 @@ let API_URL = import.meta.env.VITE_API_URL;
 if (!API_URL) {
   const isProduction = import.meta.env.PROD;
   API_URL = isProduction 
-    ? "https://hvalenieapp-89e57e2c3558.herokuapp.com" 
+    ? "" // Empty string for relative URLs in production (same domain)
     : "http://localhost:5000";
   
   console.log(`Using ${isProduction ? 'production' : 'development'} API URL: ${API_URL}`);

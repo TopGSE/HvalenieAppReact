@@ -335,18 +335,6 @@ app.get('/api/debug/mongodb', async (req, res) => {
   }
 });
 
-// Serve static files from the React app in production
-if (process.env.NODE_ENV === 'production') {
-  // Serve static files from the React app
-  app.use(express.static(path.join(__dirname, 'dist')));
-  
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-  });
-}
-
-// Add this before your app.listen call
 // IMPORTANT: Remove this endpoint after you've created your admin user!
 app.get('/api/debug/create-admin', async (req, res) => {
   try {
@@ -385,13 +373,21 @@ app.get('/api/debug/create-admin', async (req, res) => {
   }
 });
 
-// Update the playlist routes to use authMiddleware
-app.use('/playlists', authMiddleware, playlistRoutes);
-
-// Test route
-app.get('/test-route', (req, res) => {
-  res.json({ message: 'Test route working!' });
+// Add a basic health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: new Date() });
 });
+
+// Serve static files from the React app in production
+if (process.env.NODE_ENV === 'production') {
+  // Serve static files from the React app
+  app.use(express.static(path.join(__dirname, 'dist')));
+  
+  // Handle React routing, return all requests to React app
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+  });
+}
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
