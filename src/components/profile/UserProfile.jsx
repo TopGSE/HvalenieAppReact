@@ -230,8 +230,8 @@ function UserProfile() {
     if (!file) return;
 
     // Check file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("File size exceeds 2MB");
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size exceeds 10MB");
       return;
     }
 
