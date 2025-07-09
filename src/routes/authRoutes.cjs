@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User.cjs');
+const Notification = require('../models/Notification.cjs'); // Import Notification model
 const { authMiddleware, adminMiddleware } = require('../middleware/authMiddleware.cjs');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
@@ -520,6 +521,48 @@ router.put('/users/:userId/role', authMiddleware, adminMiddleware, async (req, r
     res.json({ message: 'User role updated', user: { ...user._doc, password: undefined } });
   } catch (error) {
     console.error('Error updating user role:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get user notifications
+router.get('/notifications', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    
+    // Find all notifications for the current user
+    const notifications = await Notification.find({ toUserId: userId })
+      .sort({ createdAt: -1 }) // Newest first
+      .populate('fromUserId', 'username profilePhoto') // Get sender details
+      .limit(50); // Limit to prevent excessive load
+    
+    res.json(notifications);
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Mark notification as read
+router.put('/notifications/:notificationId/read', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id || req.user._id;
+    const { notificationId } = req.params;
+    
+    // Find and update the notification, ensuring it belongs to this user
+    const notification = await Notification.findOneAndUpdate(
+      { _id: notificationId, toUserId: userId },
+      { read: true },
+      { new: true }
+    );
+    
+    if (!notification) {
+      return res.status(404).json({ message: 'Notification not found' });
+    }
+    
+    res.json(notification);
+  } catch (error) {
+    console.error('Error updating notification:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

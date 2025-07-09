@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const Notification = require('../models/Notification.cjs');
+const mongoose = require('mongoose');
 
 // Define a simple test route
 router.get('/test', function(req, res) {
@@ -9,10 +11,30 @@ router.get('/test', function(req, res) {
 // Define the share route with standard function syntax instead of arrow function
 router.post('/share', function(req, res) {
   try {
-    const { recipientIds, playlistName, message, playlistData } = req.body;
+    const { recipientIds, playlistId, playlistName, message, playlistData } = req.body;
+    const senderId = req.user ? req.user.id || req.user._id : null;
     
-    // Here you would typically save the shared playlist in your database
-    // or create notifications for recipients
+    // Create notifications for each recipient
+    if (recipientIds && recipientIds.length > 0 && senderId) {
+      const notifications = recipientIds.map(recipientId => ({
+        type: 'playlist_share',
+        fromUserId: senderId,
+        toUserId: recipientId,
+        playlistId: playlistId,
+        playlistName: playlistName,
+        message: message || `A user shared a playlist with you: "${playlistName}"`,
+        read: false
+      }));
+      
+      // Save all notifications to the database
+      Notification.insertMany(notifications)
+        .then(() => {
+          console.log(`Created ${notifications.length} notifications`);
+        })
+        .catch(err => {
+          console.error('Error creating notifications:', err);
+        });
+    }
     
     res.json({ 
       success: true, 

@@ -385,8 +385,8 @@ app.get('/api/debug/create-admin', async (req, res) => {
   }
 });
 
-// Use playlist routes
-app.use('/playlists', playlistRoutes);
+// Update the playlist routes to use authMiddleware
+app.use('/playlists', authMiddleware, playlistRoutes);
 
 // Test route
 app.get('/test-route', (req, res) => {
