@@ -14,7 +14,4 @@ export default defineConfig({
       },
     },
   },
-  esbuild: {
-    jsxInject: `import React from 'react'`  // This fixes the "React is not defined" error
-  },
 });
