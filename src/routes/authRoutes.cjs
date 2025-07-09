@@ -108,16 +108,28 @@ router.post('/make-admin', async (req, res) => {
   }
 });
 
-// Add the profile endpoint
+// Ensure the profile route is correctly defined
 router.get('/profile', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password');
+    console.log('Profile route called, user ID:', req.user.userId);
+    
+    // Make sure we're using the correct user ID field from the token
+    const userId = req.user.userId || req.user._id;
+    if (!userId) {
+      console.error('No user ID found in token');
+      return res.status(401).json({ message: 'Invalid token: missing user ID' });
+    }
+    
+    const user = await User.findById(userId).select('-password');
     if (!user) {
+      console.error(`User not found with ID: ${userId}`);
       return res.status(404).json({ message: 'User not found' });
     }
+    
+    console.log(`User found: ${user.username}`);
     res.json(user);
   } catch (err) {
-    console.error('Error fetching user profile:', err);
+    console.error('Error in /profile route:', err);
     res.status(500).json({ message: err.message });
   }
 });

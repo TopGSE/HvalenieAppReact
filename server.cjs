@@ -14,6 +14,14 @@ const playlistRoutes = require('./src/routes/playlistRoutes.cjs');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Enable detailed logging in production to debug route issues
+const logRequestDetails = (req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+  next();
+};
+
+app.use(logRequestDetails);
+
 // Update CORS settings for production
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
@@ -56,9 +64,29 @@ const songSchema = new mongoose.Schema({
 
 const Song = mongoose.model('Song', songSchema);
 
-// IMPORTANT: Mount auth routes BEFORE defining other routes
-// This fixes the 404 error for /auth/profile
+// CRITICAL: Mount auth routes with explicit route registration
+// This will ensure routes are correctly mounted and available
 app.use('/auth', authRoutes);
+console.log('Auth routes mounted at /auth');
+
+// Test route to verify the server is responding
+app.get('/test', (req, res) => {
+  res.json({ message: 'Server is running correctly' });
+});
+
+// Explicitly add the profile route as a backup in case the router mounting isn't working
+app.get('/auth/profile-direct', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error('Error fetching user profile (direct):', err);
+    res.status(500).json({ message: err.message });
+  }
+});
 
 // Mount playlist routes
 app.use('/playlists', authMiddleware, playlistRoutes);
@@ -177,21 +205,37 @@ app.delete('/songs/:id', adminMiddleware, async (req, res) => {
 
 // Serve static files from the React app in production
 if (process.env.NODE_ENV === 'production') {
+  // IMPORTANT: Serve static files BEFORE defining the catch-all route
   app.use(express.static(path.join(__dirname, 'dist')));
   
-  // Handle React routing, return all requests to React app
-  app.get('*', (req, res) => {
-    // Skip API routes
-    if (req.path.startsWith('/auth/') || 
-        req.path.startsWith('/songs') || 
-        req.path.startsWith('/playlists') || 
-        req.path.startsWith('/debug/')) {
-      return;
+  // CRITICAL: Make sure the catch-all route doesn't override API routes
+  app.get('*', (req, res, next) => {
+    // Skip API routes - explicitly check if the path starts with these prefixes
+    if (
+      req.path.startsWith('/auth/') || 
+      req.path.startsWith('/songs') || 
+      req.path.startsWith('/playlists/') || 
+      req.path.startsWith('/debug/')
+    ) {
+      console.log(`Skipping catch-all for API route: ${req.path}`);
+      return next();  // Important: call next() to let the request continue
     }
+    
+    console.log(`Serving index.html for path: ${req.path}`);
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
   });
 }
 
+// Error handling middleware - must be defined last
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({ 
+    message: 'Internal server error', 
+    error: process.env.NODE_ENV === 'production' ? 'See server logs' : err.message 
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
