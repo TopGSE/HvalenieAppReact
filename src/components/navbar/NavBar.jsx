@@ -196,6 +196,9 @@ function NavBar() {
         console.warn("No songs found in shared playlist data");
       }
       
+      // Get sharedFrom information - FIX: Use currentSharedNotification instead of notification
+      const sharedFrom = currentSharedNotification ? currentSharedNotification.fromUserName || "Another user" : "Another user";
+      
       // Create a new playlist object
       const newPlaylist = {
         id: Date.now().toString(), // Generate a new unique ID
@@ -205,7 +208,7 @@ function NavBar() {
         userId: userId, // CRITICAL: Assign to current user - ensure this is set correctly
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        sharedFrom: notification.fromUserName || "Another user", // Track who shared it
+        sharedFrom: sharedFrom, // Use the fixed variable
       };
       
       // Log the new playlist for debugging
@@ -233,9 +236,8 @@ function NavBar() {
       // After accepting, delete the notification
       deleteNotification(notificationId);
       
-      // Force a refresh if needed (only as a last resort)
-      // Uncomment the next line if the playlists still don't show up
-      // window.location.reload();
+      // Force a refresh to ensure UI is updated
+      window.location.reload();
     } catch (error) {
       console.error("Error accepting playlist:", error);
       toast.error("Failed to add playlist to your collection");
