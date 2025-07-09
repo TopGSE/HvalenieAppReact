@@ -14,8 +14,13 @@ function extractValidPlaylistData(notification) {
 
   // If no notification or playlistData, return the default
   if (!notification || !notification.playlistData) {
+    console.log("No notification or playlistData found");
     return defaultPlaylist;
   }
+
+  // Log what we have in the notification
+  console.log("Notification playlistData:", notification.playlistData);
+  console.log("Songs in notification:", notification.playlistData.songs);
 
   // Extract data with fallbacks
   return {

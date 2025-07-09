@@ -106,6 +106,17 @@ function PlaylistView({
       const token = localStorage.getItem("token");
       const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
+      // Get full song objects for each song ID in the playlist
+      const playlistSongs = songs
+        .filter((song) => playlist.songIds && playlist.songIds.includes(song._id))
+        .map((song) => ({
+          _id: song._id,
+          title: song.title,
+          artist: song.artist || "",
+          category: song.category || "",
+          // Don't include full lyrics and chords to save space
+        }));
+
       const shareData = {
         playlistId: playlist.id,
         playlistName: playlist.name,
@@ -115,17 +126,8 @@ function PlaylistView({
           name: playlist.name,
           description: playlist.description || "",
           songIds: playlist.songIds || [],
-          songs: songs
-            .filter(
-              (song) => playlist.songIds && playlist.songIds.includes(song._id)
-            )
-            .map((song) => ({
-              title: song.title,
-              artist: song.artist || "",
-              category: song.category || "",
-              _id: song._id,
-            })),
-        }, // <-- Changed the semicolon to a comma here
+          songs: playlistSongs, // Include full song objects
+        },
       };
 
       // IMPORTANT: Don't use localhost:5000 but use the proper API_URL

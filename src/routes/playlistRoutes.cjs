@@ -25,15 +25,31 @@ router.post('/share', async function(req, res) {
     
     // Create notifications for each recipient
     if (recipientIds && recipientIds.length > 0) {
+      // Log the playlist data to ensure it contains songs
+      console.log('Sharing playlist with data:', JSON.stringify(playlistData));
+      
+      // Ensure we're getting the song details correctly
+      if (!playlistData.songs || !Array.isArray(playlistData.songs)) {
+        console.error('No songs array found in playlist data');
+      } else {
+        console.log(`Playlist has ${playlistData.songs.length} songs`);
+      }
+      
       const notifications = recipientIds.map(recipientId => ({
         type: 'playlist_share',
         fromUserId: senderId,
-        fromUserName: senderUsername, // Add sender's username
+        fromUserName: senderUsername,
         toUserId: recipientId,
         playlistId: playlistId,
         playlistName: playlistName,
         message: message || `${senderUsername} shared a playlist with you: "${playlistName}"`,
-        playlistData: playlistData, // Include the actual playlist data
+        // Make sure to include the full playlist data with songs
+        playlistData: {
+          name: playlistData.name,
+          description: playlistData.description || '',
+          songIds: playlistData.songIds || [],
+          songs: playlistData.songs || []
+        },
         read: false
       }));
       
