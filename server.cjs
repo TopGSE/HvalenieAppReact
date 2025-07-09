@@ -53,16 +53,22 @@ mongoose.connect(process.env.MONGODB_URI, {
 });
 
 // Define songSchema and Song model
-const songSchema = new mongoose.Schema({
-  title: String,
-  artist: String,
-  lyrics: String,
-  chords: String,
-  category: { type: String, default: 'other' },
-  createdAt: { type: Date, default: Date.now }
-});
-
-const Song = mongoose.model('Song', songSchema);
+let Song;
+try {
+  // First try to get the existing model
+  Song = mongoose.model('Song');
+} catch (e) {
+  // If it doesn't exist, create it
+  const songSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    artist: String,
+    lyrics: String,
+    chords: String,
+    category: { type: String, default: 'other' },
+    createdAt: { type: Date, default: Date.now }
+  });
+  Song = mongoose.model('Song', songSchema);
+}
 
 // CRITICAL: Mount auth routes with explicit route registration
 // This will ensure routes are correctly mounted and available

@@ -162,84 +162,132 @@ function NavBar() {
   // Handle accepting a shared playlist
   const handleAcceptPlaylist = (notificationId, playlistData) => {
     try {
-      console.log("Accepting playlist with data:", JSON.stringify(playlistData, null, 2));
-      
+      console.log(
+        "Accepting playlist with data:",
+        JSON.stringify(playlistData, null, 2)
+      );
+
       // Validate that playlistData exists and has the expected structure
       if (!playlistData) {
         toast.error("Invalid playlist data received");
         return;
       }
-      
+
       // Get current playlists from localStorage
       const storedPlaylists = localStorage.getItem("playlists");
       let playlists = storedPlaylists ? JSON.parse(storedPlaylists) : [];
-      
+
       // Get current user ID
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
       const userId = userData.id || userData._id;
-      
-      // Extract songIds safely - THE CRITICAL FIX IS HERE
+
+      // CRITICAL FIX: First, retrieve songs from localStorage to map songIds to actual songs
+      const storedSongsStr = localStorage.getItem("songs");
+      const availableSongs = storedSongsStr ? JSON.parse(storedSongsStr) : [];
+      console.log(`User has ${availableSongs.length} songs in their library`);
+
+      // Extract songIds safely
       let songIds = [];
-      
-      // IMPORTANT: Use the songIds from notification directly first
-      if (playlistData.songIds && Array.isArray(playlistData.songIds) && playlistData.songIds.length > 0) {
-        console.log(`Using ${playlistData.songIds.length} songIds from playlistData`);
+
+      // If we have songIds, use them
+      if (
+        playlistData.songIds &&
+        Array.isArray(playlistData.songIds) &&
+        playlistData.songIds.length > 0
+      ) {
+        console.log(
+          `Using ${playlistData.songIds.length} songIds from playlistData`
+        );
         songIds = [...playlistData.songIds];
-      } 
-      // If no songIds, try to extract from songs
-      else if (playlistData.songs && Array.isArray(playlistData.songs) && playlistData.songs.length > 0) {
-        songIds = playlistData.songs.map(song => song._id).filter(id => id);
+      }
+      // Otherwise extract from songs if available
+      else if (
+        playlistData.songs &&
+        Array.isArray(playlistData.songs) &&
+        playlistData.songs.length > 0
+      ) {
+        songIds = playlistData.songs.map((song) => song._id).filter((id) => id);
         console.log(`Extracted ${songIds.length} songIds from song objects`);
       }
-      
+
       if (songIds.length === 0) {
         console.warn("No songs found in shared playlist data");
       }
-      
-      // CRITICAL FIX: Get songs from localStorage to verify songIds are valid in current user's context
-      const storedSongsStr = localStorage.getItem("songs");
-      const availableSongs = storedSongsStr ? JSON.parse(storedSongsStr) : [];
-      
-      // No need to filter songIds against available songs - accept all songIds as is
-      // This is key - we want to preserve the original songIds even if they don't match current songs
-      
+
+      // CRITICAL FIX: If song IDs don't exist in the current songs, add the songs from shared data
+      // This ensures shared songs are available to the user
+      if (playlistData.songs && playlistData.songs.length > 0) {
+        // Check which songs need to be added to the local storage
+        const existingSongIds = new Set(availableSongs.map((song) => song._id));
+        const newSongs = [];
+
+        for (const sharedSong of playlistData.songs) {
+          if (sharedSong._id && !existingSongIds.has(sharedSong._id)) {
+            // Create a complete song object
+            const newSong = {
+              _id: sharedSong._id,
+              title: sharedSong.title || "Shared Song",
+              artist: sharedSong.artist || "",
+              category: sharedSong.category || "other",
+              lyrics: sharedSong.lyrics || "",
+              chords: sharedSong.chords || "",
+              createdAt: new Date().toISOString(),
+            };
+
+            newSongs.push(newSong);
+            existingSongIds.add(sharedSong._id); // Add to set to prevent duplicates
+          }
+        }
+
+        if (newSongs.length > 0) {
+          console.log(
+            `Adding ${newSongs.length} new songs from the shared playlist to local storage`
+          );
+
+          // Add the new songs to the local storage
+          const updatedSongs = [...availableSongs, ...newSongs];
+          localStorage.setItem("songs", JSON.stringify(updatedSongs));
+        }
+      }
+
       // Create a new playlist object
       const newPlaylist = {
         id: Date.now().toString(), // Generate a new unique ID
-        name: playlistData.name || "Shared Playlist",
+        name: playlistData.name || "Shared Playlist", // Use a default name if none provided
         description: playlistData.description || "",
-        songIds: songIds, // Use the original songIds without filtering
-        userId: userId, // Assign to current user
+        songIds: songIds, // Use the extracted songIds
+        userId: userId, // CRITICAL: Assign to current user - ensure this is set correctly
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        sharedFrom: currentSharedNotification ? currentSharedNotification.fromUserName || "Another user" : "Another user",
+        sharedFrom: currentSharedNotification
+          ? currentSharedNotification.fromUserName || "Another user"
+          : "Another user",
       };
-      
-      console.log("Creating new playlist with songs:", {
-        name: newPlaylist.name,
-        songCount: songIds.length,
-        songIds: songIds
-      });
-      
+
+      // Log the new playlist for debugging
+      console.log("Creating new playlist:", newPlaylist);
+
       // Add to playlists
       playlists.push(newPlaylist);
-      
+
       // Save back to localStorage
       localStorage.setItem("playlists", JSON.stringify(playlists));
-      
+
       // Try to update app state through events
       try {
-        window.dispatchEvent(new Event('playlistsUpdated'));
+        window.dispatchEvent(new Event("playlistsUpdated"));
       } catch (e) {
         console.log("Could not dispatch event, but playlist was saved");
       }
-      
+
       // Show success notification
-      toast.success(`Playlist "${newPlaylist.name}" added to your collection with ${songIds.length} songs!`);
-      
+      toast.success(
+        `Playlist "${newPlaylist.name}" added to your collection with ${songIds.length} songs!`
+      );
+
       // After accepting, delete the notification
       deleteNotification(notificationId);
-      
+
       // Force a refresh to ensure UI is updated
       window.location.reload();
     } catch (error) {
