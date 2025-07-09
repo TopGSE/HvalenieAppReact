@@ -35,33 +35,39 @@ app.use(express.json({ limit: '50mb' })); // Increased limit for image uploads
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 10000, // Increase timeout for Heroku's slower connections
-  socketTimeoutMS: 45000, // Increase timeout for operations
-  family: 4 // Use IPv4, skip trying IPv6
+  serverSelectionTimeoutMS: 10000, 
+  socketTimeoutMS: 45000,
+  family: 4 
 })
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => {
   console.error('MongoDB connection error:', err);
-  // Don't crash the app on connection error, try to continue
 });
 
+// Define songSchema and Song model
 const songSchema = new mongoose.Schema({
   title: String,
   artist: String,
   lyrics: String,
   chords: String,
   category: { type: String, default: 'other' },
-  createdAt: { type: Date, default: Date.now } // Add this line
+  createdAt: { type: Date, default: Date.now }
 });
 
 const Song = mongoose.model('Song', songSchema);
 
-// Public song routes (accessible to all)
+// IMPORTANT: Mount auth routes BEFORE defining other routes
+// This fixes the 404 error for /auth/profile
+app.use('/auth', authRoutes);
+
+// Mount playlist routes
+app.use('/playlists', authMiddleware, playlistRoutes);
+
+// Public song routes
 app.get('/songs', async (req, res) => {
   try {
     console.log('GET /songs request received');
     
-    // First check if MongoDB is connected
     if (mongoose.connection.readyState !== 1) {
       console.log('MongoDB not connected, readyState:', mongoose.connection.readyState);
       return res.status(500).json({ 
@@ -70,10 +76,8 @@ app.get('/songs', async (req, res) => {
       });
     }
     
-    // Get all songs with proper error handling
     const songs = await Song.find({}).lean();
     
-    // If no songs found, log it but still return empty array
     if (songs.length === 0) {
       console.log('No songs found in database');
     }
@@ -85,6 +89,40 @@ app.get('/songs', async (req, res) => {
   }
 });
 
+// Add a debug endpoint to check if auth routes are mounted properly
+app.get('/debug/routes', (req, res) => {
+  const routePaths = [];
+  
+  // Helper function to extract routes
+  function extractRoutes(layer) {
+    if (layer.route) {
+      const path = layer.route.path;
+      const methods = Object.keys(layer.route.methods).map(m => m.toUpperCase());
+      routePaths.push(`${methods.join(',')} ${path}`);
+    } else if (layer.name === 'router' && layer.handle.stack) {
+      const prefix = layer.regexp.toString().match(/^\/\^\\(\/?[^\\]+)/);
+      const mountPath = prefix ? prefix[1] : '';
+      layer.handle.stack.forEach(stackItem => {
+        if (stackItem.route) {
+          const subPath = stackItem.route.path;
+          const methods = Object.keys(stackItem.route.methods).map(m => m.toUpperCase());
+          routePaths.push(`${methods.join(',')} ${mountPath}${subPath}`);
+        }
+      });
+    }
+  }
+  
+  // Extract routes from app._router
+  app._router.stack.forEach(extractRoutes);
+  
+  res.json({
+    routes: routePaths,
+    authRoutesMounted: routePaths.some(r => r.includes('/auth')),
+    total: routePaths.length
+  });
+});
+
+// Add the rest of your song routes
 app.get('/songs/:id', async (req, res) => {
   try {
     const song = await Song.findById(req.params.id).lean();
@@ -137,254 +175,19 @@ app.delete('/songs/:id', adminMiddleware, async (req, res) => {
   }
 });
 
-// Add this route to check database status
-app.get('/api/debug/songs-count', async (req, res) => {
-  try {
-    const count = await Song.countDocuments();
-    res.json({ count, message: `Database contains ${count} songs` });
-  } catch (err) {
-    console.error('Error checking song count:', err);
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Add test data creation route
-app.get('/api/debug/create-test-data', async (req, res) => {
-  try {
-    // Create a few test songs
-    const testSongs = [
-      {
-        title: 'Test Song 1',
-        artist: 'Test Artist',
-        lyrics: 'These are test lyrics\nFor song number one',
-        chords: 'G D Em C',
-        category: 'worship'
-      },
-      {
-        title: 'Test Song 2',
-        artist: 'Another Artist',
-        lyrics: 'Second song lyrics\nJust for testing',
-        chords: 'Am F C G',
-        category: 'praise'
-      },
-      {
-        title: 'Test Song 3',
-        artist: 'Third Artist',
-        lyrics: 'Third set of lyrics\nFor testing purposes',
-        category: 'other'
-      }
-    ];
-    
-    // Insert the test songs
-    const result = await Song.insertMany(testSongs);
-    res.json({ 
-      message: `Created ${result.length} test songs successfully`, 
-      songs: result 
-    });
-  } catch (err) {
-    console.error('Error creating test data:', err);
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Use authentication routes
-app.use('/auth', authRoutes);
-
-// Forgot password endpoint
-app.post('/auth/forgot-password', async (req, res) => {
-  const { email } = req.body;
-  console.log(`Password reset requested for email: ${email}`);
-  
-  try {
-    const user = await User.findOne({ email });
-    
-    // Don't reveal if user exists or not (security best practice)
-    if (!user) {
-      console.log(`No user found with email: ${email}`);
-      return res.status(200).json({ message: 'If your email exists in our system, you will receive reset instructions.' });
-    }
-    
-    // Generate a reset token
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
-    
-    // Store the reset token with the user
-    user.resetToken = resetToken;
-    user.resetTokenExpiry = resetTokenExpiry;
-    await user.save();
-    
-    // Create email transport
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_APP_PASSWORD
-      }
-    });
-    
-    // Construct the reset URL (frontend URL)
-    const resetUrl = `${process.env.NODE_ENV === 'production' 
-      ? 'https://hvalenieapp-89e57e2c3558.herokuapp.com' 
-      : 'http://localhost:3000'}/reset-password/${resetToken}`;
-    
-    // Email content
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: user.email,
-      subject: 'Password Reset - Hvalenie Emanuil',
-      html: `
-        <h1>Password Reset Request</h1>
-        <p>You requested a password reset for your account.</p>
-        <p>Click the link below to reset your password:</p>
-        <a href="${resetUrl}" style="display:inline-block;padding:10px 20px;background-color:#007bff;color:#ffffff;text-decoration:none;border-radius:5px;">Reset Password</a>
-        <p>This link is valid for one hour.</p>
-        <p>If you didn't request this, please ignore this email.</p>
-      `
-    };
-    
-    // Send the email
-    await transporter.sendMail(mailOptions);
-    console.log(`Password reset email sent to: ${email}`);
-    
-    res.status(200).json({
-      message: 'Password reset instructions sent to your email'
-    });
-  } catch (err) {
-    console.error('Error in forgot password flow:', err);
-    res.status(500).json({ message: 'Error sending password reset email' });
-  }
-});
-
-// Add near the top of your routes
-app.get('/api/debug', (req, res) => {
-  res.json({
-    message: 'API is working',
-    environment: process.env.NODE_ENV,
-    mongoConnectionState: mongoose.connection.readyState
-  });
-});
-
-// Add this before your app.listen call
-app.get('/api/debug/auth', (req, res) => {
-  res.json({
-    message: 'Auth API is working',
-    environment: process.env.NODE_ENV,
-    cors: {
-      origin: process.env.NODE_ENV === 'production' 
-        ? ['https://hvalenieapp-89e57e2c3558.herokuapp.com', 'https://hvalenieapp.herokuapp.com'] 
-        : 'http://localhost:3000'
-    }
-  });
-});
-
-// Add this before your app.listen call
-app.get('/api/debug/mongodb', async (req, res) => {
-  try {
-    const connectionState = {
-      0: 'disconnected',
-      1: 'connected',
-      2: 'connecting',
-      3: 'disconnecting',
-      99: 'uninitialized'
-    };
-    
-    // Check database connection
-    const dbStatus = {
-      state: connectionState[mongoose.connection.readyState] || 'unknown',
-      readyState: mongoose.connection.readyState,
-      host: mongoose.connection.host,
-      database: mongoose.connection.name
-    };
-    
-    // Check collections and counts
-    let collections = {};
-    if (mongoose.connection.readyState === 1) {
-      collections.songs = await Song.countDocuments();
-      collections.users = await User.countDocuments();
-      
-      // List first few songs
-      const songs = await Song.find({}).select('title artist category').limit(5).lean();
-      collections.songSamples = songs;
-      
-      // List first few users (excluding sensitive data)
-      const users = await User.find({}).select('username email role').limit(5).lean();
-      collections.userSamples = users.map(u => ({
-        username: u.username,
-        email: u.email,
-        role: u.role || 'user'
-      }));
-    }
-    
-    // Return masked MongoDB URI (hide password)
-    const maskedUri = process.env.MONGODB_URI ? 
-      process.env.MONGODB_URI.replace(/mongodb\+srv:\/\/([^:]+):([^@]+)@/, 'mongodb+srv://$1:****@') : 
-      'Not set';
-    
-    res.json({
-      connection: dbStatus,
-      collections,
-      mongodbUri: maskedUri,
-      environment: process.env.NODE_ENV
-    });
-  } catch (err) {
-    console.error('Debug endpoint error:', err);
-    res.status(500).json({ 
-      error: err.message,
-      stack: process.env.NODE_ENV === 'production' ? null : err.stack
-    });
-  }
-});
-
-// IMPORTANT: Remove this endpoint after you've created your admin user!
-app.get('/api/debug/create-admin', async (req, res) => {
-  try {
-    // Check if admin already exists
-    const existingAdmin = await User.findOne({ role: 'admin' });
-    if (existingAdmin) {
-      return res.json({ 
-        message: 'Admin user already exists',
-        username: existingAdmin.username,
-        email: existingAdmin.email
-      });
-    }
-    
-    // Create admin user with bcrypt password
-    const bcrypt = require('bcrypt');
-    const hashedPassword = await bcrypt.hash('admin123', 10);
-    
-    const newAdmin = new User({
-      username: 'admin',
-      email: 'admin@example.com',
-      password: hashedPassword,
-      role: 'admin'
-    });
-    
-    await newAdmin.save();
-    
-    res.json({ 
-      message: 'Admin user created successfully',
-      username: 'admin',
-      email: 'admin@example.com',
-      loginWith: { username: 'admin', password: 'admin123' }
-    });
-  } catch (err) {
-    console.error('Error creating admin:', err);
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Add a basic health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date() });
-});
-
 // Serve static files from the React app in production
 if (process.env.NODE_ENV === 'production') {
-  // Serve static files from the React app
   app.use(express.static(path.join(__dirname, 'dist')));
   
   // Handle React routing, return all requests to React app
   app.get('*', (req, res) => {
+    // Skip API routes
+    if (req.path.startsWith('/auth/') || 
+        req.path.startsWith('/songs') || 
+        req.path.startsWith('/playlists') || 
+        req.path.startsWith('/debug/')) {
+      return;
+    }
     res.sendFile(path.join(__dirname, 'dist', 'index.html'));
   });
 }
