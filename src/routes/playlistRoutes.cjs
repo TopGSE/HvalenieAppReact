@@ -23,16 +23,28 @@ router.post('/share', async function(req, res) {
     const sender = await User.findById(senderId).select('username');
     const senderUsername = sender ? sender.username : 'Unknown user';
     
+    // Enhanced logging for debugging
+    console.log('Received playlist data for sharing:', {
+      playlistId,
+      playlistName,
+      songCount: playlistData?.songs?.length || 0,
+      songIdCount: playlistData?.songIds?.length || 0
+    });
+    
     // Create notifications for each recipient
     if (recipientIds && recipientIds.length > 0) {
-      // Log the playlist data to ensure it contains songs
-      console.log('Sharing playlist with data:', JSON.stringify(playlistData));
+      // Make sure songs are properly included
+      let songIds = playlistData.songIds || [];
+      let songs = playlistData.songs || [];
       
-      // Ensure we're getting the song details correctly
-      if (!playlistData.songs || !Array.isArray(playlistData.songs)) {
-        console.error('No songs array found in playlist data');
-      } else {
-        console.log(`Playlist has ${playlistData.songs.length} songs`);
+      // If songs exist but songIds don't, extract IDs from songs
+      if (songs.length > 0 && songIds.length === 0) {
+        songIds = songs.map(song => song._id).filter(Boolean);
+      }
+      
+      // If songIds exist but songs don't, make sure we send just the IDs
+      if (songIds.length > 0 && songs.length === 0) {
+        console.log(`Warning: Playlist has ${songIds.length} songIds but no song details`);
       }
       
       const notifications = recipientIds.map(recipientId => ({
@@ -47,22 +59,23 @@ router.post('/share', async function(req, res) {
         playlistData: {
           name: playlistData.name,
           description: playlistData.description || '',
-          songIds: playlistData.songIds || [],
-          songs: playlistData.songs || []
+          songIds: songIds,
+          songs: songs
         },
         read: false
       }));
       
       // Save all notifications to the database
       await Notification.insertMany(notifications);
-      console.log(`Created ${notifications.length} notifications`);
+      console.log(`Created ${notifications.length} notifications with ${songs.length} songs and ${songIds.length} songIds`);
     }
     
     res.json({ 
       success: true, 
       message: 'Playlist shared successfully',
       recipients: recipientIds ? recipientIds.length : 0,
-      playlistName: playlistName
+      playlistName: playlistName,
+      songCount: playlistData?.songs?.length || 0
     });
   } catch (error) {
     console.error('Error sharing playlist:', error);

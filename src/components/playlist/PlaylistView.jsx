@@ -117,6 +117,8 @@ function PlaylistView({
           // Don't include full lyrics and chords to save space
         }));
 
+      console.log(`Sharing playlist with ${playlistSongs.length} songs`);
+
       const shareData = {
         playlistId: playlist.id,
         playlistName: playlist.name,
@@ -130,36 +132,49 @@ function PlaylistView({
         },
       };
 
-      // IMPORTANT: Don't use localhost:5000 but use the proper API_URL
-      await axios.post(`${API_URL}/playlists/share`, shareData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      // Add better error handling
+      try {
+        const response = await axios.post(
+          `${API_URL}/playlists/share`,
+          shareData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-      // Get usernames of recipients for a more personalized toast
-      const recipientNames = selectedUsers
-        .map((userId) => {
-          const user = users.find((u) => u._id === userId);
-          return user ? user.username : "";
-        })
-        .filter(Boolean);
+        console.log("Share response:", response.data);
 
-      const recipientText =
-        recipientNames.length > 1
-          ? `${recipientNames.slice(0, -1).join(", ")} and ${
-              recipientNames.slice(-1)[0]
-            }`
-          : recipientNames[0];
+        // Get usernames of recipients for a more personalized toast
+        const recipientNames = selectedUsers
+          .map((userId) => {
+            const user = users.find((u) => u._id === userId);
+            return user ? user.username : "";
+          })
+          .filter(Boolean);
 
-      toast.success(`Playlist shared with ${recipientText}!`);
-      setShowShareModal(false);
-      setShareStep(1);
-      setSelectedUsers([]);
+        const recipientText =
+          recipientNames.length > 1
+            ? `${recipientNames.slice(0, -1).join(", ")} and ${
+                recipientNames.slice(-1)[0]
+              }`
+            : recipientNames[0];
+
+        toast.success(`Playlist shared with ${recipientText}!`);
+        setShowShareModal(false);
+        setShareStep(1);
+        setSelectedUsers([]);
+      } catch (error) {
+        console.error("Error from server:", error.response?.data || error.message);
+        throw error;
+      }
     } catch (error) {
       console.error("Error sharing playlist:", error);
-      toast.error("Failed to share playlist");
+      toast.error(
+        "Failed to share playlist: " + (error.response?.data?.message || error.message)
+      );
     }
   };
 

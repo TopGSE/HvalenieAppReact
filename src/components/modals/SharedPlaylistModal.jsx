@@ -20,15 +20,55 @@ function extractValidPlaylistData(notification) {
 
   // Log what we have in the notification
   console.log("Notification playlistData:", notification.playlistData);
-  console.log("Songs in notification:", notification.playlistData.songs);
+
+  // Check if songs or songIds exist directly in the notification
+  let songIds = [];
+  let songs = [];
+
+  // Try to extract songs from different possible locations
+  if (
+    notification.playlistData.songs &&
+    Array.isArray(notification.playlistData.songs)
+  ) {
+    console.log(
+      `Found ${notification.playlistData.songs.length} songs in playlistData.songs`
+    );
+    songs = notification.playlistData.songs;
+  } else if (notification.songs && Array.isArray(notification.songs)) {
+    console.log(`Found ${notification.songs.length} songs in notification.songs`);
+    songs = notification.songs;
+  }
+
+  // Try to extract songIds from different possible locations
+  if (
+    notification.playlistData.songIds &&
+    Array.isArray(notification.playlistData.songIds)
+  ) {
+    console.log(
+      `Found ${notification.playlistData.songIds.length} songIds in playlistData.songIds`
+    );
+    songIds = notification.playlistData.songIds;
+  } else if (notification.songIds && Array.isArray(notification.songIds)) {
+    console.log(`Found ${notification.songIds.length} songIds in notification.songIds`);
+    songIds = notification.songIds;
+  }
+
+  // If we have songs but no songIds, extract songIds from songs
+  if (songs.length > 0 && songIds.length === 0) {
+    songIds = songs.map((song) => song._id).filter((id) => id);
+    console.log(`Extracted ${songIds.length} songIds from songs`);
+  }
 
   // Extract data with fallbacks
   return {
-    name: notification.playlistData.name || defaultPlaylist.name,
+    name:
+      notification.playlistData.name ||
+      notification.playlistName ||
+      defaultPlaylist.name,
     description:
       notification.playlistData.description || defaultPlaylist.description,
-    songIds: notification.playlistData.songIds || [],
-    songs: notification.playlistData.songs || [],
+    songIds: songIds,
+    songs: songs,
   };
 }
 
