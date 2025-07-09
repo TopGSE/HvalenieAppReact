@@ -125,6 +125,7 @@ function PlaylistView({
               category: song.category || "",
               _id: song._id,
             })),
+        }, // <-- Changed the semicolon to a comma here
       };
 
       // IMPORTANT: Don't use localhost:5000 but use the proper API_URL
@@ -136,14 +137,18 @@ function PlaylistView({
       });
 
       // Get usernames of recipients for a more personalized toast
-      const recipientNames = selectedUsers.map((userId) => {
-        const user = users.find((u) => u._id === userId);
-        return user ? user.username : "";
-      }).filter(Boolean);
+      const recipientNames = selectedUsers
+        .map((userId) => {
+          const user = users.find((u) => u._id === userId);
+          return user ? user.username : "";
+        })
+        .filter(Boolean);
 
       const recipientText =
         recipientNames.length > 1
-          ? `${recipientNames.slice(0, -1).join(", ")} and ${recipientNames.slice(-1)[0]}`
+          ? `${recipientNames.slice(0, -1).join(", ")} and ${
+              recipientNames.slice(-1)[0]
+            }`
           : recipientNames[0];
 
       toast.success(`Playlist shared with ${recipientText}!`);
