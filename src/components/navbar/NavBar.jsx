@@ -162,7 +162,7 @@ function NavBar() {
   // Handle accepting a shared playlist
   const handleAcceptPlaylist = (notificationId, playlistData) => {
     try {
-      console.log("Accepting playlist with data:", playlistData);
+      console.log("Accepting playlist with data:", JSON.stringify(playlistData, null, 2));
       
       // Validate that playlistData exists and has the expected structure
       if (!playlistData) {
@@ -178,22 +178,34 @@ function NavBar() {
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
       const userId = userData.id || userData._id;
       
-      // Extract songIds - if playlistData.songs exists but songIds is empty, create them from songs
-      let songIds = playlistData.songIds || [];
-      if (songIds.length === 0 && playlistData.songs && playlistData.songs.length > 0) {
-        songIds = playlistData.songs.map(song => song._id).filter(Boolean);
-        console.log("Extracted songIds from songs:", songIds);
+      // Extract songIds safely
+      let songIds = [];
+      
+      // If we have songIds, use them
+      if (playlistData.songIds && playlistData.songIds.length > 0) {
+        console.log(`Using ${playlistData.songIds.length} songIds from playlistData`);
+        songIds = [...playlistData.songIds];
+      } 
+      // Otherwise extract from songs if available
+      else if (playlistData.songs && playlistData.songs.length > 0) {
+        songIds = playlistData.songs.map(song => song._id).filter(id => id);
+        console.log(`Extracted ${songIds.length} songIds from song objects`);
       }
       
-      // Create a new playlist object with safe defaults for any missing properties
+      if (songIds.length === 0) {
+        console.warn("No songs found in shared playlist data");
+      }
+      
+      // Create a new playlist object
       const newPlaylist = {
         id: Date.now().toString(), // Generate a new unique ID
         name: playlistData.name || "Shared Playlist", // Use a default name if none provided
         description: playlistData.description || "",
-        songIds: songIds, // Use the extracted or provided songIds
+        songIds: songIds, // Use the extracted songIds
         userId, // Assign to current user
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        sharedFrom: notificationId, // Optionally track source of shared playlist
       };
       
       // Log the new playlist for debugging
@@ -205,7 +217,7 @@ function NavBar() {
       // Save back to localStorage
       localStorage.setItem("playlists", JSON.stringify(playlists));
       
-      // Show success notification with safe string access
+      // Show success notification
       toast.success(`Playlist "${newPlaylist.name}" added to your collection with ${songIds.length} songs!`);
       
       // After accepting, delete the notification

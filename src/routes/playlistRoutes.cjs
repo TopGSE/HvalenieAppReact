@@ -33,16 +33,17 @@ router.post('/share', async function(req, res) {
     
     // Create notifications for each recipient
     if (recipientIds && recipientIds.length > 0) {
-      // Make sure songs are properly included
-      let songIds = playlistData.songIds || [];
-      let songs = playlistData.songs || [];
+      // Ensure we have both songIds and songs
+      let songIds = Array.isArray(playlistData.songIds) ? [...playlistData.songIds] : [];
+      let songs = Array.isArray(playlistData.songs) ? [...playlistData.songs] : [];
       
       // If songs exist but songIds don't, extract IDs from songs
       if (songs.length > 0 && songIds.length === 0) {
         songIds = songs.map(song => song._id).filter(Boolean);
+        console.log(`Extracted ${songIds.length} songIds from songs`);
       }
       
-      // If songIds exist but songs don't, make sure we send just the IDs
+      // If songIds exist but songs don't, log a warning
       if (songIds.length > 0 && songs.length === 0) {
         console.log(`Warning: Playlist has ${songIds.length} songIds but no song details`);
       }
@@ -62,12 +63,20 @@ router.post('/share', async function(req, res) {
           songIds: songIds,
           songs: songs
         },
-        read: false
+        read: false,
+        createdAt: new Date()
       }));
+      
+      // Log what we're storing in the notifications
+      console.log(`Creating ${notifications.length} notifications with:`, {
+        songCount: songs.length,
+        songIdCount: songIds.length,
+        playlistName: playlistData.name
+      });
       
       // Save all notifications to the database
       await Notification.insertMany(notifications);
-      console.log(`Created ${notifications.length} notifications with ${songs.length} songs and ${songIds.length} songIds`);
+      console.log(`Created ${notifications.length} notifications successfully`);
     }
     
     res.json({ 

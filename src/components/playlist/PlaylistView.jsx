@@ -95,7 +95,7 @@ function PlaylistView({
     await fetchUsers();
   };
 
-  // Send playlist share
+  // Send playlist share - Modified version
   const handleSendShare = async () => {
     if (selectedUsers.length === 0) {
       toast.error("Please select at least one user to share with");
@@ -114,8 +114,11 @@ function PlaylistView({
           title: song.title,
           artist: song.artist || "",
           category: song.category || "",
-          // Don't include full lyrics and chords to save space
+          // Include minimal song data that's necessary
         }));
+
+      // Ensure we have song IDs from the playlist
+      const songIds = playlistSongs.map((song) => song._id);
 
       console.log(`Sharing playlist with ${playlistSongs.length} songs`);
 
@@ -127,49 +130,53 @@ function PlaylistView({
         playlistData: {
           name: playlist.name,
           description: playlist.description || "",
-          songIds: playlist.songIds || [],
-          songs: playlistSongs, // Include full song objects
+          songIds: songIds, // Send the extracted song IDs explicitly
+          songs: playlistSongs, // Send the song objects
         },
       };
 
-      // Add better error handling
-      try {
-        const response = await axios.post(
-          `${API_URL}/playlists/share`,
-          shareData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
+      // Log the data we're sending to help debug
+      console.log(
+        "Sending share data:",
+        JSON.stringify({
+          ...shareData,
+          songCount: shareData.playlistData.songs.length,
+          songIdCount: shareData.playlistData.songIds.length,
+        })
+      );
 
-        console.log("Share response:", response.data);
+      const response = await axios.post(
+        `${API_URL}/playlists/share`,
+        shareData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-        // Get usernames of recipients for a more personalized toast
-        const recipientNames = selectedUsers
-          .map((userId) => {
-            const user = users.find((u) => u._id === userId);
-            return user ? user.username : "";
-          })
-          .filter(Boolean);
+      console.log("Share response:", response.data);
 
-        const recipientText =
-          recipientNames.length > 1
-            ? `${recipientNames.slice(0, -1).join(", ")} and ${
-                recipientNames.slice(-1)[0]
-              }`
-            : recipientNames[0];
+      // Get usernames of recipients for a more personalized toast
+      const recipientNames = selectedUsers
+        .map((userId) => {
+          const user = users.find((u) => u._id === userId);
+          return user ? user.username : "";
+        })
+        .filter(Boolean);
 
-        toast.success(`Playlist shared with ${recipientText}!`);
-        setShowShareModal(false);
-        setShareStep(1);
-        setSelectedUsers([]);
-      } catch (error) {
-        console.error("Error from server:", error.response?.data || error.message);
-        throw error;
-      }
+      const recipientText =
+        recipientNames.length > 1
+          ? `${recipientNames.slice(0, -1).join(", ")} and ${
+              recipientNames.slice(-1)[0]
+            }`
+          : recipientNames[0];
+
+      toast.success(`Playlist shared with ${recipientText}!`);
+      setShowShareModal(false);
+      setShareStep(1);
+      setSelectedUsers([]);
     } catch (error) {
       console.error("Error sharing playlist:", error);
       toast.error(

@@ -13,60 +13,63 @@ function extractValidPlaylistData(notification) {
   };
 
   // If no notification or playlistData, return the default
-  if (!notification || !notification.playlistData) {
-    console.log("No notification or playlistData found");
+  if (!notification) {
+    console.log("No notification found");
     return defaultPlaylist;
+  }
+
+  // Log the entire notification to see its structure
+  console.log("Full notification object:", JSON.stringify(notification, null, 2));
+
+  // Check if there's playlistData object
+  if (!notification.playlistData) {
+    console.log("No playlistData found in notification");
+    return {
+      name: notification.playlistName || defaultPlaylist.name,
+      description: defaultPlaylist.description,
+      songIds: [],
+      songs: [],
+    };
   }
 
   // Log what we have in the notification
   console.log("Notification playlistData:", notification.playlistData);
 
-  // Check if songs or songIds exist directly in the notification
+  // Extract data from notification
   let songIds = [];
   let songs = [];
 
-  // Try to extract songs from different possible locations
-  if (
-    notification.playlistData.songs &&
-    Array.isArray(notification.playlistData.songs)
-  ) {
-    console.log(
-      `Found ${notification.playlistData.songs.length} songs in playlistData.songs`
-    );
+  // Try to extract songs data
+  if (notification.playlistData.songs && Array.isArray(notification.playlistData.songs)) {
+    console.log(`Found ${notification.playlistData.songs.length} songs in playlistData.songs`);
     songs = notification.playlistData.songs;
-  } else if (notification.songs && Array.isArray(notification.songs)) {
-    console.log(`Found ${notification.songs.length} songs in notification.songs`);
-    songs = notification.songs;
   }
 
-  // Try to extract songIds from different possible locations
-  if (
-    notification.playlistData.songIds &&
-    Array.isArray(notification.playlistData.songIds)
-  ) {
-    console.log(
-      `Found ${notification.playlistData.songIds.length} songIds in playlistData.songIds`
-    );
+  // Try to extract songIds data
+  if (notification.playlistData.songIds && Array.isArray(notification.playlistData.songIds)) {
+    console.log(`Found ${notification.playlistData.songIds.length} songIds in playlistData.songIds`);
     songIds = notification.playlistData.songIds;
-  } else if (notification.songIds && Array.isArray(notification.songIds)) {
-    console.log(`Found ${notification.songIds.length} songIds in notification.songIds`);
-    songIds = notification.songIds;
   }
 
   // If we have songs but no songIds, extract songIds from songs
   if (songs.length > 0 && songIds.length === 0) {
-    songIds = songs.map((song) => song._id).filter((id) => id);
+    songIds = songs.map(song => song._id).filter(id => id);
     console.log(`Extracted ${songIds.length} songIds from songs`);
   }
 
-  // Extract data with fallbacks
+  // If we have songIds but no songs, create basic song objects
+  if (songIds.length > 0 && songs.length === 0) {
+    songs = songIds.map(id => ({
+      _id: id,
+      title: `Song ${id.substring(0, 6)}...`, // Create a placeholder title
+    }));
+    console.log(`Created ${songs.length} placeholder song objects from songIds`);
+  }
+
+  // Return complete data with fallbacks
   return {
-    name:
-      notification.playlistData.name ||
-      notification.playlistName ||
-      defaultPlaylist.name,
-    description:
-      notification.playlistData.description || defaultPlaylist.description,
+    name: notification.playlistData.name || notification.playlistName || defaultPlaylist.name,
+    description: notification.playlistData.description || defaultPlaylist.description,
     songIds: songIds,
     songs: songs,
   };
