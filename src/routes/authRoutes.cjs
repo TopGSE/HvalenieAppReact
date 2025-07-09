@@ -619,4 +619,38 @@ router.delete('/notifications', authMiddleware, async (req, res) => {
   }
 });
 
+// Update username endpoint
+router.put('/profile/username', authMiddleware, async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ message: 'Username and current password are required' });
+    }
+
+    const userId = req.user.userId || req.user._id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Invalid token: missing user ID' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    user.username = username;
+    await user.save();
+
+    res.json({ message: 'Username updated successfully', username: user.username });
+  } catch (err) {
+    console.error('Error updating username:', err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;

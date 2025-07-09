@@ -34,6 +34,9 @@ function UserProfile() {
   const [isLoading, setIsLoading] = useState(false);
   const [showRandomSongGenerator, setShowRandomSongGenerator] = useState(false);
   const [songs, setSongs] = useState([]);
+  const [username, setUsername] = useState("");
+  const [newUsername, setNewUsername] = useState("");
+  const [showUsernameSection, setShowUsernameSection] = useState(false);
 
   // Section visibility states
   const [showPhotoSection, setShowPhotoSection] = useState(false);
@@ -52,6 +55,8 @@ function UserProfile() {
           headers: { Authorization: `Bearer ${token}` },
         });
         setEmail(response.data.email);
+        setUsername(response.data.username); // <-- Add this
+        setNewUsername(response.data.username); // <-- Add this
         if (response.data.profilePhoto) {
           setPreview(response.data.profilePhoto);
         }
@@ -192,6 +197,36 @@ function UserProfile() {
     } catch (error) {
       console.error("Error updating password:", error);
       toast.error(error.response?.data?.message || "Failed to update password");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdateUsername = async (e) => {
+    e.preventDefault();
+    if (!currentPassword) {
+      toast.error("Current password is required to update username");
+      return;
+    }
+    if (!newUsername || newUsername.length < 3) {
+      toast.error("Username must be at least 3 characters");
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `${API_URL}/auth/profile/username`,
+        { username: newUsername, password: currentPassword },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setUsername(response.data.username);
+      toast.success("Username updated successfully");
+      setShowUsernameSection(false);
+      setCurrentPassword("");
+    } catch (error) {
+      console.error("Error updating username:", error);
+      toast.error(error.response?.data?.message || "Failed to update username");
     } finally {
       setIsLoading(false);
     }
@@ -507,6 +542,75 @@ function UserProfile() {
                     disabled={isLoading}
                   >
                     {isLoading ? "Updating..." : "Update Password"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+
+        {/* Username Section */}
+        <div className="profile-section">
+          <div
+            className="section-header"
+            onClick={() => setShowUsernameSection(!showUsernameSection)}
+          >
+            <FaUser className="section-icon" />
+            <h3>Username</h3>
+            <button type="button" className="toggle-button">
+              {showUsernameSection ? <FaTimes /> : "Change"}
+            </button>
+          </div>
+          <div
+            className={`section-content ${
+              showUsernameSection ? "expanded" : ""
+            }`}
+          >
+            <p className="current-value">{username}</p>
+            {showUsernameSection && (
+              <form onSubmit={handleUpdateUsername} className="update-form">
+                <div className="form-group">
+                  <label htmlFor="new-username">New Username</label>
+                  <input
+                    id="new-username"
+                    type="text"
+                    value={newUsername}
+                    onChange={(e) => setNewUsername(e.target.value)}
+                    required
+                    minLength={3}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="current-password-username">
+                    Current Password
+                  </label>
+                  <input
+                    id="current-password-username"
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    required
+                    placeholder="Enter your password to confirm"
+                  />
+                </div>
+                <div className="form-actions">
+                  <button
+                    type="button"
+                    className="cancel-button"
+                    onClick={() => {
+                      setShowUsernameSection(false);
+                      setCurrentPassword("");
+                      setNewUsername(username);
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="save-button"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Updating..." : "Update Username"}
                   </button>
                 </div>
               </form>
