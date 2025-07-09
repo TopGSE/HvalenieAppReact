@@ -186,16 +186,73 @@ function NavBar() {
       let availableSongs = storedSongsStr ? JSON.parse(storedSongsStr) : [];
       console.log(`User has ${availableSongs.length} songs in their library`);
 
-      // Get both songIds and full songs data from notification
-      let songIds = playlistData.songIds || [];
-      let sharedSongs = playlistData.songs || [];
+      // IMPORTANT FIX: Check if playlistData contains proper songs array
+      // Log the structure of playlistData to see what we're working with
+      console.log("PlaylistData structure:", {
+        hasSongIds: Array.isArray(playlistData.songIds),
+        songIdsLength: playlistData.songIds ? playlistData.songIds.length : 0,
+        hasSongs: Array.isArray(playlistData.songs),
+        songsLength: playlistData.songs ? playlistData.songs.length : 0,
+      });
 
+      // Get both songIds and full songs data from notification
+      let songIds = Array.isArray(playlistData.songIds)
+        ? [...playlistData.songIds]
+        : [];
+      let sharedSongs = Array.isArray(playlistData.songs)
+        ? [...playlistData.songs]
+        : [];
+
+      console.log("Initial data:", {
+        songIds: songIds.length,
+        sharedSongs: sharedSongs.length,
+      });
+
+      // If we don't have any songIds or songs, try to extract from notification directly
+      if (songIds.length === 0 && sharedSongs.length === 0 && currentSharedNotification) {
+        console.log("Trying to extract song data directly from notification");
+
+        if (currentSharedNotification.playlistData) {
+          if (Array.isArray(currentSharedNotification.playlistData.songIds)) {
+            songIds = [...currentSharedNotification.playlistData.songIds];
+            console.log(
+              `Found ${songIds.length} song IDs directly in notification.playlistData`
+            );
+          }
+
+          if (Array.isArray(currentSharedNotification.playlistData.songs)) {
+            sharedSongs = [...currentSharedNotification.playlistData.songs];
+            console.log(
+              `Found ${sharedSongs.length} songs directly in notification.playlistData`
+            );
+          }
+        }
+      }
+
+      // If we still have songIds but no songs, try to find them in available songs
+      if (songIds.length > 0 && sharedSongs.length === 0) {
+        console.log("Finding song details for songIds from user's library");
+        sharedSongs = songIds
+          .map((id) => {
+            const song = availableSongs.find((s) => s._id === id);
+            if (!song) {
+              console.log(`Song ID ${id} not found in user's library`);
+            }
+            return song;
+          })
+          .filter(Boolean);
+
+        console.log(`Found ${sharedSongs.length} songs from songIds in user's library`);
+      }
+
+      // If we have songs but no songIds, extract IDs from songs
       if (songIds.length === 0 && sharedSongs.length > 0) {
-        // Extract IDs from songs if no explicit songIds provided
-        songIds = sharedSongs.map((song) => song._id).filter((id) => id);
+        console.log("Extracting songIds from shared songs");
+        songIds = sharedSongs.map((song) => song._id).filter(Boolean);
         console.log(`Extracted ${songIds.length} song IDs from song objects`);
       }
 
+      // Final check - if we still have no songs, we can't proceed
       if (songIds.length === 0) {
         console.warn("No songs found in shared playlist data");
         toast.error("The shared playlist doesn't contain any songs");
@@ -212,9 +269,32 @@ function NavBar() {
         // Find the corresponding song object from the shared songs array
         const sharedSong = sharedSongs.find((song) => song._id === songId);
 
-        // Skip if we can't find the song data
+        // If we can't find the song data, try to create a placeholder
         if (!sharedSong) {
           console.warn(`No data found for song ID: ${songId}`);
+
+          // Still add the ID to valid IDs if it's not in the user's library
+          // The user might have the song locally but the shared data is missing details
+          if (!existingSongIds.has(songId)) {
+            const placeholderSong = {
+              _id: songId,
+              title: "Shared Song",
+              artist: "",
+              category: "other",
+              lyrics: "",
+              chords: "",
+              createdAt: new Date().toISOString(),
+            };
+
+            newSongs.push(placeholderSong);
+            existingSongIds.add(songId);
+            validSongIds.push(songId);
+            console.log(`Created placeholder for song ID: ${songId}`);
+          } else {
+            // If it exists in the user's library, it's valid
+            validSongIds.push(songId);
+          }
+
           continue;
         }
 
