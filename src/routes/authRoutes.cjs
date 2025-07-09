@@ -374,7 +374,12 @@ router.put('/profile/photo', authMiddleware, async (req, res) => {
     if (!profilePhoto) {
       return res.status(400).json({ message: 'No profile photo provided' });
     }
-    const user = await User.findById(req.user._id);
+    // Use userId or _id from the token
+    const userId = req.user.userId || req.user._id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Invalid token: missing user ID' });
+    }
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
