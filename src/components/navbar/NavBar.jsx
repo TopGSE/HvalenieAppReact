@@ -375,7 +375,15 @@ function NavBar() {
         onClick={toggleMobileMenu}
       ></div>
 
-      {/* Add the Shared Playlist Modal */}
+      {/* Add this new overlay for notifications */}
+      {showNotifications && (
+        <div
+          className="notification-overlay visible"
+          onClick={() => setShowNotifications(false)}
+        ></div>
+      )}
+
+      {/* Shared Playlist Modal */}
       <SharedPlaylistModal
         show={showSharedPlaylistModal}
         onClose={() => setShowSharedPlaylistModal(false)}

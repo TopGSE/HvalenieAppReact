@@ -10,7 +10,8 @@
 	position: fixed;
 	top: 0;
 	left: 0;
-	z-index: 1500; /* Ensure navbar is above content but below dropdowns */
+	z-index: 3000;
+	/* Increased from 1500 to be higher than everything */
 }
 
 .navbar-brand {
@@ -277,7 +278,8 @@
 	position: relative;
 	display: flex;
 	align-items: center;
-	z-index: 2000; /* Match the dropdown z-index */
+	z-index: 1;
+	/* Local z-index within navbar */
 }
 
 .notification-bell {
@@ -316,15 +318,18 @@
 }
 
 .notification-dropdown {
-	position: absolute;
-	top: 100%;
-	right: -10px;
+	position: fixed;
+	/* Change from absolute to fixed */
+	top: 60px;
+	/* Position below navbar */
+	right: 10px;
 	width: 320px;
 	max-height: 400px;
 	background-color: white;
 	border-radius: 8px;
 	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-	z-index: 2000; /* Increased from 1000 to be higher than content-area */
+	z-index: 3001;
+	/* Higher than navbar */
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
@@ -332,128 +337,42 @@
 	animation: fadeIn 0.2s ease-out;
 }
 
-.notification-header {
-	padding: 12px 16px;
-	border-bottom: 1px solid #eaeaea;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	background-color: #f9f9f9;
+/* Ensure mobile content area has lower z-index */
+@media (max-width: 768px) {
+	.mobile-layout .content-area.active {
+		z-index: 100;
+		/* Much lower than navbar and dropdown */
+	}
+
+	/* In mobile view, ensure notification dropdown covers everything */
+	.notification-dropdown {
+		position: fixed;
+		width: 90%;
+		left: 5%;
+		right: 5%;
+		max-height: 80vh;
+		margin-top: 0;
+		border-radius: 8px;
+		z-index: 3001;
+		/* Higher than navbar */
+	}
 }
 
-.notification-header h3 {
-	margin: 0;
-	font-size: 16px;
-	color: #333;
+/* Add overlay for notification dropdown */
+.notification-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.3);
+	z-index: 3000;
+	/* Same as navbar */
+	display: none;
 }
 
-.unread-count {
-	background-color: #e74c3c;
-	color: white;
-	padding: 2px 8px;
-	border-radius: 10px;
-	font-size: 12px;
-	font-weight: bold;
-}
-
-.notification-list {
-	overflow-y: auto;
-	max-height: 300px;
-	padding: 0;
-}
-
-.notification-item {
-	padding: 12px 16px;
-	border-bottom: 1px solid #eaeaea;
-	cursor: pointer;
-	transition: background-color 0.2s;
-	position: relative;
-}
-
-.notification-item:hover {
-	background-color: #f5f5f5;
-}
-
-.notification-item.unread {
-	background-color: #ecf5ff;
-}
-
-.notification-item.unread:hover {
-	background-color: #e0efff;
-}
-
-.notification-content {
-	display: flex;
-	align-items: flex-start;
-	gap: 12px;
-}
-
-.notification-icon {
-	font-size: 18px;
-	padding-top: 2px;
-}
-
-.notification-details {
-	flex: 1;
-}
-
-.notification-message {
-	margin: 0 0 4px 0;
-	color: #333;
-	font-size: 14px;
-	line-height: 1.4;
-}
-
-.notification-time {
-	font-size: 12px;
-	color: #888;
-}
-
-.notification-dot {
-	width: 8px;
-	height: 8px;
-	background-color: #007bff;
-	border-radius: 50%;
-	margin-top: 6px;
-}
-
-.notification-footer {
-	padding: 10px 16px;
-	border-top: 1px solid #eaeaea;
-	display: flex;
-	justify-content: center;
-}
-
-.refresh-notifications {
-	background: none;
-	border: none;
-	color: #007bff;
-	font-size: 14px;
-	cursor: pointer;
-	padding: 4px 8px;
-	border-radius: 4px;
-	transition: background-color 0.2s;
-}
-
-.refresh-notifications:hover {
-	background-color: #f0f7ff;
-}
-
-.notification-loading,
-.no-notifications {
-	padding: 24px 16px;
-	text-align: center;
-	color: #888;
-}
-
-.notification-spinner {
-	margin: 0 auto 12px;
-	width: 24px;
-	height: 24px;
-	border: 3px solid #f3f3f3;
-	border-top: 3px solid #007bff;
-	border-radius: 50%;
-	animation: spin 1s linear infinite;
+.notification-overlay.visible {
+	display: block;
 }
 
 @keyframes spin {
@@ -489,7 +408,8 @@
 		max-height: 80vh;
 		margin-top: 0;
 		border-radius: 0;
-		z-index: 2000; /* Keep consistent with desktop */
+		z-index: 2000;
+		/* Keep consistent with desktop */
 	}
 
 	.notification-list {

@@ -1801,28 +1801,12 @@ body {
     bottom: 0;
     width: 100%;
     height: calc(100vh - 60px);
-    z-index: 100; /* This value should be lower than notification-dropdown (2000) */
+    z-index: 100; /* Keep this lower than navbar (3000) and notification dropdown (3001) */
     background-color: #fff;
     visibility: visible;
     opacity: 1;
     transform: translateX(0);
     display: block;
     padding-bottom: 60px; /* Extra padding to prevent content cutoff */
-  }
-  
-  .mobile-back-button {
-    position: sticky;
-    top: 0;
-    width: 100%;
-    padding: 15px;
-    background-color: #e3c9c9;
-    border: none;
-    border-bottom: 1px solid #ddd;
-    font-size: 16px;
-    text-align: left;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    z-index: 101;
   }
 }
