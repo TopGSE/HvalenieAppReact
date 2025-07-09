@@ -352,7 +352,6 @@ function AppContent({
                         </button>
                       </div>
                     </div>
-
                     <div className="playlists-list">
                       {playlists.length === 0 ? (
                         <div className="no-playlists">
@@ -374,9 +373,10 @@ function AppContent({
                           })
                           .map((playlist) => (
                             <div
-                              key={playlist.id}
+                              key={playlist._id || playlist.id}
                               className={`playlist-item ${
-                                currentPlaylist?.id === playlist.id
+                                currentPlaylist?._id ===
+                                (playlist._id || playlist.id)
                                   ? "selected"
                                   : ""
                               }`}
@@ -393,7 +393,7 @@ function AppContent({
                               </div>
                             </div>
                           ))
-                      }
+                      )}
                     </div>
                   </div>
                 </aside>
