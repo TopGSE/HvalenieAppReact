@@ -300,7 +300,7 @@ function UserProfile() {
   return (
     <Scrollbars style={{ height: "100vh" }}>
       <div className="user-profile-container">
-        <h2>User Profile</h2>
+        <h2>{username ? username : "User Profile"}</h2>
 
         <div
           className="profile-photo-top"
