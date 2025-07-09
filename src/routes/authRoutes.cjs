@@ -371,23 +371,16 @@ router.post('/reset-password/:token', async (req, res) => {
 router.put('/profile/photo', authMiddleware, async (req, res) => {
   try {
     const { profilePhoto } = req.body;
-    
     if (!profilePhoto) {
       return res.status(400).json({ message: 'No profile photo provided' });
     }
-    
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
     user.profilePhoto = profilePhoto;
     await user.save();
-    
-    res.json({ 
-      message: 'Profile photo updated successfully',
-      profilePhoto: user.profilePhoto
-    });
+    res.json({ message: 'Profile photo updated successfully', profilePhoto: user.profilePhoto });
   } catch (err) {
     console.error('Error updating profile photo:', err);
     res.status(500).json({ message: 'Error updating profile photo' });
