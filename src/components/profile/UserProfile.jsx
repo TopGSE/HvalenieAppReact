@@ -180,7 +180,7 @@ function UserProfile() {
       const token = localStorage.getItem("token");
       await axios.put(
         `${API_URL}/auth/profile/password`,
-        { currentPassword, newPassword },
+        { oldPassword: currentPassword, newPassword }, // <-- Fix here
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
