@@ -14,19 +14,7 @@ export default defineConfig({
       },
     },
   },
-  plugins: [
-    {
-      name: 'handle-html5-routing',
-      apply: 'build',
-      enforce: 'post',
-      generateBundle(_, bundle) {
-        // Add _redirects file for Netlify/Vercel (Heroku also respects this)
-        bundle['_redirects'] = {
-          type: 'asset',
-          fileName: '_redirects',
-          source: '/* /index.html 200',
-        };
-      },
-    },
-  ],
+  esbuild: {
+    jsxInject: `import React from 'react'`  // This fixes the "React is not defined" error
+  },
 });

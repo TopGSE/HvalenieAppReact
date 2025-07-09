@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./NavBar.css";
 import { useAuth } from "../../App";
-import { FaUser, FaChartBar, FaBell } from "react-icons/fa"; // Added FaBell icon
+import { FaUser, FaChartBar, FaBell } from "react-icons/fa";
 import axios from "axios";
-import API_URL from "../../utils/api";
+
+// Import API_URL correctly
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -70,6 +72,29 @@ function NavBar() {
     }
   };
 
+  // Handle notification click
+  const handleNotificationClick = (notification) => {
+    // If not read, mark it as read
+    if (!notification.read) {
+      markAsRead(notification._id);
+    }
+
+    // Handle different notification types
+    if (notification.type === "playlist_share") {
+      // Find the shared playlist
+      const storedPlaylists = localStorage.getItem("playlists");
+      if (storedPlaylists) {
+        const playlists = JSON.parse(storedPlaylists);
+        const playlist = playlists.find((p) => p.id === notification.playlistId);
+        if (playlist) {
+          navigate("/home"); // Navigate to home where playlists are displayed
+        }
+      }
+
+      setShowNotifications(false);
+    }
+  };
+
   // Fetch notifications when logged in
   useEffect(() => {
     if (isLoggedIn) {
@@ -98,34 +123,6 @@ function NavBar() {
     };
   }, []);
 
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-    // Toggle body scroll when menu is open
-    document.body.style.overflow = !mobileMenuOpen ? "hidden" : "";
-  };
-
-  const handleMenuItemClick = () => {
-    setMobileMenuOpen(false);
-    document.body.style.overflow = "";
-  };
-
-  // Handle notification click
-  const handleNotificationClick = (notification) => {
-    // If not read, mark it as read
-    if (!notification.read) {
-      markAsRead(notification._id);
-    }
-
-    // Handle different notification types
-    if (notification.type === "playlist_share") {
-      // Navigate to the playlist if you have a route for it
-      // navigate(`/playlists/${notification.playlistId}`);
-
-      // For now, just close the dropdown
-      setShowNotifications(false);
-    }
-  };
-
   // Format notification time
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
@@ -144,6 +141,17 @@ function NavBar() {
     } else {
       return date.toLocaleDateString();
     }
+  };
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+    // Toggle body scroll when menu is open
+    document.body.style.overflow = !mobileMenuOpen ? "hidden" : "";
+  };
+
+  const handleMenuItemClick = () => {
+    setMobileMenuOpen(false);
+    document.body.style.overflow = "";
   };
 
   // Handle clicks outside to close menu
