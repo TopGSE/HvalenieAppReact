@@ -178,16 +178,16 @@ function NavBar() {
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
       const userId = userData.id || userData._id;
       
-      // Extract songIds safely
+      // Extract songIds safely - THE CRITICAL FIX IS HERE
       let songIds = [];
       
-      // If we have songIds, use them
-      if (playlistData.songIds && playlistData.songIds.length > 0) {
+      // IMPORTANT: Use the songIds from notification directly first
+      if (playlistData.songIds && Array.isArray(playlistData.songIds) && playlistData.songIds.length > 0) {
         console.log(`Using ${playlistData.songIds.length} songIds from playlistData`);
         songIds = [...playlistData.songIds];
       } 
-      // Otherwise extract from songs if available
-      else if (playlistData.songs && playlistData.songs.length > 0) {
+      // If no songIds, try to extract from songs
+      else if (playlistData.songs && Array.isArray(playlistData.songs) && playlistData.songs.length > 0) {
         songIds = playlistData.songs.map(song => song._id).filter(id => id);
         console.log(`Extracted ${songIds.length} songIds from song objects`);
       }
@@ -196,43 +196,30 @@ function NavBar() {
         console.warn("No songs found in shared playlist data");
       }
       
-      // Get sharedFrom information
-      const sharedFrom = currentSharedNotification ? currentSharedNotification.fromUserName || "Another user" : "Another user";
-      
-      // CRITICAL FIX: Get songs from localStorage to verify songIds format
+      // CRITICAL FIX: Get songs from localStorage to verify songIds are valid in current user's context
       const storedSongsStr = localStorage.getItem("songs");
-      let availableSongs = [];
-      if (storedSongsStr) {
-        try {
-          availableSongs = JSON.parse(storedSongsStr);
-        } catch (e) {
-          console.error("Error parsing songs from localStorage:", e);
-        }
-      }
+      const availableSongs = storedSongsStr ? JSON.parse(storedSongsStr) : [];
       
-      // Validate that songIds match songs in the user's library
-      const validSongIds = songIds.filter(id => 
-        availableSongs.some(song => song._id === id)
-      );
-      
-      if (validSongIds.length !== songIds.length) {
-        console.warn(`Found ${validSongIds.length} valid songs out of ${songIds.length} shared songs`);
-      }
+      // No need to filter songIds against available songs - accept all songIds as is
+      // This is key - we want to preserve the original songIds even if they don't match current songs
       
       // Create a new playlist object
       const newPlaylist = {
         id: Date.now().toString(), // Generate a new unique ID
-        name: playlistData.name || "Shared Playlist", // Use a default name if none provided
+        name: playlistData.name || "Shared Playlist",
         description: playlistData.description || "",
-        songIds: validSongIds.length > 0 ? validSongIds : songIds, // Use validated songIds when possible
-        userId: userId, // CRITICAL: Assign to current user - ensure this is set correctly
+        songIds: songIds, // Use the original songIds without filtering
+        userId: userId, // Assign to current user
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        sharedFrom: sharedFrom, // Use the fixed variable
+        sharedFrom: currentSharedNotification ? currentSharedNotification.fromUserName || "Another user" : "Another user",
       };
       
-      // Log the new playlist for debugging
-      console.log("Creating new playlist:", newPlaylist);
+      console.log("Creating new playlist with songs:", {
+        name: newPlaylist.name,
+        songCount: songIds.length,
+        songIds: songIds
+      });
       
       // Add to playlists
       playlists.push(newPlaylist);
@@ -248,7 +235,7 @@ function NavBar() {
       }
       
       // Show success notification
-      toast.success(`Playlist "${newPlaylist.name}" added to your collection with ${validSongIds.length || songIds.length} songs!`);
+      toast.success(`Playlist "${newPlaylist.name}" added to your collection with ${songIds.length} songs!`);
       
       // After accepting, delete the notification
       deleteNotification(notificationId);

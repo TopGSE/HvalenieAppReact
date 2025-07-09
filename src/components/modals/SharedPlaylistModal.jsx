@@ -35,35 +35,20 @@ function extractValidPlaylistData(notification) {
   // Log what we have in the notification
   console.log("Notification playlistData:", notification.playlistData);
 
-  // Extract data from notification
-  let songIds = [];
-  let songs = [];
+  // Extract data directly from notification
+  let songIds = notification.playlistData.songIds || [];
+  let songs = notification.playlistData.songs || [];
 
-  // Try to extract songs data
-  if (notification.playlistData.songs && Array.isArray(notification.playlistData.songs)) {
-    console.log(`Found ${notification.playlistData.songs.length} songs in playlistData.songs`);
-    songs = notification.playlistData.songs;
-  }
+  // Make sure both are arrays
+  if (!Array.isArray(songIds)) songIds = [];
+  if (!Array.isArray(songs)) songs = [];
 
-  // Try to extract songIds data
-  if (notification.playlistData.songIds && Array.isArray(notification.playlistData.songIds)) {
-    console.log(`Found ${notification.playlistData.songIds.length} songIds in playlistData.songIds`);
-    songIds = notification.playlistData.songIds;
-  }
+  console.log(`Found ${songIds.length} songIds and ${songs.length} songs in notification`);
 
   // If we have songs but no songIds, extract songIds from songs
   if (songs.length > 0 && songIds.length === 0) {
     songIds = songs.map(song => song._id).filter(id => id);
     console.log(`Extracted ${songIds.length} songIds from songs`);
-  }
-
-  // If we have songIds but no songs, create basic song objects
-  if (songIds.length > 0 && songs.length === 0) {
-    songs = songIds.map(id => ({
-      _id: id,
-      title: `Song ${id.substring(0, 6)}...`, // Create a placeholder title
-    }));
-    console.log(`Created ${songs.length} placeholder song objects from songIds`);
   }
 
   // Return complete data with fallbacks
