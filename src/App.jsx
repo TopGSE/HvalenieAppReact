@@ -393,7 +393,7 @@ function AppContent({
                               </div>
                             </div>
                           ))
-                      }
+                      )}
                     </div>
                   </div>
                 </aside>
@@ -1374,11 +1374,11 @@ function App() {
     };
 
     // Add event listener
-    window.addEventListener('playlistsUpdated', handlePlaylistsUpdated);
-    
+    window.addEventListener("playlistsUpdated", handlePlaylistsUpdated);
+
     // Clean up
     return () => {
-      window.removeEventListener('playlistsUpdated', handlePlaylistsUpdated);
+      window.removeEventListener("playlistsUpdated", handlePlaylistsUpdated);
     };
   }, []);
 
