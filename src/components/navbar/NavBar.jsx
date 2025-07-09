@@ -4,7 +4,9 @@ import "./NavBar.css";
 import { useAuth } from "../../App";
 import { FaUser, FaChartBar, FaBell } from "react-icons/fa";
 import axios from "axios";
-import API_URL from "../../utils/api"; // Use the proper import
+import API_URL from "../../utils/api";
+import { toast } from "react-toastify";
+import SharedPlaylistModal from "../modals/SharedPlaylistModal";
 
 function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -15,6 +17,10 @@ function NavBar() {
   const { isLoggedIn, username, userRole, user } = useAuth();
   const navigate = useNavigate();
   const notificationRef = useRef(null);
+
+  // New state for shared playlist modal
+  const [showSharedPlaylistModal, setShowSharedPlaylistModal] = useState(false);
+  const [currentSharedNotification, setCurrentSharedNotification] = useState(null);
 
   // Check if user is admin
   const isAdmin = userRole === "admin";
@@ -79,18 +85,49 @@ function NavBar() {
 
     // Handle different notification types
     if (notification.type === "playlist_share") {
-      // Find the shared playlist
-      const storedPlaylists = localStorage.getItem("playlists");
-      if (storedPlaylists) {
-        const playlists = JSON.parse(storedPlaylists);
-        const playlist = playlists.find((p) => p.id === notification.playlistId);
-        if (playlist) {
-          navigate("/home"); // Navigate to home where playlists are displayed
-        }
-      }
-
+      // Show shared playlist acceptance modal
+      setShowSharedPlaylistModal(true);
+      setCurrentSharedNotification(notification);
       setShowNotifications(false);
     }
+  };
+
+  // Handle accepting a shared playlist
+  const handleAcceptPlaylist = (notificationId, playlistData) => {
+    try {
+      // Get current playlists from localStorage
+      const storedPlaylists = localStorage.getItem("playlists");
+      let playlists = storedPlaylists ? JSON.parse(storedPlaylists) : [];
+
+      // Get current user ID
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      const userId = userData.id || userData._id;
+
+      // Create a new playlist object
+      const newPlaylist = {
+        ...playlistData,
+        id: Date.now().toString(), // Generate a new unique ID
+        userId, // Assign to current user
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Add to playlists
+      playlists.push(newPlaylist);
+
+      // Save back to localStorage
+      localStorage.setItem("playlists", JSON.stringify(playlists));
+
+      toast.success(`Playlist "${playlistData.name}" added to your collection!`);
+    } catch (error) {
+      console.error("Error accepting playlist:", error);
+      toast.error("Failed to add playlist to your collection");
+    }
+  };
+
+  // Handle declining a shared playlist
+  const handleDeclinePlaylist = (notificationId) => {
+    toast.info("Playlist share declined");
   };
 
   // Fetch notifications when logged in
@@ -337,6 +374,15 @@ function NavBar() {
         className={`menu-overlay ${mobileMenuOpen ? "visible" : ""}`}
         onClick={toggleMobileMenu}
       ></div>
+
+      {/* Add the Shared Playlist Modal */}
+      <SharedPlaylistModal
+        show={showSharedPlaylistModal}
+        onClose={() => setShowSharedPlaylistModal(false)}
+        notification={currentSharedNotification}
+        onAccept={handleAcceptPlaylist}
+        onDecline={handleDeclinePlaylist}
+      />
     </>
   );
 }

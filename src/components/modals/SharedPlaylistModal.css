@@ -1,0 +1,220 @@
+.shared-playlist-modal {
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.shared-playlist-modal .modal-body {
+  padding: 0 24px 20px;
+}
+
+.playlist-info-section {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color, #eee);
+}
+
+.playlist-name {
+  margin: 0 0 8px 0;
+  font-size: 22px;
+  color: var(--text-color, #333);
+}
+
+.playlist-description {
+  margin: 0 0 16px 0;
+  font-style: italic;
+  color: var(--text-color-secondary, #666);
+  line-height: 1.5;
+}
+
+.shared-by, .song-count {
+  font-size: 14px;
+  color: var(--text-color-secondary, #666);
+  margin-bottom: 8px;
+}
+
+.songs-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: var(--text-color, #333);
+}
+
+.shared-songs-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--border-color, #eee);
+  border-radius: 8px;
+}
+
+.shared-playlist-song {
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-color, #eee);
+}
+
+.shared-playlist-song:last-child {
+  border-bottom: none;
+}
+
+.song-number {
+  min-width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--badge-bg, #eee);
+  color: var(--text-color-secondary, #666);
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.song-info {
+  flex: 1;
+}
+
+.song-title {
+  font-weight: 500;
+  font-size: 15px;
+  margin-bottom: 4px;
+  color: var(--text-color, #333);
+}
+
+.song-artist {
+  font-size: 13px;
+  color: var(--text-color-secondary, #666);
+}
+
+.song-category {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  background-color: var(--badge-bg, #eee);
+  border-radius: 10px;
+  color: var(--text-color-secondary, #666);
+}
+
+.no-songs {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-color-secondary, #666);
+  font-style: italic;
+}
+
+.acceptance-question {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.acceptance-question p {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-color, #333);
+}
+
+.acceptance-question .note {
+  font-size: 14px;
+  color: var(--text-color-secondary, #666);
+  font-style: italic;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 0 24px 24px;
+}
+
+.decline-btn, .accept-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.decline-btn {
+  background-color: var(--cancel-btn, #e0e0e0);
+  color: var(--text-color, #333);
+}
+
+.accept-btn {
+  background-color: var(--primary-color, #006eef);
+  color: white;
+}
+
+.decline-btn:hover {
+  background-color: #d0d0d0;
+}
+
+.accept-btn:hover {
+  background-color: #0055cc;
+}
+
+/* Dark mode support */
+.dark .shared-playlist-modal {
+  background-color: var(--card-bg-dark, #2a2a2a);
+}
+
+.dark .playlist-info-section {
+  border-bottom-color: var(--border-color-dark, #444);
+}
+
+.dark .playlist-name,
+.dark .songs-section h4 {
+  color: var(--text-color-dark, #e0e0e0);
+}
+
+.dark .playlist-description,
+.dark .shared-by,
+.dark .song-count {
+  color: var(--text-color-secondary-dark, #aaa);
+}
+
+.dark .shared-songs-list {
+  border-color: var(--border-color-dark, #444);
+}
+
+.dark .shared-playlist-song {
+  border-bottom-color: var(--border-color-dark, #444);
+}
+
+.dark .song-title {
+  color: var(--text-color-dark, #e0e0e0);
+}
+
+.dark .song-artist,
+.dark .song-category {
+  color: var(--text-color-secondary-dark, #aaa);
+}
+
+.dark .decline-btn {
+  background-color: var(--cancel-btn-dark, #444);
+  color: var(--text-color-dark, #eee);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .shared-playlist-modal {
+    width: 90%;
+    margin: 0 5%;
+  }
+  
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .decline-btn, .accept-btn {
+    width: 100%;
+    padding: 14px;
+  }
+}
