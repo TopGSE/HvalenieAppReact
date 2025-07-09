@@ -89,30 +89,41 @@ function NavBar() {
   // Handle accepting a shared playlist
   const handleAcceptPlaylist = (notificationId, playlistData) => {
     try {
+      console.log("Accepting playlist with data:", playlistData); // Add logging for debugging
+    
+      // Validate that playlistData exists and has the expected structure
+      if (!playlistData) {
+        toast.error("Invalid playlist data received");
+        return;
+      }
+    
       // Get current playlists from localStorage
       const storedPlaylists = localStorage.getItem("playlists");
       let playlists = storedPlaylists ? JSON.parse(storedPlaylists) : [];
-      
+    
       // Get current user ID
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
       const userId = userData.id || userData._id;
-      
-      // Create a new playlist object
+    
+      // Create a new playlist object with safe defaults for any missing properties
       const newPlaylist = {
-        ...playlistData,
         id: Date.now().toString(), // Generate a new unique ID
+        name: playlistData.name || "Shared Playlist", // Use a default name if none provided
+        description: playlistData.description || "",
+        songIds: (playlistData.songIds || []).slice(), // Create a copy of the array or use empty array
         userId, // Assign to current user
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      
+    
       // Add to playlists
       playlists.push(newPlaylist);
-      
+    
       // Save back to localStorage
       localStorage.setItem("playlists", JSON.stringify(playlists));
-      
-      toast.success(`Playlist "${playlistData.name}" added to your collection!`);
+    
+      // Show success notification with safe string access
+      toast.success(`Playlist "${newPlaylist.name}" added to your collection!`);
     } catch (error) {
       console.error("Error accepting playlist:", error);
       toast.error("Failed to add playlist to your collection");

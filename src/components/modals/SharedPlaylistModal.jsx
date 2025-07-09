@@ -2,6 +2,31 @@ import React from "react";
 import { toast } from "react-toastify";
 import "./SharedPlaylistModal.css";
 
+// Add this helper function at the beginning of your component
+function extractValidPlaylistData(notification) {
+  // Default empty playlist structure
+  const defaultPlaylist = {
+    name: "Shared Playlist",
+    description: "",
+    songIds: [],
+    songs: [],
+  };
+
+  // If no notification or playlistData, return the default
+  if (!notification || !notification.playlistData) {
+    return defaultPlaylist;
+  }
+
+  // Extract data with fallbacks
+  return {
+    name: notification.playlistData.name || defaultPlaylist.name,
+    description:
+      notification.playlistData.description || defaultPlaylist.description,
+    songIds: notification.playlistData.songIds || [],
+    songs: notification.playlistData.songs || [],
+  };
+}
+
 function SharedPlaylistModal({
   show,
   onClose,
@@ -11,15 +36,15 @@ function SharedPlaylistModal({
 }) {
   if (!show || !notification) return null;
 
-  // Extract playlist data from the notification
-  const { playlistData } = notification;
+  // Extract playlist data safely
+  const playlistData = extractValidPlaylistData(notification);
 
-  // Format the song list
-  const songsList = playlistData?.songs?.map((song, index) => (
-    <li key={song._id} className="shared-playlist-song">
+  // Format the song list safely
+  const songsList = playlistData.songs.map((song, index) => (
+    <li key={song._id || `song-${index}`} className="shared-playlist-song">
       <span className="song-number">{index + 1}.</span>
       <div className="song-info">
-        <div className="song-title">{song.title}</div>
+        <div className="song-title">{song.title || "Untitled Song"}</div>
         {song.artist && <div className="song-artist">{song.artist}</div>}
         {song.category && (
           <span className="song-category">{song.category}</span>
@@ -43,11 +68,9 @@ function SharedPlaylistModal({
 
         <div className="modal-body">
           <div className="playlist-info-section">
-            <h3 className="playlist-name">
-              {playlistData?.name || "Untitled Playlist"}
-            </h3>
+            <h3 className="playlist-name">{playlistData.name}</h3>
 
-            {playlistData?.description && (
+            {playlistData.description && (
               <p className="playlist-description">{playlistData.description}</p>
             )}
 
@@ -57,13 +80,13 @@ function SharedPlaylistModal({
             </div>
 
             <div className="song-count">
-              {playlistData?.songs?.length || 0} songs
+              {playlistData.songs.length || 0} songs
             </div>
           </div>
 
           <div className="songs-section">
             <h4>Songs in this playlist:</h4>
-            {playlistData?.songs?.length > 0 ? (
+            {playlistData.songs.length > 0 ? (
               <ul className="shared-songs-list">{songsList}</ul>
             ) : (
               <p className="no-songs">This playlist has no songs.</p>
