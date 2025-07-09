@@ -3,7 +3,15 @@ const router = express.Router();
 const Notification = require('../models/Notification.cjs');
 const User = require('../models/User.cjs');
 const mongoose = require('mongoose');
-const Song = require('../models/Song.cjs'); // Import Song model
+
+// Try to import Song model but handle case where it's not available
+let Song;
+try {
+  Song = require('../models/Song.cjs');
+} catch (err) {
+  console.warn('Song model not available, song data enrichment will be skipped');
+  Song = null;
+}
 
 // Define a simple test route
 router.get('/test', function(req, res) {
@@ -49,11 +57,9 @@ router.post('/share', async function(req, res) {
         console.log(`Warning: Playlist has ${songIds.length} songIds but no song details`);
       }
       
-      // In the share route handler:
-      // Before creating notifications, add this to get all song details
-      // This ensures songs have complete information when shared
+      // Only try to fetch song details if Song model is available
       let fullSongDetails = [];
-      if (songIds && songIds.length > 0) {
+      if (Song && songIds && songIds.length > 0) {
         try {
           // Fetch full song details from database if possible
           fullSongDetails = await Song.find({ _id: { $in: songIds } })
