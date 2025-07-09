@@ -125,8 +125,9 @@ function PlaylistView({
               category: song.category || "",
               _id: song._id,
             })),
-        }, // Remove the semicolon and extra closing brace here
       };
+
+      // IMPORTANT: Don't use localhost:5000 but use the proper API_URL
       await axios.post(`${API_URL}/playlists/share`, shareData, {
         headers: {
           Authorization: `Bearer ${token}`,
