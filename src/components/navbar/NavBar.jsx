@@ -180,7 +180,7 @@ function NavBar() {
         return;
       }
 
-      // Extract songIds and songs from playlistData
+      // Extract songIds and songs from playlistData - handle various formats
       let songIds = Array.isArray(playlistData.songIds)
         ? [...playlistData.songIds]
         : [];
@@ -191,6 +191,7 @@ function NavBar() {
       // If we have songs but no songIds, extract IDs from songs
       if (songIds.length === 0 && sharedSongs.length > 0) {
         songIds = sharedSongs.map((song) => song._id).filter(Boolean);
+        console.log(`Extracted ${songIds.length} song IDs from shared songs`);
       }
 
       if (songIds.length === 0) {
@@ -198,40 +199,13 @@ function NavBar() {
         return;
       }
 
-      // First, make sure all songs exist in the database
-      // For any songs that don't exist, add them
-      for (const song of sharedSongs) {
-        if (!song._id) continue;
+      // Get the current user ID for assigning the playlist ownership
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+      const userId = userData.id || userData._id;
 
-        try {
-          // Check if song exists by trying to fetch it
-          await axios.get(`${API_URL}/songs/${song._id}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-        } catch (err) {
-          if (err.response && err.response.status === 404) {
-            // Song doesn't exist, create it
-            try {
-              const newSong = {
-                _id: song._id,
-                title: song.title || "Shared Song",
-                artist: song.artist || "",
-                category: song.category || "other",
-                lyrics: song.lyrics || "",
-                chords: song.chords || "",
-              };
-
-              // Add the song to the database
-              await axios.post(`${API_URL}/songs`, newSong, {
-                headers: { Authorization: `Bearer ${token}` },
-              });
-
-              console.log(`Added song "${newSong.title}" to database`);
-            } catch (createErr) {
-              console.error("Error creating song:", createErr);
-            }
-          }
-        }
+      if (!userId) {
+        toast.error("User information not found. Please log in again.");
+        return;
       }
 
       // Now create the playlist in the database
@@ -240,10 +214,17 @@ function NavBar() {
           name: playlistData.name || "Shared Playlist",
           description: playlistData.description || "",
           songIds: songIds,
+          userId: userId,
           sharedFrom: currentSharedNotification
             ? currentSharedNotification.fromUserName || "Another user"
             : "Another user",
         };
+
+        console.log("Creating playlist with data:", {
+          name: newPlaylist.name,
+          songCount: songIds.length,
+          userId: userId,
+        });
 
         const response = await axios.post(
           `${API_URL}/api/playlists`,

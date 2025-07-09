@@ -114,19 +114,26 @@ function PlaylistView({
           title: song.title,
           artist: song.artist || "",
           category: song.category || "",
-          // Include minimal song data that's necessary
+          // Only include essential data, not the full song content
         }));
 
       // Ensure we have song IDs from the playlist
       const songIds = playlistSongs.map((song) => song._id);
 
+      // Check if we have valid data
+      if (songIds.length === 0) {
+        toast.error("This playlist is empty. Add songs before sharing.");
+        return;
+      }
+
       console.log(`Sharing playlist with ${playlistSongs.length} songs`);
 
+      // Format the share data properly
       const shareData = {
-        playlistId: playlist.id,
+        playlistId: playlist._id || playlist.id,
         playlistName: playlist.name,
         recipientIds: selectedUsers,
-        message: `${currentUser.username} shared a playlist with you: "${playlist.name}"`,
+        message: `${currentUser.username || "Someone"} shared a playlist with you: "${playlist.name}"`,
         playlistData: {
           name: playlist.name,
           description: playlist.description || "",
@@ -136,15 +143,13 @@ function PlaylistView({
       };
 
       // Log the data we're sending to help debug
-      console.log(
-        "Sending share data:",
-        JSON.stringify({
-          ...shareData,
-          songCount: shareData.playlistData.songs.length,
-          songIdCount: shareData.playlistData.songIds.length,
-        })
-      );
+      console.log("Sending share data:", {
+        ...shareData,
+        songCount: shareData.playlistData.songs.length,
+        songIdCount: shareData.playlistData.songIds.length,
+      });
 
+      // Make the request to the server
       const response = await axios.post(
         `${API_URL}/playlists/share`,
         shareData,
@@ -179,6 +184,13 @@ function PlaylistView({
       setSelectedUsers([]);
     } catch (error) {
       console.error("Error sharing playlist:", error);
+      
+      // More detailed error logging to help debug
+      if (error.response) {
+        console.error("Server response:", error.response.data);
+        console.error("Status code:", error.response.status);
+      }
+      
       toast.error(
         "Failed to share playlist: " + (error.response?.data?.message || error.message)
       );
