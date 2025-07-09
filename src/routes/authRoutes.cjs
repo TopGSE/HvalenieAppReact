@@ -576,4 +576,45 @@ router.put('/notifications/:id/read', authMiddleware, async (req, res) => {
   }
 });
 
+// Delete a single notification
+router.delete('/notifications/:id', authMiddleware, async (req, res) => {
+  try {
+    const notification = await Notification.findById(req.params.id);
+    
+    if (!notification) {
+      return res.status(404).json({ message: 'Notification not found' });
+    }
+    
+    // Check if this notification belongs to the current user
+    if (notification.toUserId.toString() !== (req.user.userId || req.user._id).toString()) {
+      return res.status(403).json({ message: 'Not authorized to delete this notification' });
+    }
+    
+    await Notification.findByIdAndDelete(req.params.id);
+    
+    res.json({ success: true, message: 'Notification deleted' });
+  } catch (err) {
+    console.error('Error deleting notification:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Clear all notifications for a user
+router.delete('/notifications', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.userId || req.user._id;
+    
+    const result = await Notification.deleteMany({ toUserId: userId });
+    
+    res.json({ 
+      success: true, 
+      message: 'All notifications cleared',
+      count: result.deletedCount
+    });
+  } catch (err) {
+    console.error('Error clearing notifications:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

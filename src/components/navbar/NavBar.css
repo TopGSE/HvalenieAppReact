@@ -419,14 +419,117 @@
 
 /* Fix z-index issues with notification dropdown */
 .navbar {
-  z-index: 3000; /* High z-index to stay above content */
+	z-index: 3000;
+	/* High z-index to stay above content */
 }
 
 .notification-dropdown {
-  z-index: 3001; /* Higher than navbar */
+	z-index: 3001;
+	/* Higher than navbar */
 }
 
 /* Ensure the modal is above everything */
 .modal-overlay {
-  z-index: 3002;
+	z-index: 3002;
+}
+
+/* Notification header with actions */
+.notification-header {
+	padding: 12px 16px;
+	border-bottom: 1px solid #eaeaea;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #f9f9f9;
+}
+
+.notification-actions {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.clear-all-notifications {
+	background: none;
+	border: none;
+	color: #666;
+	font-size: 13px;
+	cursor: pointer;
+	padding: 4px 8px;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	transition: all 0.2s;
+}
+
+.clear-all-notifications:hover {
+	background-color: rgba(0, 0, 0, 0.05);
+	color: #333;
+}
+
+.clear-all-notifications:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/* Delete button for individual notifications */
+.delete-notification-btn {
+	background: none;
+	border: none;
+	color: #ccc;
+	font-size: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px;
+	margin-left: 8px;
+	border-radius: 50%;
+	cursor: pointer;
+	opacity: 0;
+	transition: all 0.2s;
+}
+
+.notification-item:hover .delete-notification-btn {
+	opacity: 1;
+}
+
+.delete-notification-btn:hover {
+	color: #e74c3c;
+	background-color: rgba(231, 76, 60, 0.1);
+}
+
+.delete-notification-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* Spinner for loading states */
+.deleting-spinner {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border: 2px solid rgba(0, 0, 0, 0.1);
+	border-top: 2px solid #666;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+.deleting-spinner.small {
+	width: 12px;
+	height: 12px;
+	border-width: 1px;
+}
+
+/* Better organize notification content */
+.notification-content {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	width: 100%;
+	position: relative;
+}
+
+.notification-details {
+	flex: 1;
+	max-width: calc(100% - 60px);
 }

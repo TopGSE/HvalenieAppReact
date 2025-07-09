@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./NavBar.css";
 import { useAuth } from "../../App";
-import { FaUser, FaChartBar, FaBell } from "react-icons/fa";
+import { FaUser, FaChartBar, FaBell, FaTrash, FaTimesCircle } from "react-icons/fa";
 import axios from "axios";
 import API_URL from "../../utils/api";
 import { toast } from "react-toastify";
@@ -14,6 +14,8 @@ function NavBar() {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
+  const [deletingNotificationId, setDeletingNotificationId] = useState(null);
   const { isLoggedIn, username, userRole, user } = useAuth();
   const navigate = useNavigate();
   const notificationRef = useRef(null);
@@ -70,6 +72,62 @@ function NavBar() {
     }
   };
 
+  // Delete a single notification
+  const deleteNotification = async (notificationId, event) => {
+    // Stop event propagation to prevent opening the notification
+    if (event) {
+      event.stopPropagation();
+    }
+    
+    try {
+      setDeletingNotificationId(notificationId);
+      const token = localStorage.getItem("token");
+      await axios.delete(`${API_URL}/auth/notifications/${notificationId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      // Update local state
+      const updatedNotifications = notifications.filter(n => n._id !== notificationId);
+      setNotifications(updatedNotifications);
+      
+      // Update unread count
+      setUnreadCount(updatedNotifications.filter(n => !n.read).length);
+      
+      toast.success("Notification deleted");
+    } catch (error) {
+      console.error("Error deleting notification:", error);
+      toast.error("Failed to delete notification");
+    } finally {
+      setDeletingNotificationId(null);
+    }
+  };
+
+  // Clear all notifications
+  const clearAllNotifications = async () => {
+    try {
+      setIsDeletingAll(true);
+      const token = localStorage.getItem("token");
+      await axios.delete(`${API_URL}/auth/notifications`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      // Update local state
+      setNotifications([]);
+      setUnreadCount(0);
+      
+      toast.success("All notifications cleared");
+    } catch (error) {
+      console.error("Error clearing notifications:", error);
+      toast.error("Failed to clear notifications");
+    } finally {
+      setIsDeletingAll(false);
+    }
+  };
+
   // Handle notification click
   const handleNotificationClick = (notification) => {
     // If not read, mark it as read
@@ -89,22 +147,22 @@ function NavBar() {
   // Handle accepting a shared playlist
   const handleAcceptPlaylist = (notificationId, playlistData) => {
     try {
-      console.log("Accepting playlist with data:", playlistData); // Add logging for debugging
-    
+      console.log("Accepting playlist with data:", playlistData);
+      
       // Validate that playlistData exists and has the expected structure
       if (!playlistData) {
         toast.error("Invalid playlist data received");
         return;
       }
-    
+      
       // Get current playlists from localStorage
       const storedPlaylists = localStorage.getItem("playlists");
       let playlists = storedPlaylists ? JSON.parse(storedPlaylists) : [];
-    
+      
       // Get current user ID
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
       const userId = userData.id || userData._id;
-    
+      
       // Create a new playlist object with safe defaults for any missing properties
       const newPlaylist = {
         id: Date.now().toString(), // Generate a new unique ID
@@ -115,15 +173,18 @@ function NavBar() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-    
+      
       // Add to playlists
       playlists.push(newPlaylist);
-    
+      
       // Save back to localStorage
       localStorage.setItem("playlists", JSON.stringify(playlists));
-    
+      
       // Show success notification with safe string access
       toast.success(`Playlist "${newPlaylist.name}" added to your collection!`);
+      
+      // After accepting, delete the notification
+      deleteNotification(notificationId);
     } catch (error) {
       console.error("Error accepting playlist:", error);
       toast.error("Failed to add playlist to your collection");
@@ -132,6 +193,8 @@ function NavBar() {
   
   // Handle declining a shared playlist
   const handleDeclinePlaylist = (notificationId) => {
+    // When declining, we also delete the notification
+    deleteNotification(notificationId);
     toast.info("Playlist share declined");
   };
 
@@ -168,13 +231,13 @@ function NavBar() {
     const diffMins = Math.round(diffMs / 60000);
     const diffHours = Math.round(diffMs / 3600000);
     const diffDays = Math.round(diffMs / 86400000);
-
+    
     if (diffMins < 60) {
-      return `${diffMins} min${diffMins !== 1 ? "s" : ""} ago`;
+      return `${diffMins} min${diffMins !== 1 ? 's' : ''} ago`;
     } else if (diffHours < 24) {
-      return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
+      return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
     } else if (diffDays < 7) {
-      return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
+      return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
     } else {
       return date.toLocaleDateString();
     }
@@ -271,11 +334,26 @@ function NavBar() {
                     <div className="notification-dropdown">
                       <div className="notification-header">
                         <h3>Notifications</h3>
-                        {unreadCount > 0 && (
-                          <span className="unread-count">
-                            {unreadCount} new
-                          </span>
-                        )}
+                        <div className="notification-actions">
+                          {notifications.length > 0 && (
+                            <button 
+                              className="clear-all-notifications"
+                              onClick={clearAllNotifications}
+                              disabled={isDeletingAll}
+                            >
+                              {isDeletingAll ? (
+                                <span className="deleting-spinner"></span>
+                              ) : (
+                                <>Clear all</>
+                              )}
+                            </button>
+                          )}
+                          {unreadCount > 0 && (
+                            <span className="unread-count">
+                              {unreadCount} new
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       <div className="notification-list">
@@ -314,6 +392,18 @@ function NavBar() {
                                 {!notification.read && (
                                   <div className="notification-dot"></div>
                                 )}
+                                
+                                <button 
+                                  className="delete-notification-btn"
+                                  onClick={(e) => deleteNotification(notification._id, e)}
+                                  disabled={deletingNotificationId === notification._id}
+                                >
+                                  {deletingNotificationId === notification._id ? (
+                                    <span className="deleting-spinner small"></span>
+                                  ) : (
+                                    <FaTimesCircle />
+                                  )}
+                                </button>
                               </div>
                             </div>
                           ))
