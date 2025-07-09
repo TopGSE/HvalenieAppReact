@@ -6,6 +6,7 @@ const authMiddleware = require('../middleware/authMiddleware.cjs');
 const adminMiddleware = require('../middleware/adminMiddleware.cjs');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key';
@@ -422,32 +423,29 @@ router.put('/profile/email', authMiddleware, async (req, res) => {
   }
 });
 
-// Add password update endpoint
+// Change password endpoint
 router.put('/profile/password', authMiddleware, async (req, res) => {
   try {
-    const { currentPassword, newPassword } = req.body;
-    
-    if (!currentPassword || !newPassword) {
-      return res.status(400).json({ message: 'Current password and new password are required' });
+    const userId = req.user.userId;
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ message: 'Both old and new passwords are required.' });
     }
-    
-    const user = await User.findById(req.user._id);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    
-    const isMatch = await user.comparePassword(currentPassword);
-    if (!isMatch) {
-      return res.status(400).json({ message: 'Current password is incorrect' });
-    }
-    
-    user.password = newPassword;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found.' });
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) return res.status(400).json({ message: 'Old password is incorrect.' });
+
+    user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
-    
-    res.json({ message: 'Password updated successfully' });
-  } catch (err) {
-    console.error('Error updating password:', err);
-    res.status(500).json({ message: err.message });
+
+    res.json({ message: 'Password updated successfully.' });
+  } catch (error) {
+    console.error('Error updating password:', error);
+    res.status(500).json({ message: 'Server error.' });
   }
 });
 
