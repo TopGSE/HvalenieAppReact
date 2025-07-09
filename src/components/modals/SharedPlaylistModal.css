@@ -2,6 +2,7 @@
   max-width: 500px;
   max-height: 80vh;
   overflow-y: auto;
+  z-index: 3002; /* Ensure it's above other elements */
 }
 
 .shared-playlist-modal .modal-body {
@@ -217,4 +218,9 @@
     width: 100%;
     padding: 14px;
   }
+}
+
+/* Ensure modal overlay has proper z-index */
+.modal-overlay {
+  z-index: 3001; /* Higher than notification dropdown */
 }

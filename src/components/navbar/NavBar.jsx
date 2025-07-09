@@ -17,7 +17,7 @@ function NavBar() {
   const { isLoggedIn, username, userRole, user } = useAuth();
   const navigate = useNavigate();
   const notificationRef = useRef(null);
-
+  
   // New state for shared playlist modal
   const [showSharedPlaylistModal, setShowSharedPlaylistModal] = useState(false);
   const [currentSharedNotification, setCurrentSharedNotification] = useState(null);
@@ -28,18 +28,18 @@ function NavBar() {
   // Fetch notifications
   const fetchNotifications = async () => {
     if (!isLoggedIn) return;
-
+    
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token");
       const response = await axios.get(`${API_URL}/auth/notifications`, {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
+          Authorization: `Bearer ${token}`
+        }
       });
-
+      
       setNotifications(response.data);
-      setUnreadCount(response.data.filter((n) => !n.read).length);
+      setUnreadCount(response.data.filter(n => !n.read).length);
     } catch (error) {
       console.error("Error fetching notifications:", error);
     } finally {
@@ -51,26 +51,20 @@ function NavBar() {
   const markAsRead = async (notificationId) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.put(
-        `${API_URL}/auth/notifications/${notificationId}/read`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      await axios.put(`${API_URL}/auth/notifications/${notificationId}/read`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      );
-
+      });
+      
       // Update local state
-      setNotifications(
-        notifications.map((notification) =>
-          notification._id === notificationId
-            ? { ...notification, read: true }
-            : notification
-        )
-      );
-
-      setUnreadCount((prev) => Math.max(0, prev - 1));
+      setNotifications(notifications.map(notification => 
+        notification._id === notificationId 
+          ? { ...notification, read: true } 
+          : notification
+      ));
+      
+      setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
@@ -82,27 +76,27 @@ function NavBar() {
     if (!notification.read) {
       markAsRead(notification._id);
     }
-
+    
     // Handle different notification types
-    if (notification.type === "playlist_share") {
+    if (notification.type === 'playlist_share') {
       // Show shared playlist acceptance modal
       setShowSharedPlaylistModal(true);
       setCurrentSharedNotification(notification);
       setShowNotifications(false);
     }
   };
-
+  
   // Handle accepting a shared playlist
   const handleAcceptPlaylist = (notificationId, playlistData) => {
     try {
       // Get current playlists from localStorage
       const storedPlaylists = localStorage.getItem("playlists");
       let playlists = storedPlaylists ? JSON.parse(storedPlaylists) : [];
-
+      
       // Get current user ID
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
       const userId = userData.id || userData._id;
-
+      
       // Create a new playlist object
       const newPlaylist = {
         ...playlistData,
@@ -111,20 +105,20 @@ function NavBar() {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-
+      
       // Add to playlists
       playlists.push(newPlaylist);
-
+      
       // Save back to localStorage
       localStorage.setItem("playlists", JSON.stringify(playlists));
-
+      
       toast.success(`Playlist "${playlistData.name}" added to your collection!`);
     } catch (error) {
       console.error("Error accepting playlist:", error);
       toast.error("Failed to add playlist to your collection");
     }
   };
-
+  
   // Handle declining a shared playlist
   const handleDeclinePlaylist = (notificationId) => {
     toast.info("Playlist share declined");
@@ -134,7 +128,7 @@ function NavBar() {
   useEffect(() => {
     if (isLoggedIn) {
       fetchNotifications();
-
+      
       // Refresh notifications every minute
       const interval = setInterval(fetchNotifications, 60000);
       return () => clearInterval(interval);
@@ -144,17 +138,14 @@ function NavBar() {
   // Handle click outside to close notification dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        notificationRef.current &&
-        !notificationRef.current.contains(event.target)
-      ) {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
         setShowNotifications(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 

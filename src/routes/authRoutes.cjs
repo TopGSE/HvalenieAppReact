@@ -539,41 +539,39 @@ router.put('/users/:userId/role', authMiddleware, adminMiddleware, async (req, r
 // Get user notifications
 router.get('/notifications', authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.id || req.user._id;
-    
-    // Find all notifications for the current user
-    const notifications = await Notification.find({ toUserId: userId })
-      .sort({ createdAt: -1 }) // Newest first
-      .populate('fromUserId', 'username profilePhoto') // Get sender details
-      .limit(50); // Limit to prevent excessive load
+    const notifications = await Notification.find({ 
+      toUserId: req.user.userId || req.user._id 
+    })
+    .sort({ createdAt: -1 })
+    .limit(20);
     
     res.json(notifications);
-  } catch (error) {
-    console.error('Error fetching notifications:', error);
+  } catch (err) {
+    console.error('Error fetching notifications:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Mark notification as read
-router.put('/notifications/:notificationId/read', authMiddleware, async (req, res) => {
+// Mark a notification as read
+router.put('/notifications/:id/read', authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.id || req.user._id;
-    const { notificationId } = req.params;
-    
-    // Find and update the notification, ensuring it belongs to this user
-    const notification = await Notification.findOneAndUpdate(
-      { _id: notificationId, toUserId: userId },
-      { read: true },
-      { new: true }
-    );
+    const notification = await Notification.findById(req.params.id);
     
     if (!notification) {
       return res.status(404).json({ message: 'Notification not found' });
     }
     
-    res.json(notification);
-  } catch (error) {
-    console.error('Error updating notification:', error);
+    // Check if this notification belongs to the current user
+    if (notification.toUserId.toString() !== (req.user.userId || req.user._id).toString()) {
+      return res.status(403).json({ message: 'Not authorized to access this notification' });
+    }
+    
+    notification.read = true;
+    await notification.save();
+    
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error marking notification as read:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });

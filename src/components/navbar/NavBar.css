@@ -366,8 +366,8 @@
 	right: 0;
 	bottom: 0;
 	background-color: rgba(0, 0, 0, 0.3);
-	z-index: 3000;
-	/* Same as navbar */
+	z-index: 2999;
+	/* Just below navbar */
 	display: none;
 }
 
@@ -415,4 +415,18 @@
 	.notification-list {
 		max-height: calc(80vh - 120px);
 	}
+}
+
+/* Fix z-index issues with notification dropdown */
+.navbar {
+  z-index: 3000; /* High z-index to stay above content */
+}
+
+.notification-dropdown {
+  z-index: 3001; /* Higher than navbar */
+}
+
+/* Ensure the modal is above everything */
+.modal-overlay {
+  z-index: 3002;
 }
