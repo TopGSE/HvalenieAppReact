@@ -396,24 +396,30 @@ router.put('/profile/photo', authMiddleware, async (req, res) => {
 router.put('/profile/email', authMiddleware, async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and current password are required' });
     }
-    
-    const user = await User.findById(req.user._id);
+
+    // FIX: Use userId from JWT payload
+    const userId = req.user.userId || req.user._id;
+    if (!userId) {
+      return res.status(401).json({ message: 'Invalid token: missing user ID' });
+    }
+
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    
+
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Current password is incorrect' });
     }
-    
+
     user.email = email;
     await user.save();
-    
+
     res.json({ message: 'Email updated successfully' });
   } catch (err) {
     console.error('Error updating email:', err);

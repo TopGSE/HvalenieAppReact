@@ -211,7 +211,7 @@ function AppContent({
                   <div className="sidebar-header">
                     <div className="sidebar-header-top">
                       <div className="songs-count-container">
-                        <h2>Песни ({songs.length})</h2>
+                        <h2>Songs ({songs.length})</h2>
                         <button
                           className="reload-button"
                           onClick={handleReloadSongs}
