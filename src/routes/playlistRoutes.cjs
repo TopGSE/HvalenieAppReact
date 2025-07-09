@@ -18,8 +18,6 @@ router.get('/test', function(req, res) {
   res.json({ message: 'Playlist routes working' });
 });
 
-// Update the share route to work with database playlists
-
 // Define the share route
 router.post('/share', async function(req, res) {
   try {
@@ -81,7 +79,7 @@ router.post('/share', async function(req, res) {
       fromUserId: senderId,
       fromUserName: senderUsername,
       toUserId: recipientId,
-      playlistId: playlistId,
+      playlistId: playlistId || 'shared-' + Date.now(), // Provide a default ID if none provided
       playlistName: playlistName || 'Shared Playlist',
       message: message || `${senderUsername} shared a playlist with you: "${playlistName || 'Shared Playlist'}"`,
       playlistData: {
