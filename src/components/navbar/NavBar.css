@@ -10,7 +10,7 @@
 	position: fixed;
 	top: 0;
 	left: 0;
-	z-index: 1000;
+	z-index: 1500; /* Ensure navbar is above content but below dropdowns */
 }
 
 .navbar-brand {
@@ -277,6 +277,7 @@
 	position: relative;
 	display: flex;
 	align-items: center;
+	z-index: 2000; /* Match the dropdown z-index */
 }
 
 .notification-bell {
@@ -323,7 +324,7 @@
 	background-color: white;
 	border-radius: 8px;
 	box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-	z-index: 1000;
+	z-index: 2000; /* Increased from 1000 to be higher than content-area */
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
@@ -488,6 +489,7 @@
 		max-height: 80vh;
 		margin-top: 0;
 		border-radius: 0;
+		z-index: 2000; /* Keep consistent with desktop */
 	}
 
 	.notification-list {

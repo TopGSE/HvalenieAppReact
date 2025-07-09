@@ -713,24 +713,26 @@ button[type="submit"]:hover {
 		bottom: 0;
 		width: 100%;
 		height: calc(100vh - 60px);
+		z-index: 100;
+		/* Higher z-index to ensure it's above everything */
 		background-color: #fff;
-		z-index: 1000;
-		/* Ensure it's above everything */
-		transition: transform 0.3s ease;
+		visibility: hidden;
+		opacity: 0;
 		transform: translateX(100%);
-		/* Start offscreen */
+		transition: transform 0.3s ease, opacity 0.3s ease;
 		overflow-y: auto;
 		-webkit-overflow-scrolling: touch;
 		/* Smooth scrolling on iOS */
-		padding: 0;
-		/* Remove default padding */
-		display: block;
-		/* Always display but transformed off-screen */
+		padding-bottom: 0;
+		/* Remove default padding that might interfere */
 	}
 
-	/* When active, bring it into view */
+	/* When content is active, ensure it's fully visible */
 	.mobile-layout .content-area.active {
+		visibility: visible;
+		opacity: 1;
 		transform: translateX(0);
+		display: block;
 	}
 
 	/* Ensure the back button stays at the top */
@@ -1799,13 +1801,12 @@ body {
     bottom: 0;
     width: 100%;
     height: calc(100vh - 60px);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    z-index: 100; /* This value should be lower than notification-dropdown (2000) */
     background-color: #fff;
-    z-index: 100;
-    transform: none;
-    opacity: 1;
     visibility: visible;
+    opacity: 1;
+    transform: translateX(0);
+    display: block;
     padding-bottom: 60px; /* Extra padding to prevent content cutoff */
   }
   
