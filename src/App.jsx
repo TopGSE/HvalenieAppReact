@@ -354,8 +354,6 @@ function AppContent({
                     </div>
 
                     <div className="playlists-list">
-                      // Fix the syntax error in the playlists mapping function
-                      around line 396
                       {playlists.length === 0 ? (
                         <div className="no-playlists">
                           <p>No playlists yet</p>
