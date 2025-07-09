@@ -134,7 +134,18 @@ function PlaylistView({
         },
       });
 
-      toast.success(`Playlist shared with ${selectedUsers.length} user(s)!`);
+      // Get usernames of recipients for a more personalized toast
+      const recipientNames = selectedUsers.map((userId) => {
+        const user = users.find((u) => u._id === userId);
+        return user ? user.username : "";
+      }).filter(Boolean);
+
+      const recipientText =
+        recipientNames.length > 1
+          ? `${recipientNames.slice(0, -1).join(", ")} and ${recipientNames.slice(-1)[0]}`
+          : recipientNames[0];
+
+      toast.success(`Playlist shared with ${recipientText}!`);
       setShowShareModal(false);
       setShareStep(1);
       setSelectedUsers([]);
