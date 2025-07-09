@@ -354,6 +354,8 @@ function AppContent({
                     </div>
 
                     <div className="playlists-list">
+                      // Fix the syntax error in the playlists mapping function
+                      around line 396
                       {playlists.length === 0 ? (
                         <div className="no-playlists">
                           <p>No playlists yet</p>
@@ -393,7 +395,7 @@ function AppContent({
                               </div>
                             </div>
                           ))
-                      }
+                      )}
                     </div>
                   </div>
                 </aside>
@@ -1088,9 +1090,7 @@ function App() {
         );
 
         setPlaylists(
-          playlists.map((p) =>
-            p._id === playlistData._id ? response.data : p
-          )
+          playlists.map((p) => (p._id === playlistData._id ? response.data : p))
         );
 
         // If the updated playlist was the current one, update that too
@@ -1116,7 +1116,8 @@ function App() {
     } catch (error) {
       console.error("Error saving playlist:", error);
       toast.error(
-        "Failed to save playlist: " + (error.response?.data?.message || error.message)
+        "Failed to save playlist: " +
+          (error.response?.data?.message || error.message)
       );
     }
   };
@@ -1146,7 +1147,8 @@ function App() {
     } catch (error) {
       console.error("Error adding song to playlist:", error);
       toast.error(
-        "Failed to add song to playlist: " + (error.response?.data?.message || error.message)
+        "Failed to add song to playlist: " +
+          (error.response?.data?.message || error.message)
       );
       throw error; // Re-throw to handle in the component
     }
@@ -1176,7 +1178,8 @@ function App() {
     } catch (error) {
       console.error("Error removing song from playlist:", error);
       toast.error(
-        "Failed to remove song from playlist: " + (error.response?.data?.message || error.message)
+        "Failed to remove song from playlist: " +
+          (error.response?.data?.message || error.message)
       );
     }
   };
@@ -1194,10 +1197,9 @@ function App() {
       console.log("Deleting playlist with ID:", playlistId); // Add this log
       const token = localStorage.getItem("token");
 
-      await axios.delete(
-        `${API_URL}/api/playlists/${playlistId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await axios.delete(`${API_URL}/api/playlists/${playlistId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       const updatedPlaylists = playlists.filter((p) => p._id !== playlistId);
       setPlaylists(updatedPlaylists);
@@ -1210,7 +1212,10 @@ function App() {
       toast.success("Playlist deleted");
     } catch (error) {
       console.error("Error deleting playlist:", error);
-      toast.error("Failed to delete playlist: " + (error.response?.data?.message || error.message));
+      toast.error(
+        "Failed to delete playlist: " +
+          (error.response?.data?.message || error.message)
+      );
     }
   };
 
@@ -1372,59 +1377,64 @@ function App() {
   // Add this function to migrate playlists from localStorage to the database
   const migrateLocalStoragePlaylists = async () => {
     if (!isLoggedIn) return;
-    
+
     try {
-      const token = localStorage.getItem('token');
-      const storedPlaylists = localStorage.getItem('playlists');
-      
+      const token = localStorage.getItem("token");
+      const storedPlaylists = localStorage.getItem("playlists");
+
       if (!storedPlaylists) return;
-      
+
       const localPlaylists = JSON.parse(storedPlaylists);
       if (!localPlaylists.length) return;
-      
+
       // Get user ID
-      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
       const userId = userData.id || userData._id;
-      
+
       // Get playlists from the server
       const response = await axios.get(`${API_URL}/api/playlists`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       const serverPlaylists = response.data;
-      
+
       // Find playlists that need to be migrated (only the user's playlists)
-      const playlistsToMigrate = localPlaylists.filter(lp => 
-        // Only migrate playlists belonging to this user
-        (!lp.userId || lp.userId === userId) && 
-        // Only if they don't already exist on the server (check by name)
-        !serverPlaylists.some(sp => sp.name === lp.name)
+      const playlistsToMigrate = localPlaylists.filter(
+        (lp) =>
+          // Only migrate playlists belonging to this user
+          (!lp.userId || lp.userId === userId) &&
+          // Only if they don't already exist on the server (check by name)
+          !serverPlaylists.some((sp) => sp.name === lp.name)
       );
-      
+
       if (playlistsToMigrate.length === 0) return;
-      
-      console.log(`Migrating ${playlistsToMigrate.length} playlists from localStorage to the database`);
-      
+
+      console.log(
+        `Migrating ${playlistsToMigrate.length} playlists from localStorage to the database`
+      );
+
       // Migrate each playlist
       for (const playlist of playlistsToMigrate) {
         await axios.post(
           `${API_URL}/api/playlists`,
           {
             name: playlist.name,
-            description: playlist.description || '',
-            songIds: playlist.songIds || []
+            description: playlist.description || "",
+            songIds: playlist.songIds || [],
           },
-          { headers: { Authorization: `Bearer ${token}` }}
+          { headers: { Authorization: `Bearer ${token}` } }
         );
       }
-      
+
       // Show success message
-      toast.success(`Migrated ${playlistsToMigrate.length} playlists to your account`);
-      
+      toast.success(
+        `Migrated ${playlistsToMigrate.length} playlists to your account`
+      );
+
       // Clear localStorage playlists after migration
-      localStorage.removeItem('playlists');
+      localStorage.removeItem("playlists");
     } catch (error) {
-      console.error('Error migrating playlists:', error);
+      console.error("Error migrating playlists:", error);
     }
   };
 

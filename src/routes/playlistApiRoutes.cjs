@@ -104,9 +104,16 @@ router.put('/:id', async (req, res) => {
 // Delete a playlist
 router.delete('/:id', async (req, res) => {
   try {
+    // Log the received ID for debugging
+    console.log('Received delete request for playlist ID:', req.params.id);
+    
+    if (!req.params.id) {
+      return res.status(400).json({ message: 'Playlist ID is required' });
+    }
+
     const userId = req.user.userId;
     
-    // Find the playlist
+    // Find the playlist first to check ownership
     const playlist = await Playlist.findById(req.params.id);
     
     if (!playlist) {
@@ -118,11 +125,12 @@ router.delete('/:id', async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to delete this playlist' });
     }
     
+    // Now delete it
     await Playlist.findByIdAndDelete(req.params.id);
     res.json({ message: 'Playlist deleted successfully' });
   } catch (error) {
     console.error('Error deleting playlist:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
