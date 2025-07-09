@@ -23,7 +23,8 @@ userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     return next();
   }
-  // Do NOT hash here if already hashed in the route
+  // Hash the password before saving
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
