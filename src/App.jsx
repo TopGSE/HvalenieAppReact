@@ -393,7 +393,7 @@ function AppContent({
                               </div>
                             </div>
                           ))
-                      )}
+                      }
                     </div>
                   </div>
                 </aside>
@@ -1355,6 +1355,32 @@ function App() {
       setPlaylists(playlists);
     }
   };
+
+  // Add this useEffect to App.jsx near your other useEffects
+  useEffect(() => {
+    // This will refresh playlists when the event is dispatched
+    const handlePlaylistsUpdated = () => {
+      console.log("Detected playlists updated event, refreshing playlists");
+      // Get playlists from localStorage
+      const storedPlaylists = localStorage.getItem("playlists");
+      if (storedPlaylists) {
+        try {
+          const parsedPlaylists = JSON.parse(storedPlaylists);
+          setPlaylists(parsedPlaylists);
+        } catch (error) {
+          console.error("Error parsing playlists from localStorage:", error);
+        }
+      }
+    };
+
+    // Add event listener
+    window.addEventListener('playlistsUpdated', handlePlaylistsUpdated);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('playlistsUpdated', handlePlaylistsUpdated);
+    };
+  }, []);
 
   return (
     <AuthContext.Provider

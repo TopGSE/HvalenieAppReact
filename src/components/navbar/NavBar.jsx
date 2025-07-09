@@ -202,10 +202,10 @@ function NavBar() {
         name: playlistData.name || "Shared Playlist", // Use a default name if none provided
         description: playlistData.description || "",
         songIds: songIds, // Use the extracted songIds
-        userId, // Assign to current user
+        userId: userId, // CRITICAL: Assign to current user - ensure this is set correctly
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        sharedFrom: notificationId, // Optionally track source of shared playlist
+        sharedFrom: notification.fromUserName || "Another user", // Track who shared it
       };
       
       // Log the new playlist for debugging
@@ -217,11 +217,25 @@ function NavBar() {
       // Save back to localStorage
       localStorage.setItem("playlists", JSON.stringify(playlists));
       
+      // Also try to trigger any needed UI updates - this might be needed in some implementations
+      // If you have a global state management like Redux, you might need to dispatch an action here
+      
+      // If there's an event system, emit a custom event to notify that playlists have changed
+      try {
+        window.dispatchEvent(new Event('playlistsUpdated'));
+      } catch (e) {
+        console.log("Could not dispatch event, but playlist was saved");
+      }
+      
       // Show success notification
       toast.success(`Playlist "${newPlaylist.name}" added to your collection with ${songIds.length} songs!`);
       
       // After accepting, delete the notification
       deleteNotification(notificationId);
+      
+      // Force a refresh if needed (only as a last resort)
+      // Uncomment the next line if the playlists still don't show up
+      // window.location.reload();
     } catch (error) {
       console.error("Error accepting playlist:", error);
       toast.error("Failed to add playlist to your collection");
