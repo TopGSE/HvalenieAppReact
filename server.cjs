@@ -10,6 +10,7 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const path = require('path');
 const playlistRoutes = require('./src/routes/playlistRoutes.cjs');
+const playlistApiRoutes = require('./src/routes/playlistApiRoutes.cjs');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -96,6 +97,7 @@ app.get('/auth/profile-direct', authMiddleware, async (req, res) => {
 
 // Mount playlist routes
 app.use('/playlists', authMiddleware, playlistRoutes);
+app.use('/api/playlists', authMiddleware, playlistApiRoutes);
 
 // Public song routes
 app.get('/songs', async (req, res) => {

@@ -18,6 +18,8 @@ router.get('/test', function(req, res) {
   res.json({ message: 'Playlist routes working' });
 });
 
+// Update the share route to work with database playlists
+
 // Define the share route
 router.post('/share', async function(req, res) {
   try {
@@ -57,24 +59,22 @@ router.post('/share', async function(req, res) {
         console.log(`Warning: Playlist has ${songIds.length} songIds but no song details`);
       }
       
-      // Only try to fetch song details if Song model is available
+      // Get full song details if possible
       let fullSongDetails = [];
       if (Song && songIds && songIds.length > 0) {
         try {
-          // Fetch full song details from database if possible
+          // Fetch full song details from database
           fullSongDetails = await Song.find({ _id: { $in: songIds } })
-            .select('_id title artist category')
+            .select('_id title artist category lyrics chords')
             .lean();
           
           console.log(`Retrieved ${fullSongDetails.length} full song details from database`);
           
-          // If we found fewer songs than expected, log a warning
           if (fullSongDetails.length < songIds.length) {
             console.warn(`Only found ${fullSongDetails.length} songs out of ${songIds.length} requested`);
           }
         } catch (err) {
           console.error('Error fetching song details:', err);
-          // Continue with partial data - the songs array we already have
         }
       }
       
@@ -89,7 +89,6 @@ router.post('/share', async function(req, res) {
         playlistId: playlistId,
         playlistName: playlistName,
         message: message || `${senderUsername} shared a playlist with you: "${playlistName}"`,
-        // Make sure to include the full playlist data with songs
         playlistData: {
           name: playlistData.name,
           description: playlistData.description || '',
@@ -100,9 +99,8 @@ router.post('/share', async function(req, res) {
         createdAt: new Date()
       }));
       
-      // Log what we're storing in the notifications
       console.log(`Creating ${notifications.length} notifications with:`, {
-        songCount: songs.length,
+        songCount: songsToShare.length,
         songIdCount: songIds.length,
         playlistName: playlistData.name
       });

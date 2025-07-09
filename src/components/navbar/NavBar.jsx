@@ -160,42 +160,27 @@ function NavBar() {
   };
 
   // Handle accepting a shared playlist
-  const handleAcceptPlaylist = (notificationId, playlistData) => {
+  const handleAcceptPlaylist = async (notificationId, playlistData) => {
     try {
       console.log(
         "Accepting playlist with data:",
         JSON.stringify(playlistData, null, 2)
       );
 
-      // Validate that playlistData exists and has the expected structure
+      // Validate that playlistData exists
       if (!playlistData) {
         toast.error("Invalid playlist data received");
         return;
       }
 
-      // Get current playlists from localStorage
-      const storedPlaylists = localStorage.getItem("playlists");
-      let playlists = storedPlaylists ? JSON.parse(storedPlaylists) : [];
+      // Get token for API calls
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("You must be logged in to accept shared playlists");
+        return;
+      }
 
-      // Get current user ID
-      const userData = JSON.parse(localStorage.getItem("user") || "{}");
-      const userId = userData.id || userData._id;
-
-      // CRITICAL FIX: First, retrieve songs from localStorage
-      const storedSongsStr = localStorage.getItem("songs");
-      let availableSongs = storedSongsStr ? JSON.parse(storedSongsStr) : [];
-      console.log(`User has ${availableSongs.length} songs in their library`);
-
-      // IMPORTANT FIX: Check if playlistData contains proper songs array
-      // Log the structure of playlistData to see what we're working with
-      console.log("PlaylistData structure:", {
-        hasSongIds: Array.isArray(playlistData.songIds),
-        songIdsLength: playlistData.songIds ? playlistData.songIds.length : 0,
-        hasSongs: Array.isArray(playlistData.songs),
-        songsLength: playlistData.songs ? playlistData.songs.length : 0,
-      });
-
-      // Get both songIds and full songs data from notification
+      // Extract songIds and songs from playlistData
       let songIds = Array.isArray(playlistData.songIds)
         ? [...playlistData.songIds]
         : [];
@@ -203,176 +188,96 @@ function NavBar() {
         ? [...playlistData.songs]
         : [];
 
-      console.log("Initial data:", {
-        songIds: songIds.length,
-        sharedSongs: sharedSongs.length,
-      });
-
-      // If we don't have any songIds or songs, try to extract from notification directly
-      if (songIds.length === 0 && sharedSongs.length === 0 && currentSharedNotification) {
-        console.log("Trying to extract song data directly from notification");
-
-        if (currentSharedNotification.playlistData) {
-          if (Array.isArray(currentSharedNotification.playlistData.songIds)) {
-            songIds = [...currentSharedNotification.playlistData.songIds];
-            console.log(
-              `Found ${songIds.length} song IDs directly in notification.playlistData`
-            );
-          }
-
-          if (Array.isArray(currentSharedNotification.playlistData.songs)) {
-            sharedSongs = [...currentSharedNotification.playlistData.songs];
-            console.log(
-              `Found ${sharedSongs.length} songs directly in notification.playlistData`
-            );
-          }
-        }
-      }
-
-      // If we still have songIds but no songs, try to find them in available songs
-      if (songIds.length > 0 && sharedSongs.length === 0) {
-        console.log("Finding song details for songIds from user's library");
-        sharedSongs = songIds
-          .map((id) => {
-            const song = availableSongs.find((s) => s._id === id);
-            if (!song) {
-              console.log(`Song ID ${id} not found in user's library`);
-            }
-            return song;
-          })
-          .filter(Boolean);
-
-        console.log(`Found ${sharedSongs.length} songs from songIds in user's library`);
-      }
-
       // If we have songs but no songIds, extract IDs from songs
       if (songIds.length === 0 && sharedSongs.length > 0) {
-        console.log("Extracting songIds from shared songs");
         songIds = sharedSongs.map((song) => song._id).filter(Boolean);
-        console.log(`Extracted ${songIds.length} song IDs from song objects`);
       }
 
-      // Final check - if we still have no songs, we can't proceed
       if (songIds.length === 0) {
-        console.warn("No songs found in shared playlist data");
         toast.error("The shared playlist doesn't contain any songs");
-        return; // Don't create empty playlists
+        return;
       }
 
-      // CRITICAL FIX: Always add the shared songs to the user's library first
-      const existingSongIds = new Set(availableSongs.map((song) => song._id));
-      const newSongs = [];
-      const validSongIds = []; // Track which song IDs are valid after processing
+      // First, make sure all songs exist in the database
+      // For any songs that don't exist, add them
+      for (const song of sharedSongs) {
+        if (!song._id) continue;
 
-      // Process each song from the shared playlist
-      for (const songId of songIds) {
-        // Find the corresponding song object from the shared songs array
-        const sharedSong = sharedSongs.find((song) => song._id === songId);
+        try {
+          // Check if song exists by trying to fetch it
+          await axios.get(`${API_URL}/songs/${song._id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        } catch (err) {
+          if (err.response && err.response.status === 404) {
+            // Song doesn't exist, create it
+            try {
+              const newSong = {
+                _id: song._id,
+                title: song.title || "Shared Song",
+                artist: song.artist || "",
+                category: song.category || "other",
+                lyrics: song.lyrics || "",
+                chords: song.chords || "",
+              };
 
-        // If we can't find the song data, try to create a placeholder
-        if (!sharedSong) {
-          console.warn(`No data found for song ID: ${songId}`);
+              // Add the song to the database
+              await axios.post(`${API_URL}/songs`, newSong, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
 
-          // Still add the ID to valid IDs if it's not in the user's library
-          // The user might have the song locally but the shared data is missing details
-          if (!existingSongIds.has(songId)) {
-            const placeholderSong = {
-              _id: songId,
-              title: "Shared Song",
-              artist: "",
-              category: "other",
-              lyrics: "",
-              chords: "",
-              createdAt: new Date().toISOString(),
-            };
-
-            newSongs.push(placeholderSong);
-            existingSongIds.add(songId);
-            validSongIds.push(songId);
-            console.log(`Created placeholder for song ID: ${songId}`);
-          } else {
-            // If it exists in the user's library, it's valid
-            validSongIds.push(songId);
+              console.log(`Added song "${newSong.title}" to database`);
+            } catch (createErr) {
+              console.error("Error creating song:", createErr);
+            }
           }
-
-          continue;
         }
-
-        // If song doesn't exist in user's library, add it
-        if (!existingSongIds.has(songId)) {
-          const newSong = {
-            _id: songId,
-            title: sharedSong.title || "Shared Song",
-            artist: sharedSong.artist || "",
-            category: sharedSong.category || "other",
-            lyrics: sharedSong.lyrics || "",
-            chords: sharedSong.chords || "",
-            createdAt: new Date().toISOString(),
-          };
-
-          newSongs.push(newSong);
-          existingSongIds.add(songId); // Add to set to prevent duplicates
-        }
-
-        // Add this song ID to valid song IDs list
-        validSongIds.push(songId);
       }
 
-      // Update local songs storage if new songs were added
-      if (newSongs.length > 0) {
-        console.log(
-          `Adding ${newSongs.length} new songs from the shared playlist to local storage`
+      // Now create the playlist in the database
+      try {
+        const newPlaylist = {
+          name: playlistData.name || "Shared Playlist",
+          description: playlistData.description || "",
+          songIds: songIds,
+          sharedFrom: currentSharedNotification
+            ? currentSharedNotification.fromUserName || "Another user"
+            : "Another user",
+        };
+
+        const response = await axios.post(
+          `${API_URL}/api/playlists`,
+          newPlaylist,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
         );
 
-        // Add the new songs to the user's local storage
-        const updatedSongs = [...availableSongs, ...newSongs];
-        localStorage.setItem("songs", JSON.stringify(updatedSongs));
+        console.log("Playlist created successfully:", response.data);
+
+        // Try to update app state through events
+        try {
+          window.dispatchEvent(new Event("playlistsUpdated"));
+        } catch (e) {
+          console.log("Could not dispatch event");
+        }
+
+        // Show success notification
+        toast.success(
+          `Playlist "${newPlaylist.name}" added to your collection with ${songIds.length} songs!`
+        );
+
+        // Delete the notification
+        deleteNotification(notificationId);
+
+        // Refresh the page to show the new playlist
+        window.location.reload();
+      } catch (error) {
+        console.error("Error creating playlist:", error);
+        toast.error(
+          "Failed to create playlist: " + (error.response?.data?.message || error.message)
+        );
       }
-
-      // Create a new playlist object with the valid song IDs
-      const newPlaylist = {
-        id: Date.now().toString(),
-        name: playlistData.name || "Shared Playlist",
-        description: playlistData.description || "",
-        songIds: validSongIds, // Use our validated list of song IDs
-        userId: userId,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        sharedFrom: currentSharedNotification
-          ? currentSharedNotification.fromUserName || "Another user"
-          : "Another user",
-      };
-
-      console.log("Creating new playlist:", {
-        name: newPlaylist.name,
-        description: newPlaylist.description,
-        songCount: validSongIds.length,
-        songIds: validSongIds,
-      });
-
-      // Add to playlists
-      playlists.push(newPlaylist);
-
-      // Save back to localStorage
-      localStorage.setItem("playlists", JSON.stringify(playlists));
-
-      // Try to update app state through events
-      try {
-        window.dispatchEvent(new Event("playlistsUpdated"));
-      } catch (e) {
-        console.log("Could not dispatch event, but playlist was saved");
-      }
-
-      // Show success notification
-      toast.success(
-        `Playlist "${newPlaylist.name}" added to your collection with ${validSongIds.length} songs!`
-      );
-
-      // After accepting, delete the notification
-      deleteNotification(notificationId);
-
-      // Force a refresh to ensure UI is updated
-      window.location.reload();
     } catch (error) {
       console.error("Error accepting playlist:", error);
       toast.error("Failed to add playlist to your collection");

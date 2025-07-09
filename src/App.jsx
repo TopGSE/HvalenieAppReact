@@ -393,7 +393,7 @@ function AppContent({
                               </div>
                             </div>
                           ))
-                      )}
+                      }
                     </div>
                   </div>
                 </aside>
@@ -1047,184 +1047,163 @@ function App() {
     setIsEditing(false);
   };
 
-  // Function to create or update a playlist
-  const handleSavePlaylist = (playlistData) => {
-    // Get current user ID from localStorage
-    const userData = JSON.parse(localStorage.getItem("user") || "{}");
-    const userId = userData.id || userData._id || null;
+  // Load playlists from server instead of localStorage
+  useEffect(() => {
+    const loadPlaylists = async () => {
+      if (!isLoggedIn) return;
 
-    if (playlistData.id) {
-      // Update existing playlist - only if it belongs to current user
-      const updatedPlaylists = playlists.map((p) =>
-        p.id === playlistData.id && p.userId === userId
-          ? {
-              ...p,
-              ...playlistData,
-              userId, // Ensure userId is maintained
-              updatedAt: new Date().toISOString(),
-            }
-          : p
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get(`${API_URL}/api/playlists`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setPlaylists(response.data);
+      } catch (error) {
+        console.error("Error loading playlists:", error);
+
+        // Fallback to localStorage if server fails
+        const storedPlaylists = localStorage.getItem("playlists");
+        if (storedPlaylists) {
+          setPlaylists(JSON.parse(storedPlaylists));
+          toast.warning("Using cached playlists. Server connection failed.");
+        }
+      }
+    };
+
+    loadPlaylists();
+  }, [isLoggedIn]);
+
+  // Handle saving a playlist to the server
+  const handleSavePlaylist = async (playlistData) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (playlistData._id) {
+        // Update existing playlist
+        const response = await axios.put(
+          `${API_URL}/api/playlists/${playlistData._id}`,
+          playlistData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        setPlaylists(
+          playlists.map((p) =>
+            p._id === playlistData._id ? response.data : p
+          )
+        );
+
+        // If the updated playlist was the current one, update that too
+        if (currentPlaylist && currentPlaylist._id === playlistData._id) {
+          setCurrentPlaylist(response.data);
+        }
+
+        toast.success("Playlist updated!");
+      } else {
+        // Create new playlist
+        const response = await axios.post(
+          `${API_URL}/api/playlists`,
+          playlistData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        setPlaylists([...playlists, response.data]);
+        toast.success("Playlist created!");
+      }
+
+      setShowPlaylistModal(false);
+      setPlaylistToEdit(null);
+    } catch (error) {
+      console.error("Error saving playlist:", error);
+      toast.error(
+        "Failed to save playlist: " + (error.response?.data?.message || error.message)
       );
+    }
+  };
+
+  // Add a song to playlist
+  const addSongToPlaylist = async (playlistId, songId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await axios.post(
+        `${API_URL}/api/playlists/${playlistId}/songs`,
+        { songId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Update the playlists state
+      setPlaylists(
+        playlists.map((p) => (p._id === playlistId ? response.data : p))
+      );
+
+      // If this was the current playlist, update that too
+      if (currentPlaylist && currentPlaylist._id === playlistId) {
+        setCurrentPlaylist(response.data);
+      }
+
+      toast.success("Song added to playlist!");
+    } catch (error) {
+      console.error("Error adding song to playlist:", error);
+      toast.error(
+        "Failed to add song to playlist: " + (error.response?.data?.message || error.message)
+      );
+      throw error; // Re-throw to handle in the component
+    }
+  };
+
+  // Remove a song from a playlist
+  const removeSongFromPlaylist = async (playlistId, songId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await axios.delete(
+        `${API_URL}/api/playlists/${playlistId}/songs/${songId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // Update the playlists state
+      setPlaylists(
+        playlists.map((p) => (p._id === playlistId ? response.data : p))
+      );
+
+      // If this was the current playlist, update that too
+      if (currentPlaylist && currentPlaylist._id === playlistId) {
+        setCurrentPlaylist(response.data);
+      }
+
+      toast.success("Song removed from playlist");
+    } catch (error) {
+      console.error("Error removing song from playlist:", error);
+      toast.error(
+        "Failed to remove song from playlist: " + (error.response?.data?.message || error.message)
+      );
+    }
+  };
+
+  // Delete a playlist
+  const handleDeletePlaylist = async (playlistId) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.delete(
+        `${API_URL}/api/playlists/${playlistId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const updatedPlaylists = playlists.filter((p) => p._id !== playlistId);
       setPlaylists(updatedPlaylists);
 
-      // If the updated playlist was the current one, update that too
-      if (currentPlaylist && currentPlaylist.id === playlistData.id) {
-        setCurrentPlaylist({
-          ...currentPlaylist,
-          ...playlistData,
-          userId,
-          updatedAt: new Date().toISOString(),
-        });
+      // If this was the current playlist, clear it
+      if (currentPlaylist && currentPlaylist._id === playlistId) {
+        setCurrentPlaylist(null);
       }
-      toast.success("Playlist updated!");
-    } else {
-      // Create new playlist
-      const newPlaylist = {
-        ...playlistData,
-        id: Date.now().toString(),
-        userId, // Add the current user's ID
-        songIds: playlistData.songIds || [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      setPlaylists([...playlists, newPlaylist]);
-      toast.success("Playlist created!");
+
+      toast.success("Playlist deleted");
+    } catch (error) {
+      console.error("Error deleting playlist:", error);
+      toast.error("Failed to delete playlist: " + (error.response?.data?.message || error.message));
     }
-    setShowPlaylistModal(false);
-    setPlaylistToEdit(null);
-  };
-
-  // Function to add a song to a playlist
-  const addSongToPlaylist = (playlistId, songId) => {
-    // Get current user ID
-    const userData = JSON.parse(localStorage.getItem("user") || "{}");
-    const userId = userData.id || userData._id;
-
-    // Check if song exists
-    if (!songs.some((song) => song._id === songId)) {
-      toast.error("Song not found");
-      return;
-    }
-
-    // Check if playlist exists
-    const playlist = playlists.find((p) => p.id === playlistId);
-    if (!playlist) {
-      toast.error("Playlist not found");
-      return;
-    }
-
-    // Check playlist ownership
-    if (playlist.userId && playlist.userId !== userId) {
-      toast.error("You don't have permission to modify this playlist");
-      return;
-    }
-
-    // Check if song is already in playlist
-    if (playlist.songIds && playlist.songIds.includes(songId)) {
-      toast.info(`Song is already in playlist "${playlist.name}"`);
-      return;
-    }
-
-    // Create a new array of songIds or use existing one
-    const songIds = playlist.songIds ? [...playlist.songIds, songId] : [songId];
-
-    const updatedPlaylists = playlists.map((p) => {
-      if (p.id === playlistId) {
-        return {
-          ...p,
-          songIds: songIds,
-          updatedAt: new Date().toISOString(),
-        };
-      }
-      return p;
-    });
-
-    setPlaylists(updatedPlaylists);
-
-    // If this was the current playlist, update that too
-    if (currentPlaylist && currentPlaylist.id === playlistId) {
-      setCurrentPlaylist({
-        ...currentPlaylist,
-        songIds: songIds,
-        updatedAt: new Date().toISOString(),
-      });
-    }
-
-    toast.success("Song added to playlist!");
-  };
-
-  // Function to remove a song from a playlist
-  const removeSongFromPlaylist = (playlistId, songId) => {
-    // Get current user ID
-    const userData = JSON.parse(localStorage.getItem("user") || "{}");
-    const userId = userData.id || userData._id;
-
-    const playlist = playlists.find((p) => p.id === playlistId);
-    if (!playlist) {
-      toast.error("Playlist not found");
-      return;
-    }
-
-    // Check playlist ownership
-    if (playlist.userId && playlist.userId !== userId) {
-      toast.error("You don't have permission to modify this playlist");
-      return;
-    }
-
-    const updatedPlaylists = playlists.map((playlist) => {
-      if (playlist.id === playlistId) {
-        return {
-          ...playlist,
-          songIds: playlist.songIds.filter((id) => id !== songId),
-          updatedAt: new Date().toISOString(),
-        };
-      }
-      return playlist;
-    });
-
-    setPlaylists(updatedPlaylists);
-
-    // If this was the current playlist, update that too
-    if (currentPlaylist && currentPlaylist.id === playlistId) {
-      setCurrentPlaylist({
-        ...currentPlaylist,
-        songIds: currentPlaylist.songIds.filter((id) => id !== songId),
-        updatedAt: new Date().toISOString(),
-      });
-    }
-
-    toast.success("Song removed from playlist");
-  };
-
-  // Update the handleDeletePlaylist function to check for playlist ownership:
-
-  const handleDeletePlaylist = (playlistId) => {
-    // Get current user ID
-    const userData = JSON.parse(localStorage.getItem("user") || "{}");
-    const userId = userData.id || userData._id;
-
-    // Find the playlist
-    const playlist = playlists.find((p) => p.id === playlistId);
-    if (!playlist) {
-      toast.error("Playlist not found");
-      return;
-    }
-
-    // Check playlist ownership
-    if (playlist.userId && playlist.userId !== userId) {
-      toast.error("You don't have permission to delete this playlist");
-      return;
-    }
-
-    const updatedPlaylists = playlists.filter((p) => p.id !== playlistId);
-    setPlaylists(updatedPlaylists);
-
-    // If this was the current playlist, clear it
-    if (currentPlaylist && currentPlaylist.id === playlistId) {
-      setCurrentPlaylist(null);
-    }
-
-    toast.success("Playlist deleted");
   };
 
   useEffect(() => {
@@ -1381,6 +1360,72 @@ function App() {
       window.removeEventListener("playlistsUpdated", handlePlaylistsUpdated);
     };
   }, []);
+
+  // Add this function to migrate playlists from localStorage to the database
+  const migrateLocalStoragePlaylists = async () => {
+    if (!isLoggedIn) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      const storedPlaylists = localStorage.getItem('playlists');
+      
+      if (!storedPlaylists) return;
+      
+      const localPlaylists = JSON.parse(storedPlaylists);
+      if (!localPlaylists.length) return;
+      
+      // Get user ID
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      const userId = userData.id || userData._id;
+      
+      // Get playlists from the server
+      const response = await axios.get(`${API_URL}/api/playlists`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      const serverPlaylists = response.data;
+      
+      // Find playlists that need to be migrated (only the user's playlists)
+      const playlistsToMigrate = localPlaylists.filter(lp => 
+        // Only migrate playlists belonging to this user
+        (!lp.userId || lp.userId === userId) && 
+        // Only if they don't already exist on the server (check by name)
+        !serverPlaylists.some(sp => sp.name === lp.name)
+      );
+      
+      if (playlistsToMigrate.length === 0) return;
+      
+      console.log(`Migrating ${playlistsToMigrate.length} playlists from localStorage to the database`);
+      
+      // Migrate each playlist
+      for (const playlist of playlistsToMigrate) {
+        await axios.post(
+          `${API_URL}/api/playlists`,
+          {
+            name: playlist.name,
+            description: playlist.description || '',
+            songIds: playlist.songIds || []
+          },
+          { headers: { Authorization: `Bearer ${token}` }}
+        );
+      }
+      
+      // Show success message
+      toast.success(`Migrated ${playlistsToMigrate.length} playlists to your account`);
+      
+      // Clear localStorage playlists after migration
+      localStorage.removeItem('playlists');
+    } catch (error) {
+      console.error('Error migrating playlists:', error);
+    }
+  };
+
+  // Call the migration function when the user logs in
+  useEffect(() => {
+    if (isLoggedIn) {
+      migrateLocalStoragePlaylists();
+    }
+  }, [isLoggedIn]);
 
   return (
     <AuthContext.Provider
