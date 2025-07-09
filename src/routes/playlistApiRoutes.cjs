@@ -139,37 +139,41 @@ router.post('/:id/songs', async (req, res) => {
   try {
     const { songId } = req.body;
     const userId = req.user.userId;
-    
+
     if (!songId) {
       return res.status(400).json({ message: 'Song ID is required' });
     }
-    
-    // Find the playlist
+
+    // Validate playlistId and songId as ObjectId
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid playlist ID' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(songId)) {
+      return res.status(400).json({ message: 'Invalid song ID' });
+    }
+
     const playlist = await Playlist.findById(req.params.id);
-    
+
     if (!playlist) {
       return res.status(404).json({ message: 'Playlist not found' });
     }
-    
-    // Check ownership
+
     if (playlist.userId.toString() !== userId) {
       return res.status(403).json({ message: 'Not authorized to modify this playlist' });
     }
-    
-    // Check if song already exists in playlist
-    if (playlist.songIds.includes(songId)) {
+
+    if (playlist.songIds.map(id => id.toString()).includes(songId)) {
       return res.status(400).json({ message: 'Song already in playlist' });
     }
-    
-    // Add the song ID to the playlist
+
     playlist.songIds.push(songId);
     playlist.updatedAt = new Date();
-    
+
     const updatedPlaylist = await playlist.save();
     res.json(updatedPlaylist);
   } catch (error) {
     console.error('Error adding song to playlist:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 

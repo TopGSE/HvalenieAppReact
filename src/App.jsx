@@ -393,7 +393,7 @@ function AppContent({
                               </div>
                             </div>
                           ))
-                      )}
+                      }
                     </div>
                   </div>
                 </aside>
@@ -1124,6 +1124,10 @@ function App() {
   const addSongToPlaylist = async (playlistId, songId) => {
     try {
       const token = localStorage.getItem("token");
+      if (!playlistId || !songId) {
+        toast.error("Invalid playlist or song ID");
+        return;
+      }
 
       const response = await axios.post(
         `${API_URL}/api/playlists/${playlistId}/songs`,
@@ -1131,12 +1135,10 @@ function App() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Update the playlists state
       setPlaylists(
         playlists.map((p) => (p._id === playlistId ? response.data : p))
       );
 
-      // If this was the current playlist, update that too
       if (currentPlaylist && currentPlaylist._id === playlistId) {
         setCurrentPlaylist(response.data);
       }
@@ -1148,7 +1150,7 @@ function App() {
         "Failed to add song to playlist: " +
           (error.response?.data?.message || error.message)
       );
-      throw error; // Re-throw to handle in the component
+      throw error;
     }
   };
 

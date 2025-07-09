@@ -117,8 +117,7 @@ function SongDetails({
     setErrorPlaylistId(null);
 
     try {
-      await onAddToPlaylist(playlistId, song._id);
-      // Show success briefly before closing dropdown
+      await onAddToPlaylist(playlistId, song._id); // Make sure song._id is used
       setTimeout(() => {
         setAddingToPlaylist(null);
         setShowPlaylistDropdown(false);
@@ -366,31 +365,33 @@ function SongDetails({
                     {sortedPlaylists.length > 0 ? (
                       <ul className="playlist-list">
                         {sortedPlaylists.map((playlist) => (
-                          <li key={playlist.id}>
+                          <li key={playlist._id}>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (!isSongInPlaylist(playlist.id)) {
-                                  handleAddToPlaylist(playlist.id);
+                                if (!isSongInPlaylist(playlist._id)) {
+                                  handleAddToPlaylist(playlist._id); // Use _id here
                                 }
                               }}
                               className={`
                                 ${
-                                  isSongInPlaylist(playlist.id)
+                                  isSongInPlaylist(playlist._id)
                                     ? "already-added"
                                     : ""
                                 }
                                 ${
-                                  addingToPlaylist === playlist.id
+                                  addingToPlaylist === playlist._id
                                     ? "adding"
                                     : ""
                                 }
                                 ${
-                                  errorPlaylistId === playlist.id ? "error" : ""
+                                  errorPlaylistId === playlist._id
+                                    ? "error"
+                                    : ""
                                 }
                               `}
                               disabled={
-                                isSongInPlaylist(playlist.id) ||
+                                isSongInPlaylist(playlist._id) ||
                                 addingToPlaylist
                               }
                             >
@@ -401,18 +402,18 @@ function SongDetails({
                                 {playlist.songIds?.length || 0} songs
                               </span>
                               <span className="playlist-status">
-                                {addingToPlaylist === playlist.id ? (
+                                {addingToPlaylist === playlist._id ? (
                                   <span className="loading-spinner"></span>
-                                ) : errorPlaylistId === playlist.id ? (
+                                ) : errorPlaylistId === playlist._id ? (
                                   "!"
-                                ) : isSongInPlaylist(playlist.id) ? (
+                                ) : isSongInPlaylist(playlist._id) ? (
                                   "✓"
                                 ) : (
                                   "+"
                                 )}
                               </span>
                             </button>
-                            {errorPlaylistId === playlist.id && (
+                            {errorPlaylistId === playlist._id && (
                               <div className="error-message">
                                 Failed to add song
                               </div>
