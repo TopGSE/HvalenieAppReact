@@ -196,15 +196,35 @@ function NavBar() {
         console.warn("No songs found in shared playlist data");
       }
       
-      // Get sharedFrom information - FIX: Use currentSharedNotification instead of notification
+      // Get sharedFrom information
       const sharedFrom = currentSharedNotification ? currentSharedNotification.fromUserName || "Another user" : "Another user";
+      
+      // CRITICAL FIX: Get songs from localStorage to verify songIds format
+      const storedSongsStr = localStorage.getItem("songs");
+      let availableSongs = [];
+      if (storedSongsStr) {
+        try {
+          availableSongs = JSON.parse(storedSongsStr);
+        } catch (e) {
+          console.error("Error parsing songs from localStorage:", e);
+        }
+      }
+      
+      // Validate that songIds match songs in the user's library
+      const validSongIds = songIds.filter(id => 
+        availableSongs.some(song => song._id === id)
+      );
+      
+      if (validSongIds.length !== songIds.length) {
+        console.warn(`Found ${validSongIds.length} valid songs out of ${songIds.length} shared songs`);
+      }
       
       // Create a new playlist object
       const newPlaylist = {
         id: Date.now().toString(), // Generate a new unique ID
         name: playlistData.name || "Shared Playlist", // Use a default name if none provided
         description: playlistData.description || "",
-        songIds: songIds, // Use the extracted songIds
+        songIds: validSongIds.length > 0 ? validSongIds : songIds, // Use validated songIds when possible
         userId: userId, // CRITICAL: Assign to current user - ensure this is set correctly
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -220,10 +240,7 @@ function NavBar() {
       // Save back to localStorage
       localStorage.setItem("playlists", JSON.stringify(playlists));
       
-      // Also try to trigger any needed UI updates - this might be needed in some implementations
-      // If you have a global state management like Redux, you might need to dispatch an action here
-      
-      // If there's an event system, emit a custom event to notify that playlists have changed
+      // Try to update app state through events
       try {
         window.dispatchEvent(new Event('playlistsUpdated'));
       } catch (e) {
@@ -231,7 +248,7 @@ function NavBar() {
       }
       
       // Show success notification
-      toast.success(`Playlist "${newPlaylist.name}" added to your collection with ${songIds.length} songs!`);
+      toast.success(`Playlist "${newPlaylist.name}" added to your collection with ${validSongIds.length || songIds.length} songs!`);
       
       // After accepting, delete the notification
       deleteNotification(notificationId);

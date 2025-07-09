@@ -3,6 +3,7 @@ const router = express.Router();
 const Notification = require('../models/Notification.cjs');
 const User = require('../models/User.cjs');
 const mongoose = require('mongoose');
+const Song = require('../models/Song.cjs'); // Import Song model
 
 // Define a simple test route
 router.get('/test', function(req, res) {
@@ -48,6 +49,32 @@ router.post('/share', async function(req, res) {
         console.log(`Warning: Playlist has ${songIds.length} songIds but no song details`);
       }
       
+      // In the share route handler:
+      // Before creating notifications, add this to get all song details
+      // This ensures songs have complete information when shared
+      let fullSongDetails = [];
+      if (songIds && songIds.length > 0) {
+        try {
+          // Fetch full song details from database if possible
+          fullSongDetails = await Song.find({ _id: { $in: songIds } })
+            .select('_id title artist category')
+            .lean();
+          
+          console.log(`Retrieved ${fullSongDetails.length} full song details from database`);
+          
+          // If we found fewer songs than expected, log a warning
+          if (fullSongDetails.length < songIds.length) {
+            console.warn(`Only found ${fullSongDetails.length} songs out of ${songIds.length} requested`);
+          }
+        } catch (err) {
+          console.error('Error fetching song details:', err);
+          // Continue with partial data - the songs array we already have
+        }
+      }
+      
+      // Use full song details if available, otherwise fall back to existing songs
+      const songsToShare = fullSongDetails.length > 0 ? fullSongDetails : songs;
+      
       const notifications = recipientIds.map(recipientId => ({
         type: 'playlist_share',
         fromUserId: senderId,
@@ -61,7 +88,7 @@ router.post('/share', async function(req, res) {
           name: playlistData.name,
           description: playlistData.description || '',
           songIds: songIds,
-          songs: songs
+          songs: songsToShare
         },
         read: false,
         createdAt: new Date()
