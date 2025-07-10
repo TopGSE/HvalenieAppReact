@@ -781,14 +781,13 @@ button[type="submit"]:hover {
 	.mobile-layout .content-area {
 		position: fixed;
 		top: 60px;
-		/* Position below navbar */
 		left: 0;
 		right: 0;
 		bottom: 0;
 		width: 100%;
 		height: calc(100vh - 60px);
-		z-index: 100;
-		/* Higher z-index to ensure it's above everything */
+		z-index: 10;
+		/* Lower than navbar and notifications */
 		background-color: #fff;
 		visibility: hidden;
 		opacity: 0;
@@ -1749,8 +1748,8 @@ body {
 		bottom: 0;
 		width: 100%;
 		height: calc(100vh - 60px);
-		z-index: 100;
-		/* Higher z-index to ensure it's above everything */
+		z-index: 10;
+		/* Lower than navbar and notifications */
 		background-color: #fff;
 		visibility: hidden;
 		opacity: 0;

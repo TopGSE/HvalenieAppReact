@@ -10,7 +10,7 @@
 	position: fixed;
 	top: 0;
 	left: 0;
-	z-index: 3000;
+	z-index: 9998 !important;
 	/* Increased from 1500 to be higher than everything */
 }
 
@@ -332,8 +332,8 @@
 	overflow-y: auto;
 	display: flex;
 	flex-direction: column;
-	z-index: 5000;
-	/* Increased from 3001 to 5000 */
+	z-index: 10000 !important;
+	/* Highest in app */
 	border: 1px solid #333;
 }
 
@@ -534,6 +534,6 @@
 	width: 100vw;
 	height: 100vh;
 	background: transparent;
-	z-index: 4999;
+	z-index: 9999 !important;
 	/* Just below the dropdown */
 }
