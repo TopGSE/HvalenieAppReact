@@ -8,7 +8,6 @@ import AddSong from "./components/AddSong";
 import NavBar from "./components/navbar/NavBar";
 import ConfirmModal from "./components/modals/ConfirmModal";
 import { ToastContainer, toast } from "react-toastify";
-import { ToastContainer, toast } from "react-toastify";
 import { io as socketIOClient } from "socket.io-client";
 import API_URL from "./utils/api";
 import "react-toastify/dist/ReactToastify.css";
