@@ -332,7 +332,8 @@
 	overflow-y: auto;
 	display: flex;
 	flex-direction: column;
-	z-index: 3001;
+	z-index: 5000;
+	/* Increased from 3001 to 5000 */
 	border: 1px solid #333;
 }
 
@@ -523,4 +524,16 @@
 	to {
 		transform: rotate(360deg);
 	}
+}
+
+/* If you have a notification overlay, make sure it's also above everything */
+.notification-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: transparent;
+	z-index: 4999;
+	/* Just below the dropdown */
 }
