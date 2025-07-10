@@ -319,6 +319,10 @@
 
 /* Notification Dropdown - Modern Minimal */
 .notification-dropdown {
+	position: absolute;
+	top: 48px;
+	/* or the height of your navbar */
+	right: 0;
 	background: #222;
 	border-radius: 14px;
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
