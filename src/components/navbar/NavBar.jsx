@@ -149,7 +149,7 @@ function NavBar() {
     if (notification.type === "playlist_share") {
       setCurrentSharedNotification(notification);
       setShowSharedPlaylistModal(true);
-      setTimeout(() => setShowNotifications(false), 100); // Delay closing dropdown
+      // Do NOT close the notification dropdown here, let the modal overlay handle it
     }
   };
 
@@ -344,10 +344,12 @@ function NavBar() {
     <div
       className="notification-overlay visible"
       onClick={() => setShowNotifications(false)}
+      style={{ pointerEvents: showSharedPlaylistModal ? "none" : "auto" }}
     >
       <div
         className="notification-dropdown"
         onClick={(e) => e.stopPropagation()}
+        style={{ pointerEvents: showSharedPlaylistModal ? "none" : "auto" }}
       >
         <div className="notification-header">
           <h3>Notifications</h3>
@@ -555,7 +557,10 @@ function NavBar() {
       {/* Shared Playlist Modal - always rendered at root */}
       <SharedPlaylistModal
         show={showSharedPlaylistModal}
-        onClose={() => setShowSharedPlaylistModal(false)}
+        onClose={() => {
+          setShowSharedPlaylistModal(false);
+          setShowNotifications(false);
+        }}
         notification={currentSharedNotification}
         onAccept={handleAcceptPlaylist}
         onDecline={handleDeclinePlaylist}
