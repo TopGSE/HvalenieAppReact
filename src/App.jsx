@@ -8,6 +8,9 @@ import AddSong from "./components/AddSong";
 import NavBar from "./components/navbar/NavBar";
 import ConfirmModal from "./components/modals/ConfirmModal";
 import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import { io as socketIOClient } from "socket.io-client";
+import API_URL from "./utils/api";
 import "react-toastify/dist/ReactToastify.css";
 import EditSong from "./components/song/EditSong";
 import PlaylistView from "./components/playlist/PlaylistView";
@@ -548,70 +551,16 @@ function AppContent({
 }
 
 function App() {
-  // All your state and functions here
+  // ...existing code...
   // --- Real-Time Notification: Socket.IO ---
   const socketRef = useRef(null);
-  const [songs, setSongs] = useState(() => {
-    const savedSongs = localStorage.getItem("songs");
-    return savedSongs ? JSON.parse(savedSongs) : [];
-  });
-  const [searchTerm, setSearchTerm] = useState(() => {
-    return localStorage.getItem("searchTerm") || "";
-  });
-  const [currentView, setCurrentView] = useState(() => {
-    return localStorage.getItem("currentView") || "home";
-  });
-  const [selectedSong, setSelectedSong] = useState(() => {
-    const saved = localStorage.getItem("selectedSong");
-    return saved ? JSON.parse(saved) : null;
-  });
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    return localStorage.getItem("sidebarCollapsed") === "true";
-  });
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [songToDelete, setSongToDelete] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [sortOrder, setSortOrder] = useState(() => {
-    return localStorage.getItem("sortOrder") || "asc";
-  });
-  const [filterBy, setFilterBy] = useState(() => {
-    return localStorage.getItem("filterBy") || "all";
-  });
-  const [error, setError] = useState(null);
-  const [recentlyViewed, setRecentlyViewed] = useState(() => {
-    const saved = localStorage.getItem("recentlyViewed");
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [favorites, setFavorites] = useState(() => {
-    const savedFavorites = localStorage.getItem("songFavorites");
-    return savedFavorites ? JSON.parse(savedFavorites) : [];
-  });
-  // Add this state for edit mode
-  const [isEditing, setIsEditing] = useState(false);
-
-  // Add these states to your App component
-  const [playlists, setPlaylists] = useState(() => {
-    const savedPlaylists = localStorage.getItem("playlists");
-    return savedPlaylists ? JSON.parse(savedPlaylists) : [];
-  });
-  const [currentPlaylist, setCurrentPlaylist] = useState(null);
-  const [playlistToEdit, setPlaylistToEdit] = useState(null);
-  const [showPlaylistModal, setShowPlaylistModal] = useState(false);
-  const [songSourcePlaylist, setSongSourcePlaylist] = useState(null);
-
-  // Authentication state
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("token"));
-  const [isLoggedIn, setIsLoggedIn] = useState(!!token);
-  const [username, setUsername] = useState(localStorage.getItem("username"));
-  const [userRole, setUserRole] = useState(localStorage.getItem("userRole"));
-  // Notification state (optional: for dropdown)
   const [notifications, setNotifications] = useState([]);
+  // ...existing state declarations...
+
   // --- Real-Time Notification: Connect to Socket.IO ---
   useEffect(() => {
     if (isLoggedIn && user && user._id) {
       if (!socketRef.current) {
-        // Remove trailing /api if present in API_URL
         let baseUrl = API_URL;
         if (baseUrl.endsWith("/api")) baseUrl = baseUrl.replace("/api", "");
         socketRef.current = socketIOClient(baseUrl);
@@ -619,7 +568,6 @@ function App() {
       socketRef.current.emit("register", user._id);
 
       socketRef.current.on("notification", (data) => {
-        // Show a toast and update notification state
         setNotifications((prev) => [data, ...prev]);
         if (data && data.message) {
           toast.info(data.message);
