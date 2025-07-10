@@ -155,7 +155,8 @@ function NavBar() {
     if (notification.type === "playlist_share") {
       setCurrentSharedNotification(notification);
       setShowSharedPlaylistModal(true);
-      setShowNotifications(false);
+      // Delay closing the dropdown to allow modal to open
+      setTimeout(() => setShowNotifications(false), 100);
     }
   };
 
