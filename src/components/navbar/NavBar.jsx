@@ -273,9 +273,10 @@ function NavBar() {
 
         // Delete the notification
         deleteNotification(notificationId);
-
-        // Refresh the page to show the new playlist
-        window.location.reload();
+        // Instead of reloading, trigger playlist refresh event for real-time update
+        setTimeout(() => {
+          window.dispatchEvent(new Event("playlistsUpdated"));
+        }, 300);
       } catch (error) {
         console.error("Error creating playlist:", error);
         toast.error(
