@@ -1,3 +1,4 @@
+/* === Navbar Base Styles === */
 .navbar {
 	width: 100%;
 	background-color: #37669b;
@@ -11,15 +12,16 @@
 	top: 0;
 	left: 0;
 	z-index: 9998 !important;
-	/* Increased from 1500 to be higher than everything */
 }
 
+/* === Branding === */
 .navbar-brand {
 	color: #fff;
 	font-size: 1.5em;
 	font-weight: bold;
 }
 
+/* === Nav Links === */
 .navbar-links {
 	list-style: none;
 	margin: 0;
@@ -71,6 +73,7 @@
 	color: #f39c12;
 }
 
+/* === Logo === */
 .navbar-logo {
 	display: flex;
 	align-items: center;
@@ -88,7 +91,7 @@
 	color: #f39c12;
 }
 
-/* Profile photo in navbar */
+/* === Profile Photo === */
 .profile-nav-item {
 	display: flex;
 	align-items: center;
@@ -101,7 +104,8 @@
 	padding: 0 !important;
 }
 
-.navbar-profile-photo {
+.navbar-profile-photo,
+.navbar-profile-placeholder {
 	width: 32px;
 	height: 32px;
 	border-radius: 50%;
@@ -111,9 +115,6 @@
 }
 
 .navbar-profile-placeholder {
-	width: 32px;
-	height: 32px;
-	border-radius: 50%;
 	background-color: rgba(255, 255, 255, 0.2);
 	display: flex;
 	align-items: center;
@@ -121,7 +122,6 @@
 	color: white;
 	font-size: 16px;
 	border: 2px solid rgba(255, 255, 255, 0.5);
-	transition: transform 0.2s, background-color 0.2s;
 }
 
 .profile-link:hover .navbar-profile-photo,
@@ -130,11 +130,7 @@
 	box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.6);
 }
 
-.profile-link:hover .navbar-profile-placeholder {
-	background-color: rgba(255, 255, 255, 0.3);
-}
-
-/* Statistics Nav Item */
+/* === Statistics === */
 .admin-nav-item {
 	display: flex;
 	align-items: center;
@@ -151,7 +147,7 @@
 	color: #007bff;
 }
 
-/* Media Queries for Responsiveness */
+/* === Responsive Menu === */
 @media (max-width: 768px) {
 	.navbar {
 		flex-direction: column;
@@ -163,7 +159,6 @@
 		position: fixed;
 		top: 0;
 		right: -280px;
-		/* Start off-screen */
 		width: 280px;
 		height: 100vh;
 		background-color: #333;
@@ -212,7 +207,6 @@
 		flex-direction: column;
 		justify-content: space-between;
 		z-index: 1002;
-		/* Higher than other elements */
 		cursor: pointer;
 	}
 
@@ -256,7 +250,6 @@
 	}
 }
 
-/* Small mobile devices */
 @media (max-width: 480px) {
 	.navbar {
 		padding: 8px 12px;
@@ -273,13 +266,12 @@
 	}
 }
 
-/* Notification styles */
+/* === Notifications === */
 .notification-nav-item {
 	position: relative;
 	display: flex;
 	align-items: center;
 	z-index: 1;
-	/* Local z-index within navbar */
 }
 
 .notification-bell {
@@ -317,7 +309,7 @@
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Notification Dropdown - Clean Professional */
+/* === Dropdown === */
 .notification-dropdown {
 	position: fixed;
 	top: 60px;
@@ -328,13 +320,13 @@
 	border-radius: 12px;
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.13);
 	z-index: 10001 !important;
-	padding: 0;
 	display: flex;
 	flex-direction: column;
 	border: 1px solid #e0e0e0;
+	overflow: hidden;
 }
 
-/* Notification Header */
+/* Header */
 .notification-header {
 	padding: 16px 20px;
 	border-bottom: 1px solid #f1f1f1;
@@ -372,7 +364,7 @@
 	color: #e74c3c;
 }
 
-/* Notification List */
+/* List */
 .notification-list {
 	padding: 0;
 	margin: 0;
@@ -380,7 +372,7 @@
 	overflow-y: auto;
 }
 
-/* Individual Notification */
+/* Items */
 .notification-item {
 	display: flex;
 	align-items: center;
@@ -450,6 +442,7 @@
 	opacity: 1;
 }
 
+/* Footer */
 .notification-footer {
 	padding: 10px 20px;
 	background: #f8fafd;
@@ -473,7 +466,7 @@
 	color: #1565c0;
 }
 
-/* Empty state */
+/* Empty State */
 .no-notifications {
 	padding: 32px 0;
 	text-align: center;
@@ -481,7 +474,7 @@
 	font-size: 15px;
 }
 
-/* Spinner for loading */
+/* Loading Spinner */
 .notification-loading {
 	display: flex;
 	flex-direction: column;
@@ -506,7 +499,6 @@
 	}
 }
 
-/* If you have a notification overlay, make sure it's also above everything */
 .notification-overlay {
 	position: fixed;
 	top: 0;
@@ -515,5 +507,4 @@
 	bottom: 0;
 	background: transparent;
 	z-index: 10000 !important;
-	/* Just below the dropdown */
 }
