@@ -578,11 +578,35 @@ function AppContent(props) {
 }
 
 function App() {
-  // ...existing code...
+  // --- State declarations ---
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+  const [username, setUsername] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const [songs, setSongs] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentView, setCurrentView] = useState("home");
+  const [selectedSong, setSelectedSong] = useState(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [songToDelete, setSongToDelete] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [filterBy, setFilterBy] = useState("all");
+  const [error, setError] = useState(null);
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [playlists, setPlaylists] = useState([]);
+  const [currentPlaylist, setCurrentPlaylist] = useState(null);
+  const [playlistToEdit, setPlaylistToEdit] = useState(null);
+  const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+  const [songSourcePlaylist, setSongSourcePlaylist] = useState(null);
+
   // --- Real-Time Notification: Socket.IO ---
   const socketRef = useRef(null);
   const [notifications, setNotifications] = useState([]);
-  // ...existing state declarations...
 
   // --- Real-Time Notification: Connect to Socket.IO ---
   useEffect(() => {
