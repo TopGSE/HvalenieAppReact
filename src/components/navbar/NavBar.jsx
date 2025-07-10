@@ -346,7 +346,7 @@ function NavBar() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, [mobileMenuOpen]);
 
-  // This must be inside the NavBar function!
+  // Notification dropdown JSX (keep all handlers in this component)
   const notificationDropdown = (
     <div
       className="notification-overlay visible"
@@ -354,7 +354,7 @@ function NavBar() {
     >
       <div
         className="notification-dropdown"
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="notification-header">
           <h3>Notifications</h3>
@@ -503,107 +503,6 @@ function NavBar() {
                       <span className="notification-badge">{unreadCount}</span>
                     )}
                   </button>
-
-                  {/* Notification Dropdown */}
-                  {showNotifications && (
-                    <div className="notification-dropdown">
-                      <div className="notification-header">
-                        <h3>Notifications</h3>
-                        <div className="notification-actions">
-                          {notifications.length > 0 && (
-                            <button
-                              className="clear-all-notifications"
-                              onClick={clearAllNotifications}
-                              disabled={isDeletingAll}
-                            >
-                              {isDeletingAll ? (
-                                <span className="deleting-spinner"></span>
-                              ) : (
-                                <>Clear all</>
-                              )}
-                            </button>
-                          )}
-                          {unreadCount > 0 && (
-                            <span className="unread-count">
-                              {unreadCount} new
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="notification-list">
-                        {isLoading ? (
-                          <div className="notification-loading">
-                            <div className="notification-spinner"></div>
-                            <p>Loading notifications...</p>
-                          </div>
-                        ) : notifications.length === 0 ? (
-                          <div className="no-notifications">
-                            <p>No notifications</p>
-                          </div>
-                        ) : (
-                          notifications.map((notification) => (
-                            <div
-                              key={notification._id}
-                              className={`notification-item ${
-                                !notification.read ? "unread" : ""
-                              }`}
-                              onClick={() =>
-                                handleNotificationClick(notification)
-                              }
-                            >
-                              <div className="notification-content">
-                                <div className="notification-icon">
-                                  {notification.type === "playlist_share"
-                                    ? "🎵"
-                                    : "📣"}
-                                </div>
-                                <div className="notification-details">
-                                  <p className="notification-message">
-                                    {notification.message}
-                                  </p>
-                                  <span className="notification-time">
-                                    {formatTime(notification.createdAt)}
-                                  </span>
-                                </div>
-                                {!notification.read && (
-                                  <div className="notification-dot"></div>
-                                )}
-
-                                <button
-                                  className="delete-notification-btn"
-                                  onClick={(e) =>
-                                    deleteNotification(notification._id, e)
-                                  }
-                                  disabled={
-                                    deletingNotificationId === notification._id
-                                  }
-                                >
-                                  {deletingNotificationId ===
-                                  notification._id ? (
-                                    <span className="deleting-spinner small"></span>
-                                  ) : (
-                                    <FaTimesCircle />
-                                  )}
-                                </button>
-                              </div>
-                            </div>
-                          ))
-                        )}
-                      </div>
-
-                      {notifications.length > 0 && (
-                        <div className="notification-footer">
-                          <button
-                            className="refresh-notifications"
-                            onClick={fetchNotifications}
-                          >
-                            Refresh
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </li>
                 <li className="profile-nav-item">
                   <Link
@@ -649,7 +548,7 @@ function NavBar() {
         onClick={toggleMobileMenu}
       ></div>
 
-      {/* Add this new overlay for notifications */}
+      {/* Notification Dropdown via Portal */}
       {showNotifications &&
         createPortal(
           notificationDropdown,
