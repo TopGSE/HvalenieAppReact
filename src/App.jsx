@@ -13,8 +13,6 @@ import API_URL from "./utils/api";
 import "react-toastify/dist/ReactToastify.css";
 import EditSong from "./components/song/EditSong";
 import PlaylistView from "./components/playlist/PlaylistView";
-// Add react-beautiful-dnd styles
-import "react-beautiful-dnd/dist/react-beautiful-dnd.css";
 import PlaylistModal from "./components/modals/PlaylistModal";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
