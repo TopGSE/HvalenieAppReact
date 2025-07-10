@@ -281,7 +281,7 @@
 	border-radius: 12px;
 	font-size: 0.95rem;
 	color: var(--primary-color, #006eef);
-	width: auto;
+	width: 5rem;
 	min-width: 0;
 	max-width: 100%;
 	white-space: nowrap;
