@@ -343,16 +343,13 @@ function NavBar() {
   const notificationDropdown = (
     <div
       className="notification-overlay visible"
-      onClick={(e) => {
-        // Only close dropdown if not opening modal
-        if (!showSharedPlaylistModal) setShowNotifications(false);
-      }}
       style={{ pointerEvents: "auto" }}
     >
       <div
         className="notification-dropdown"
         onClick={(e) => e.stopPropagation()}
         style={{ pointerEvents: "auto" }}
+        ref={notificationRef}
       >
         <div className="notification-header">
           <h3>Notifications</h3>
