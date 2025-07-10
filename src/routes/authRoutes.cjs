@@ -17,6 +17,7 @@ router.post('/register', async (req, res) => {
   try {
     // Only allow role to be set if explicitly provided by an admin (you'd need to implement admin checks)
     // For now, default to 'reader' regardless of what's sent
+    // Always set plain password, let pre-save hook hash it
     const user = new User({ username, email, password, role: 'reader' });
     await user.save();
     res.status(201).json({ message: 'User registered successfully' });
@@ -154,7 +155,8 @@ router.put('/profile', authMiddleware, async (req, res) => {
       if (!isMatch) {
         return res.status(400).json({ message: 'Current password is incorrect' });
       }
-      user.password = await bcrypt.hash(newPassword, 10);
+      // Set plain password, let pre-save hook hash it
+      user.password = newPassword;
     }
 
     await user.save();
@@ -351,8 +353,8 @@ router.post('/reset-password/:token', async (req, res) => {
       return res.status(400).json({ message: 'Invalid or expired reset token' });
     }
     
-    // Hash the new password before saving
-    user.password = await bcrypt.hash(newPassword, 10);
+    // Set plain password, let pre-save hook hash it
+    user.password = newPassword;
     
     // Clear reset token fields
     user.resetToken = undefined;
@@ -443,8 +445,8 @@ router.put('/profile/password', authMiddleware, async (req, res) => {
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Old password is incorrect.' });
 
-    // FIX: Hash the new password before saving
-    user.password = await bcrypt.hash(newPassword, 10);
+    // Set plain password, let pre-save hook hash it
+    user.password = newPassword;
     await user.save();
 
     res.json({ message: 'Password updated successfully.' });
