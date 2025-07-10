@@ -32,7 +32,7 @@
 	border-radius: 12px;
 	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 	animation: slide-up 0.3s ease-out;
-	padding: 24px;
+	padding: 2rem;
 	max-height: 90vh;
 	overflow-y: auto;
 }
@@ -79,7 +79,7 @@
 }
 
 .playlist-modal {
-	padding: 24px;
+	padding: 2rem;
 }
 
 .playlist-modal h2 {
