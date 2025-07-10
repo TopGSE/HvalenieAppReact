@@ -55,7 +55,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ 
       userId: user._id,
       role: user.role 
-    }, JWT_SECRET, { expiresIn: '1h' });
+    }, JWT_SECRET, { expiresIn: '4h' });
     
     // If remember me is checked, generate and store a refresh token
     let refreshToken = null;
