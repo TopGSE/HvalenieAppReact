@@ -227,12 +227,6 @@ function AppContent({
                         onSearch={setSearchTerm}
                         totalResults={filteredSongs.length}
                       />
-                      <button
-                        className="toggle-sidebar"
-                        onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                      >
-                        {sidebarCollapsed ? ">" : "<"}
-                      </button>
                     </div>
 
                     <div className="sort-filter-controls">

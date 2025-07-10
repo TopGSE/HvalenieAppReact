@@ -336,29 +336,7 @@ input[type="text"] {
 }
 
 /* Position the toggle button on the right of the search bar */
-.toggle-sidebar {
-	position: absolute;
-	right: 0px;
-	top: 50%;
-	transform: translateY(-50%);
-	width: 28px;
-	height: 28px;
-	border-radius: 50%;
-	border: 1px solid #ddd;
-	background-color: white;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	font-size: 14px;
-	transition: all 0.2s ease;
-	z-index: 2;
-	color: #666;
-}
 
-.toggle-sidebar:hover {
-	background-color: #f0f0f0;
-}
 
 /* Adjust the reload button style */
 .reload-button {
@@ -983,10 +961,7 @@ button[type="submit"]:hover {
 	}
 
 	/* Make toggle sidebar button more accessible */
-	.toggle-sidebar {
-		width: 30px;
-		height: 30px;
-	}
+
 }
 
 /* Smaller mobile screens */
@@ -1639,14 +1614,7 @@ body {
 		padding: 8px 30px 8px 36px;
 	}
 
-	.toggle-sidebar {
-		top: 50%;
-		transform: translateY(-50%) rotate(90deg);
-	}
 
-	.sidebar.collapsed .toggle-sidebar {
-		transform: translateY(-50%) rotate(-90deg);
-	}
 
 	.sort-filter-controls {
 		flex-wrap: wrap;
@@ -1705,13 +1673,7 @@ body {
 	}
 
 	/* Keep the toggle button visible when collapsed */
-	.sidebar.collapsed .toggle-sidebar {
-		display: flex;
-		position: absolute;
-		right: 10px;
-		top: 50%;
-		transform: translateY(-50%) rotate(-90deg);
-	}
+
 
 	/* Hide everything except the toggle button when collapsed */
 	.sidebar.collapsed .sidebar-header-top,
