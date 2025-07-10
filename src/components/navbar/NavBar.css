@@ -317,11 +317,11 @@
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Notification Dropdown Container */
+/* Notification Dropdown - Modern Minimal */
 .notification-dropdown {
-	background: #fff;
-	border-radius: 10px;
-	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+	background: #222;
+	border-radius: 14px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
 	padding: 0;
 	width: 340px;
 	max-height: 420px;
@@ -329,23 +329,25 @@
 	display: flex;
 	flex-direction: column;
 	z-index: 3001;
+	border: 1px solid #333;
 }
 
 /* Notification Header */
 .notification-header {
-	padding: 16px 20px;
-	border-bottom: 1px solid #eaeaea;
+	padding: 18px 24px;
+	border-bottom: 1px solid #333;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	background: #f9f9f9;
+	background: #23272f;
 }
 
 .notification-header h3 {
 	margin: 0;
 	font-size: 18px;
-	font-weight: 600;
-	color: #333;
+	font-weight: 700;
+	color: #fff;
+	letter-spacing: 0.5px;
 }
 
 .notification-actions {
@@ -356,7 +358,7 @@
 .clear-all-notifications {
 	background: none;
 	border: none;
-	color: #888;
+	color: #bbb;
 	font-size: 13px;
 	cursor: pointer;
 	padding: 4px 8px;
@@ -365,7 +367,7 @@
 }
 
 .clear-all-notifications:hover {
-	background: #f0f0f0;
+	background: #292929;
 	color: #e74c3c;
 }
 
@@ -381,10 +383,10 @@
 .notification-item {
 	display: flex;
 	align-items: flex-start;
-	gap: 12px;
-	padding: 16px 20px;
-	border-bottom: 1px solid #f1f1f1;
-	background: #fff;
+	gap: 14px;
+	padding: 18px 24px;
+	border-bottom: 1px solid #292929;
+	background: transparent;
 	transition: background 0.2s;
 	cursor: pointer;
 	position: relative;
@@ -395,18 +397,18 @@
 }
 
 .notification-item.unread {
-	background: #f5faff;
-	border-left: 4px solid #2196f3;
+	background: #1a2233;
+	border-left: 4px solid #4f8cff;
 }
 
 .notification-item:hover {
-	background: #f0f4fa;
+	background: #23272f;
 }
 
 .notification-icon {
 	font-size: 22px;
 	margin-top: 2px;
-	color: #2196f3;
+	color: #4f8cff;
 	min-width: 28px;
 	text-align: center;
 }
@@ -420,7 +422,7 @@
 
 .notification-message {
 	font-size: 15px;
-	color: #222;
+	color: #f1f1f1;
 	margin: 0 0 2px 0;
 	line-height: 1.4;
 }
@@ -434,7 +436,7 @@
 .notification-dot {
 	width: 10px;
 	height: 10px;
-	background: #2196f3;
+	background: #4f8cff;
 	border-radius: 50%;
 	position: absolute;
 	top: 18px;
@@ -444,7 +446,7 @@
 .delete-notification-btn {
 	background: none;
 	border: none;
-	color: #bbb;
+	color: #666;
 	font-size: 18px;
 	display: flex;
 	align-items: center;
@@ -459,21 +461,21 @@
 
 .delete-notification-btn:hover {
 	color: #e74c3c;
-	background: #fbeaea;
+	background: #2a1a1a;
 	opacity: 1;
 }
 
 .notification-footer {
-	padding: 10px 20px;
-	background: #f9f9f9;
-	border-top: 1px solid #eaeaea;
+	padding: 10px 24px;
+	background: #23272f;
+	border-top: 1px solid #292929;
 	text-align: right;
 }
 
 .refresh-notifications {
 	background: none;
 	border: none;
-	color: #2196f3;
+	color: #4f8cff;
 	font-size: 14px;
 	cursor: pointer;
 	padding: 4px 8px;
@@ -482,7 +484,7 @@
 }
 
 .refresh-notifications:hover {
-	background: #e3f2fd;
+	background: #1a2233;
 	color: #1565c0;
 }
 
@@ -506,8 +508,8 @@
 .notification-spinner {
 	width: 24px;
 	height: 24px;
-	border: 3px solid #e0e0e0;
-	border-top: 3px solid #2196f3;
+	border: 3px solid #444;
+	border-top: 3px solid #4f8cff;
 	border-radius: 50%;
 	animation: spin 1s linear infinite;
 	margin-bottom: 10px;
