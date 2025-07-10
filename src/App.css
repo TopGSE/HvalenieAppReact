@@ -126,6 +126,84 @@ body {
 	}
 }
 
+/* === Tablet Professional Layout === */
+@media (min-width: 768px) and (max-width: 1024px) {
+	.app-container {
+		flex-direction: column;
+	}
+
+	.main-layout {
+		flex-direction: row;
+		margin-top: 70px;
+		/* match navbar height if needed */
+		height: calc(100vh - 70px);
+		min-height: 0;
+	}
+
+	.sidebar {
+		width: 280px;
+		min-width: 220px;
+		max-width: 320px;
+		border-right: 1px solid #e0e0e0;
+		border-bottom: none;
+		height: 100%;
+		position: relative;
+		box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03);
+	}
+
+	.sidebar-header {
+		padding: 20px 18px 12px 18px;
+		font-size: 1.15rem;
+	}
+
+	.sidebar-content {
+		padding-bottom: 12px;
+	}
+
+	.song-list {
+		padding: 1.2rem 1.2rem 1.2rem 1.2rem;
+		font-size: 1.08rem;
+	}
+
+	.content-area {
+		padding: 32px 32px 32px 32px;
+		font-size: 1.08rem;
+		overflow-y: auto;
+	}
+
+	.song-details-container,
+	.song-details-card {
+		padding: 24px !important;
+		border-radius: 14px !important;
+		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+	}
+
+	.lyrics-section,
+	.chords-section {
+		margin-bottom: 24px;
+	}
+
+	.lyrics-text,
+	.chords-text {
+		font-size: 1.08rem !important;
+		padding: 18px !important;
+	}
+
+	/* Make buttons and inputs larger for touch */
+	button,
+	input,
+	textarea {
+		font-size: 1.08rem;
+		padding: 12px 16px;
+		border-radius: 8px;
+	}
+
+	/* Hide hamburger menu if present */
+	.hamburger-menu {
+		display: none !important;
+	}
+}
+
 /* Sidebar header improvements */
 .sidebar-header {
 	padding: 1rem;
