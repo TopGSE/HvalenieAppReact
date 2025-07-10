@@ -801,7 +801,7 @@ button[type="submit"]:hover {
 
 .search-bar input {
 	padding-left: 2.5rem;
-	width: 100%;
+	width: 80%;
 }
 
 .search-icon {
