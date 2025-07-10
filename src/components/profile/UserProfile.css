@@ -312,6 +312,20 @@
 	.save-button {
 		width: 100%;
 	}
+
+	.avatar-container {
+		width: 100px;
+		height: 100px;
+		margin: 0 auto 16px auto;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+		border-width: 2px;
+	}
+
+	.avatar-image-large,
+	.avatar-placeholder-large {
+		width: 100px;
+		height: 100px;
+	}
 }
 
 @media (max-width: 480px) {
@@ -321,6 +335,20 @@
 
 	.section-header h3 {
 		font-size: 16px;
+	}
+
+	.avatar-container {
+		width: 80px;
+		height: 80px;
+		margin: 0 auto 12px auto;
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
+		border-width: 2px;
+	}
+
+	.avatar-image-large,
+	.avatar-placeholder-large {
+		width: 80px;
+		height: 80px;
 	}
 }
 
@@ -586,10 +614,18 @@
 		height: 120px;
 	}
 
+	.avatar-container {
+		width: 100px;
+		height: 100px;
+		margin: 0 auto 16px auto;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+		border-width: 2px;
+	}
+
 	.avatar-image-large,
 	.avatar-placeholder-large {
-		width: 120px;
-		height: 120px;
+		width: 100px;
+		height: 100px;
 	}
 
 	.photo-editor-dialog {
@@ -628,10 +664,18 @@
 		height: 100px;
 	}
 
+	.avatar-container {
+		width: 80px;
+		height: 80px;
+		margin: 0 auto 12px auto;
+		box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
+		border-width: 2px;
+	}
+
 	.avatar-image-large,
 	.avatar-placeholder-large {
-		width: 100px;
-		height: 100px;
+		width: 80px;
+		height: 80px;
 	}
 
 	.section-header {
