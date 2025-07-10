@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { io as socketIOClient } from "socket.io-client";
 import { Link, useNavigate } from "react-router-dom";
 import "./NavBar.css";
 import { useAuth } from "../../App";
@@ -26,6 +27,34 @@ function NavBar() {
   const { isLoggedIn, username, userRole, user } = useAuth();
   const navigate = useNavigate();
   const notificationRef = useRef(null);
+  // --- Real-Time Notification: Socket.IO ---
+  const socketRef = useRef(null);
+  // --- Real-Time Notification: Connect to Socket.IO ---
+  useEffect(() => {
+    if (isLoggedIn && user && user._id) {
+      if (!socketRef.current) {
+        let baseUrl = API_URL;
+        if (baseUrl.endsWith("/api")) baseUrl = baseUrl.replace("/api", "");
+        socketRef.current = socketIOClient(baseUrl);
+      }
+      socketRef.current.emit("register", user._id);
+
+      socketRef.current.on("notification", (data) => {
+        setNotifications((prev) => [data, ...prev]);
+        setUnreadCount((prev) => prev + 1);
+        if (data && data.message) {
+          toast.info(data.message);
+        }
+      });
+
+      return () => {
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+          socketRef.current = null;
+        }
+      };
+    }
+  }, [isLoggedIn, user]);
 
   // New state for shared playlist modal
   const [showSharedPlaylistModal, setShowSharedPlaylistModal] = useState(false);
