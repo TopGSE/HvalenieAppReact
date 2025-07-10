@@ -443,7 +443,8 @@ router.put('/profile/password', authMiddleware, async (req, res) => {
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Old password is incorrect.' });
 
-    user.password = await bcrypt.hash(newPassword, 10); // <--- THIS IS CORRECT
+    // FIX: Hash the new password before saving
+    user.password = await bcrypt.hash(newPassword, 10);
     await user.save();
 
     res.json({ message: 'Password updated successfully.' });
