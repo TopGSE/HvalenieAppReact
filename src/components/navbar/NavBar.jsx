@@ -153,9 +153,8 @@ function NavBar() {
 
     // Handle different notification types
     if (notification.type === "playlist_share") {
-      // Show shared playlist acceptance modal
-      setShowSharedPlaylistModal(true);
       setCurrentSharedNotification(notification);
+      setShowSharedPlaylistModal(true);
       setShowNotifications(false);
     }
   };
@@ -555,7 +554,7 @@ function NavBar() {
           document.getElementById("notification-portal")
         )}
 
-      {/* Shared Playlist Modal */}
+      {/* Shared Playlist Modal - always rendered at root */}
       <SharedPlaylistModal
         show={showSharedPlaylistModal}
         onClose={() => setShowSharedPlaylistModal(false)}
