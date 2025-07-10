@@ -2010,23 +2010,9 @@ body,
 }
 
 /* Sidebar and its content use flex layout */
-.app-container {
-	display: flex;
-	flex-direction: column;
-}
-
-.main-layout {
-	display: flex;
-	flex: 1 1 auto;
-	overflow: hidden;
-}
-
 .sidebar {
 	display: flex;
 	flex-direction: column;
-	flex: 0 0 350px;
-	min-width: 300px;
-	max-width: 100vw;
 	height: 100%;
 	min-height: 0;
 }
@@ -2039,7 +2025,7 @@ body,
 	overflow-y: auto;
 	overflow-x: hidden;
 	padding-bottom: 8px;
-	height: 100%;
+	/* REMOVE any max-height or height here */
 }
 
 /* Make .song-list fill remaining space and scroll */
@@ -2052,5 +2038,5 @@ body,
 	padding: 1rem;
 	background: transparent;
 	padding-right: 12px;
-	height: 100%;
+	/* REMOVE height: 100%; here */
 }
