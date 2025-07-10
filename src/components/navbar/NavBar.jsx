@@ -146,7 +146,7 @@ function NavBar() {
 
   // Handle notification click
   const handleNotificationClick = (notification) => {
-    console.log("Clicked notification:", notification);
+    console.log("Clicked notification:", notification); // Add this line
     if (notification.type === "playlist_share") {
       setCurrentSharedNotification(notification);
       setShowSharedPlaylistModal(true);

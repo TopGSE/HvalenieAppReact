@@ -77,7 +77,19 @@ function SharedPlaylistModal({
   onDecline,
 }) {
   if (!show) return null;
-  if (!notification) return null;
+
+  // Defensive: show error if playlistData is missing
+  if (!notification || !notification.playlistData) {
+    return (
+      <div className="modal-overlay">
+        <div className="modal">
+          <h2>Shared Playlist</h2>
+          <p>Sorry, this notification does not contain playlist data.</p>
+          <button onClick={onClose}>Close</button>
+        </div>
+      </div>
+    );
+  }
 
   // Extract playlist data safely
   const playlistData = extractValidPlaylistData(notification);
