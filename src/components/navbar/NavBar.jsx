@@ -146,17 +146,10 @@ function NavBar() {
 
   // Handle notification click
   const handleNotificationClick = (notification) => {
-    // If not read, mark it as read
-    if (!notification.read) {
-      markAsRead(notification._id);
-    }
-
-    // Handle different notification types
     if (notification.type === "playlist_share") {
       setCurrentSharedNotification(notification);
       setShowSharedPlaylistModal(true);
-      // Delay closing the dropdown to allow modal to open
-      setTimeout(() => setShowNotifications(false), 100);
+      setTimeout(() => setShowNotifications(false), 100); // Delay closing dropdown
     }
   };
 
