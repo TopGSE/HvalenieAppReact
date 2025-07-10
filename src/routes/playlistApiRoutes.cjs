@@ -3,6 +3,47 @@ const router = express.Router();
 const Playlist = require('../models/Playlist.cjs');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
+// --- Real-Time Notification: Import io ---
+const { io } = require('../../../server.cjs');
+// --- Real-Time Playlist Sharing Route ---
+// POST /api/playlists/:id/share
+router.post('/:id/share', async (req, res) => {
+  try {
+    const { targetUserId } = req.body;
+    const playlistId = req.params.id;
+    const senderUserId = req.user.userId;
+
+    // Find the playlist
+    const playlist = await Playlist.findById(playlistId);
+    if (!playlist) {
+      return res.status(404).json({ message: 'Playlist not found' });
+    }
+
+    // Only allow owner to share
+    if (playlist.userId.toString() !== senderUserId) {
+      return res.status(403).json({ message: 'Not authorized to share this playlist' });
+    }
+
+    // Add to sharedWithUsers if not already present
+    if (!playlist.sharedWithUsers) playlist.sharedWithUsers = [];
+    if (!playlist.sharedWithUsers.includes(targetUserId)) {
+      playlist.sharedWithUsers.push(targetUserId);
+      await playlist.save();
+    }
+
+    // Emit real-time notification
+    io.to(targetUserId).emit('notification', {
+      type: 'playlist_shared',
+      message: `A playlist was shared with you!`,
+      playlistId,
+      from: senderUserId,
+    });
+
+    res.json({ message: 'Playlist shared!' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 // Get all playlists for the current user
 router.get('/', async (req, res) => {

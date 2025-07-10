@@ -11,6 +11,8 @@ const crypto = require('crypto');
 const path = require('path');
 const playlistRoutes = require('./src/routes/playlistRoutes.cjs');
 const playlistApiRoutes = require('./src/routes/playlistApiRoutes.cjs');
+const http = require('http');
+const { Server } = require('socket.io');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -243,7 +245,40 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+// --- Socket.IO Real-Time Notification Setup ---
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: '*' } });
+
+// Track connected users for targeted notifications
+const connectedUsers = new Map();
+
+io.on('connection', (socket) => {
+  console.log('User connected:', socket.id);
+
+  // Register user and join their room
+  socket.on('register', (userId) => {
+    if (userId) {
+      connectedUsers.set(userId, socket.id);
+      socket.join(userId);
+      console.log(`User ${userId} joined their notification room.`);
+    }
+  });
+
+  socket.on('disconnect', () => {
+    for (const [userId, id] of connectedUsers.entries()) {
+      if (id === socket.id) {
+        connectedUsers.delete(userId);
+        break;
+      }
+    }
+    console.log('User disconnected:', socket.id);
+  });
+});
+
+// Export io for use in routes/controllers
+module.exports.io = io;
+
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });

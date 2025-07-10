@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, useContext } from "react";
+import { useState, useEffect, createContext, useContext, useRef } from "react";
 import axios from "axios";
 import "./App.css";
 import SearchBar from "./components/SearchBar";
@@ -29,6 +29,7 @@ import {
 import { setupTokenRefresh } from "./utils/authUtils";
 import RandomSongGenerator from "./components/modals/RandomSongGenerator";
 import API_URL from "./utils/api";
+import { io as socketIOClient } from "socket.io-client";
 
 // Modify the AuthContext section
 export const AuthContext = createContext(null);
@@ -548,6 +549,8 @@ function AppContent({
 
 function App() {
   // All your state and functions here
+  // --- Real-Time Notification: Socket.IO ---
+  const socketRef = useRef(null);
   const [songs, setSongs] = useState(() => {
     const savedSongs = localStorage.getItem("songs");
     return savedSongs ? JSON.parse(savedSongs) : [];
@@ -602,6 +605,35 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!token);
   const [username, setUsername] = useState(localStorage.getItem("username"));
   const [userRole, setUserRole] = useState(localStorage.getItem("userRole"));
+  // Notification state (optional: for dropdown)
+  const [notifications, setNotifications] = useState([]);
+  // --- Real-Time Notification: Connect to Socket.IO ---
+  useEffect(() => {
+    if (isLoggedIn && user && user._id) {
+      if (!socketRef.current) {
+        // Remove trailing /api if present in API_URL
+        let baseUrl = API_URL;
+        if (baseUrl.endsWith("/api")) baseUrl = baseUrl.replace("/api", "");
+        socketRef.current = socketIOClient(baseUrl);
+      }
+      socketRef.current.emit("register", user._id);
+
+      socketRef.current.on("notification", (data) => {
+        // Show a toast and update notification state
+        setNotifications((prev) => [data, ...prev]);
+        if (data && data.message) {
+          toast.info(data.message);
+        }
+      });
+
+      return () => {
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+          socketRef.current = null;
+        }
+      };
+    }
+  }, [isLoggedIn, user]);
 
   // Login handler
   const handleLogin = (username, role, userData = null) => {
