@@ -30,6 +30,7 @@
     "react": "^18.0.0",
     "react-avatar-edit": "^1.2.0",
     "react-avatar-editor": "^13.0.2",
+    "react-beautiful-dnd": "^13.1.1",
     "react-custom-scrollbars-2": "^4.5.0",
     "react-dom": "^18.0.0",
     "react-icons": "^5.5.0",

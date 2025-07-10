@@ -13,6 +13,8 @@ import API_URL from "./utils/api";
 import "react-toastify/dist/ReactToastify.css";
 import EditSong from "./components/song/EditSong";
 import PlaylistView from "./components/playlist/PlaylistView";
+// Add react-beautiful-dnd styles
+import "react-beautiful-dnd/dist/react-beautiful-dnd.css";
 import PlaylistModal from "./components/modals/PlaylistModal";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
@@ -428,6 +430,33 @@ function AppContent(props) {
                       onRemoveSongFromPlaylist={removeSongFromPlaylist}
                       favorites={favorites}
                       toggleFavorite={toggleFavorite}
+                      onReorderSongs={async (newOrder) => {
+                        // Save new order to server
+                        try {
+                          const token = localStorage.getItem("token");
+                          const playlistId =
+                            currentPlaylist._id || currentPlaylist.id;
+                          await axios.put(
+                            `${API_URL}/api/playlists/${playlistId}`,
+                            { ...currentPlaylist, songIds: newOrder },
+                            { headers: { Authorization: `Bearer ${token}` } }
+                          );
+                          setCurrentPlaylist({
+                            ...currentPlaylist,
+                            songIds: newOrder,
+                          });
+                          setPlaylists(
+                            playlists.map((p) =>
+                              p._id === playlistId
+                                ? { ...p, songIds: newOrder }
+                                : p
+                            )
+                          );
+                          toast.success("Playlist order updated!");
+                        } catch (error) {
+                          toast.error("Failed to update playlist order");
+                        }
+                      }}
                     />
                   ) : selectedSong ? (
                     isEditing ? (

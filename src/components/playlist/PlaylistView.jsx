@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { toast } from "react-toastify";
 import axios from "axios";
 import "./PlaylistView.css";
@@ -15,6 +16,7 @@ function PlaylistView({
   onRemoveSongFromPlaylist,
   favorites = [],
   toggleFavorite,
+  onReorderSongs, // new prop
 }) {
   // Existing states
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -108,7 +110,9 @@ function PlaylistView({
 
       // Get full song objects for each song ID in the playlist
       const playlistSongs = songs
-        .filter((song) => playlist.songIds && playlist.songIds.includes(song._id))
+        .filter(
+          (song) => playlist.songIds && playlist.songIds.includes(song._id)
+        )
         .map((song) => ({
           _id: song._id,
           title: song.title,
@@ -133,7 +137,9 @@ function PlaylistView({
         playlistId: playlist._id || playlist.id,
         playlistName: playlist.name,
         recipientIds: selectedUsers,
-        message: `${currentUser.username || "Someone"} shared a playlist with you: "${playlist.name}"`,
+        message: `${
+          currentUser.username || "Someone"
+        } shared a playlist with you: "${playlist.name}"`,
         playlistData: {
           name: playlist.name,
           description: playlist.description || "",
@@ -184,15 +190,16 @@ function PlaylistView({
       setSelectedUsers([]);
     } catch (error) {
       console.error("Error sharing playlist:", error);
-      
+
       // More detailed error logging to help debug
       if (error.response) {
         console.error("Server response:", error.response.data);
         console.error("Status code:", error.response.status);
       }
-      
+
       toast.error(
-        "Failed to share playlist: " + (error.response?.data?.message || error.message)
+        "Failed to share playlist: " +
+          (error.response?.data?.message || error.message)
       );
     }
   };
@@ -250,12 +257,19 @@ function PlaylistView({
     (song) => playlist.songIds && playlist.songIds.includes(song._id)
   );
 
-  // Apply search and sorting
-  const sortedPlaylistSongs = playlistSongs
-    .filter((song) =>
-      song.title.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .sort((a, b) => {
+  // Keep the original order of songIds for drag-and-drop
+  const [orderedSongIds, setOrderedSongIds] = useState(playlist.songIds || []);
+
+  useEffect(() => {
+    setOrderedSongIds(playlist.songIds || []);
+  }, [playlist.songIds]);
+
+  // Apply search and sorting (except for drag mode, which uses orderedSongIds)
+  let sortedPlaylistSongs = playlistSongs.filter((song) =>
+    song.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  if (sortOrder !== "default") {
+    sortedPlaylistSongs = [...sortedPlaylistSongs].sort((a, b) => {
       switch (sortOrder) {
         case "title":
           return a.title.localeCompare(b.title);
@@ -269,6 +283,27 @@ function PlaylistView({
           return 0;
       }
     });
+  } else {
+    // Use drag-and-drop order
+    sortedPlaylistSongs = orderedSongIds
+      .map((id) => playlistSongs.find((s) => s._id === id))
+      .filter(Boolean)
+      .filter((song) =>
+        song.title.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+  }
+
+  // Drag and drop handlers
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+    const newOrder = Array.from(orderedSongIds);
+    const [removed] = newOrder.splice(result.source.index, 1);
+    newOrder.splice(result.destination.index, 0, removed);
+    setOrderedSongIds(newOrder);
+    if (onReorderSongs) {
+      onReorderSongs(newOrder);
+    }
+  };
 
   const handleFavoriteToggle = (e, songId) => {
     e.stopPropagation();
@@ -398,54 +433,79 @@ function PlaylistView({
           )}
         </div>
       ) : (
-        <div className="playlist-songs">
-          {sortedPlaylistSongs.map((song, index) => (
-            <div
-              key={song._id}
-              ref={(el) => (songRefs.current[song._id] = el)}
-              className={`playlist-song-item ${
-                selectedSongId === song._id ? "selected" : ""
-              }`}
-              onClick={() => onSelectSong(song)}
-              style={{ animationDelay: `${index * 0.05}s` }}
-            >
-              <div className="song-info">
-                <div className="song-number">{index + 1}</div>
-                <div className="song-details">
-                  <h3>{song.title}</h3>
-                  {song.artist && <p className="song-artist">{song.artist}</p>}
-                  {song.category && (
-                    <span className="song-category">{song.category}</span>
-                  )}
-                </div>
-              </div>
-
-              <div className="song-actions">
-                {toggleFavorite && (
-                  <button
-                    className="favorite-btn"
-                    onClick={(e) => handleFavoriteToggle(e, song._id)}
-                    aria-label={
-                      favorites.includes(song._id)
-                        ? "Remove from favorites"
-                        : "Add to favorites"
-                    }
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="playlist-songs-droppable">
+            {(provided) => (
+              <div
+                className="playlist-songs"
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                {sortedPlaylistSongs.map((song, index) => (
+                  <Draggable
+                    key={song._id}
+                    draggableId={song._id}
+                    index={index}
                   >
-                    {favorites.includes(song._id) ? "★" : "☆"}
-                  </button>
-                )}
-
-                <button
-                  className="remove-btn"
-                  onClick={(e) => handleRemoveSong(e, song._id)}
-                  aria-label="Remove from playlist"
-                >
-                  ×
-                </button>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className={`playlist-song-item ${
+                          selectedSongId === song._id ? "selected" : ""
+                        } ${snapshot.isDragging ? "dragging" : ""}`}
+                        onClick={() => onSelectSong(song)}
+                        style={{
+                          ...provided.draggableProps.style,
+                          animationDelay: `${index * 0.05}s`,
+                        }}
+                      >
+                        <div className="song-info">
+                          <div className="song-number">{index + 1}</div>
+                          <div className="song-details">
+                            <h3>{song.title}</h3>
+                            {song.artist && (
+                              <p className="song-artist">{song.artist}</p>
+                            )}
+                            {song.category && (
+                              <span className="song-category">
+                                {song.category}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="song-actions">
+                          {toggleFavorite && (
+                            <button
+                              className="favorite-btn"
+                              onClick={(e) => handleFavoriteToggle(e, song._id)}
+                              aria-label={
+                                favorites.includes(song._id)
+                                  ? "Remove from favorites"
+                                  : "Add to favorites"
+                              }
+                            >
+                              {favorites.includes(song._id) ? "★" : "☆"}
+                            </button>
+                          )}
+                          <button
+                            className="remove-btn"
+                            onClick={(e) => handleRemoveSong(e, song._id)}
+                            aria-label="Remove from playlist"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
               </div>
-            </div>
-          ))}
-        </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
 
       {/* Share Modal */}
