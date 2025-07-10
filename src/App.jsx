@@ -30,8 +30,7 @@ import {
 } from "react-router-dom";
 import { setupTokenRefresh } from "./utils/authUtils";
 import RandomSongGenerator from "./components/modals/RandomSongGenerator";
-import API_URL from "./utils/api";
-import { io as socketIOClient } from "socket.io-client";
+// (Removed duplicate imports below)
 
 // Modify the AuthContext section
 export const AuthContext = createContext(null);
