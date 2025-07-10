@@ -154,7 +154,7 @@ router.put('/profile', authMiddleware, async (req, res) => {
       if (!isMatch) {
         return res.status(400).json({ message: 'Current password is incorrect' });
       }
-      user.password = newPassword;
+      user.password = await bcrypt.hash(newPassword, 10);
     }
 
     await user.save();
