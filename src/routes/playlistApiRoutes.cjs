@@ -4,7 +4,15 @@ const Playlist = require('../models/Playlist.cjs');
 const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 // --- Real-Time Notification: Import io ---
-const { io } = require('../../../server.cjs');
+const path = require('path');
+const serverPath = path.resolve(__dirname, '../../server.cjs');
+let io;
+try {
+  io = require(serverPath).io;
+} catch (e) {
+  io = null;
+  console.warn('Socket.io not available (likely in test or build mode)');
+}
 // --- Real-Time Playlist Sharing Route ---
 // POST /api/playlists/:id/share
 router.post('/:id/share', async (req, res) => {
@@ -31,13 +39,16 @@ router.post('/:id/share', async (req, res) => {
       await playlist.save();
     }
 
-    // Emit real-time notification
-    io.to(targetUserId).emit('notification', {
-      type: 'playlist_shared',
-      message: `A playlist was shared with you!`,
-      playlistId,
-      from: senderUserId,
-    });
+
+    // Emit real-time notification if io is available
+    if (io) {
+      io.to(targetUserId).emit('notification', {
+        type: 'playlist_shared',
+        message: `A playlist was shared with you!`,
+        playlistId,
+        from: senderUserId,
+      });
+    }
 
     res.json({ message: 'Playlist shared!' });
   } catch (err) {
