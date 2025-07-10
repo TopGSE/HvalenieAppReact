@@ -317,48 +317,49 @@
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Notification Dropdown - Modern Minimal */
+/* Notification Dropdown - Clean Professional */
 .notification-dropdown {
 	position: fixed;
 	top: 60px;
-	/* or your navbar height */
 	right: 24px;
-	width: 340px;
+	width: 320px;
 	max-height: 420px;
-	background: #222;
-	border-radius: 14px;
-	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.13);
 	z-index: 10001 !important;
-	/* ...rest of your styles... */
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	border: 1px solid #e0e0e0;
 }
 
 /* Notification Header */
 .notification-header {
-	padding: 18px 24px;
-	border-bottom: 1px solid #333;
+	padding: 16px 20px;
+	border-bottom: 1px solid #f1f1f1;
+	background: #f8fafd;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	background: #23272f;
 }
 
 .notification-header h3 {
 	margin: 0;
-	font-size: 18px;
-	font-weight: 700;
-	color: #fff;
-	letter-spacing: 0.5px;
+	font-size: 17px;
+	font-weight: 600;
+	color: #222;
 }
 
 .notification-actions {
 	display: flex;
-	gap: 10px;
+	gap: 8px;
 }
 
 .clear-all-notifications {
 	background: none;
 	border: none;
-	color: #bbb;
+	color: #888;
 	font-size: 13px;
 	cursor: pointer;
 	padding: 4px 8px;
@@ -367,7 +368,7 @@
 }
 
 .clear-all-notifications:hover {
-	background: #292929;
+	background: #f0f0f0;
 	color: #e74c3c;
 }
 
@@ -382,14 +383,14 @@
 /* Individual Notification */
 .notification-item {
 	display: flex;
-	align-items: flex-start;
-	gap: 14px;
-	padding: 18px 24px;
-	border-bottom: 1px solid #292929;
-	background: transparent;
-	transition: background 0.2s;
+	align-items: center;
+	gap: 12px;
+	padding: 18px 20px;
+	border-bottom: 1px solid #f5f5f5;
+	background: #fff;
 	cursor: pointer;
-	position: relative;
+	transition: background 0.2s;
+	font-size: 15px;
 }
 
 .notification-item:last-child {
@@ -397,56 +398,40 @@
 }
 
 .notification-item.unread {
-	background: #1a2233;
-	border-left: 4px solid #4f8cff;
+	background: #f3f7ff;
+	border-left: 4px solid #1976d2;
 }
 
 .notification-item:hover {
-	background: #23272f;
+	background: #f0f4fa;
 }
 
 .notification-icon {
-	font-size: 22px;
-	margin-top: 2px;
-	color: #4f8cff;
+	font-size: 20px;
+	color: #1976d2;
 	min-width: 28px;
 	text-align: center;
 }
 
-.notification-details {
-	flex: 1;
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
-}
-
 .notification-message {
+	color: #222;
 	font-size: 15px;
-	color: #f1f1f1;
-	margin: 0 0 2px 0;
-	line-height: 1.4;
+	margin: 0;
+	flex: 1;
+	font-weight: 500;
 }
 
 .notification-time {
 	font-size: 12px;
 	color: #888;
-	margin-top: 2px;
-}
-
-.notification-dot {
-	width: 10px;
-	height: 10px;
-	background: #4f8cff;
-	border-radius: 50%;
-	position: absolute;
-	top: 18px;
-	right: 18px;
+	margin-left: 8px;
+	white-space: nowrap;
 }
 
 .delete-notification-btn {
 	background: none;
 	border: none;
-	color: #666;
+	color: #bbb;
 	font-size: 18px;
 	display: flex;
 	align-items: center;
@@ -461,21 +446,21 @@
 
 .delete-notification-btn:hover {
 	color: #e74c3c;
-	background: #2a1a1a;
+	background: #fbeaea;
 	opacity: 1;
 }
 
 .notification-footer {
-	padding: 10px 24px;
-	background: #23272f;
-	border-top: 1px solid #292929;
+	padding: 10px 20px;
+	background: #f8fafd;
+	border-top: 1px solid #f1f1f1;
 	text-align: right;
 }
 
 .refresh-notifications {
 	background: none;
 	border: none;
-	color: #4f8cff;
+	color: #1976d2;
 	font-size: 14px;
 	cursor: pointer;
 	padding: 4px 8px;
@@ -484,7 +469,7 @@
 }
 
 .refresh-notifications:hover {
-	background: #1a2233;
+	background: #e3f2fd;
 	color: #1565c0;
 }
 
@@ -508,8 +493,8 @@
 .notification-spinner {
 	width: 24px;
 	height: 24px;
-	border: 3px solid #444;
-	border-top: 3px solid #4f8cff;
+	border: 3px solid #e0e0e0;
+	border-top: 3px solid #1976d2;
 	border-radius: 50%;
 	animation: spin 1s linear infinite;
 	margin-bottom: 10px;

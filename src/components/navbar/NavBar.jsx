@@ -402,7 +402,11 @@ function NavBar() {
                   </div>
                   <div className="notification-details">
                     <p className="notification-message">
-                      {notification.message}
+                      {notification.type === "playlist_share"
+                        ? `${
+                            notification.fromUserName || "Someone"
+                          } shared a playlist`
+                        : notification.message}
                     </p>
                     <span className="notification-time">
                       {formatTime(notification.createdAt)}
