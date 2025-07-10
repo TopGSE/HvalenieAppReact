@@ -249,12 +249,31 @@ input[type="text"] {
 .sidebar-content {
 	flex: 1 1 auto;
 	/* Allow to grow and shrink as needed */
+	display: flex;
+	flex-direction: column;
 	overflow-y: auto;
 	overflow-x: hidden;
 	min-height: 100px;
 	/* Ensure minimum height */
-	max-height: calc(100vh - 350px);
-	/* Allow space for other elements */
+	max-height: none;
+	/* Remove fixed max-height */
+	padding-bottom: 8px;
+}
+
+/* Make song-list fill the sidebar-content */
+.song-list {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	padding: 1rem;
+	background: transparent;
+	padding-right: 12px;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Ensure song items don't overflow */
+.song-item {
+	flex-shrink: 0;
 }
 
 /* Add these styles for the playlists in sidebar */
@@ -396,6 +415,8 @@ input[type="text"] {
 	padding: 1rem;
 	background: transparent;
 	padding-right: 12px;
+	display: flex;
+	flex-direction: column;
 }
 
 .song-item {
