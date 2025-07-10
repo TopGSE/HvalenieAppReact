@@ -266,6 +266,91 @@
 	}
 }
 
+/* Tablet layout: 768px to 1024px */
+@media (min-width: 768px) and (max-width: 1024px) {
+	.navbar {
+		padding: 0 32px;
+		height: 70px;
+	}
+
+	.navbar-logo {
+		font-size: 2rem;
+	}
+
+	.navbar-menu {
+		position: static;
+		background: none;
+		box-shadow: none;
+		width: auto;
+		height: auto;
+		display: flex !important;
+		align-items: center;
+		justify-content: flex-end;
+		transition: none;
+	}
+
+	.navbar-links {
+		display: flex;
+		flex-direction: row;
+		gap: 32px;
+		align-items: center;
+		margin: 0;
+		padding: 0;
+	}
+
+	.navbar-links li {
+		margin: 0;
+		padding: 0;
+	}
+
+	.navbar-links a,
+	.navbar-links button {
+		font-size: 1.1rem;
+		padding: 12px 18px;
+		border-radius: 8px;
+		transition: background 0.2s;
+		background: none;
+		border: none;
+		color: inherit;
+		cursor: pointer;
+	}
+
+	.navbar-links a:hover,
+	.navbar-links button:hover {
+		background: #f0f0f0;
+	}
+
+	.hamburger-menu {
+		display: none !important;
+	}
+
+	.notification-dropdown {
+		min-width: 340px;
+		max-width: 90vw;
+		right: 0;
+		left: auto;
+		top: 70px;
+		border-radius: 12px;
+		font-size: 1.05rem;
+	}
+
+	.notification-item {
+		padding: 16px 18px;
+		font-size: 1.05rem;
+	}
+
+	.notification-bell {
+		font-size: 1.5rem;
+		padding: 10px;
+	}
+
+	.navbar-profile-photo,
+	.navbar-profile-placeholder {
+		width: 44px;
+		height: 44px;
+	}
+}
+
 /* === Notifications === */
 .notification-nav-item {
 	position: relative;
