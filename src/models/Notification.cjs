@@ -36,8 +36,13 @@ try {
     message: { 
       type: String 
     },
-    playlistData: { 
-      type: Object 
+    playlistData: {
+      type: Object,
+      default: null,
+      required: function() {
+        // Only required for playlist_share notifications
+        return this.type === 'playlist_share';
+      }
     },
     read: { 
       type: Boolean, 

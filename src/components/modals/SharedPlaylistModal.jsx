@@ -33,7 +33,7 @@ function extractValidPlaylistData(notification) {
 
   // Handling string serialized data (some systems might serialize the data)
   let playlistData = notification.playlistData;
-  if (typeof playlistData === 'string') {
+  if (typeof playlistData === "string") {
     try {
       playlistData = JSON.parse(playlistData);
       console.log("Parsed playlistData from string");
@@ -45,21 +45,24 @@ function extractValidPlaylistData(notification) {
 
   // Extract songIds - ensure it's an array
   let songIds = Array.isArray(playlistData.songIds) ? playlistData.songIds : [];
-  
+
   // Extract songs - ensure it's an array
   let songs = Array.isArray(playlistData.songs) ? playlistData.songs : [];
 
-  console.log(`Found ${songIds.length} songIds and ${songs.length} songs in notification.playlistData`);
+  console.log(
+    `Found ${songIds.length} songIds and ${songs.length} songs in notification.playlistData`
+  );
 
   // If we have songs but no songIds, extract songIds from songs
   if (songs.length > 0 && songIds.length === 0) {
-    songIds = songs.map(song => song._id).filter(Boolean);
+    songIds = songs.map((song) => song._id).filter(Boolean);
     console.log(`Extracted ${songIds.length} songIds from songs`);
   }
 
   // Return complete data with fallbacks
   return {
-    name: playlistData.name || notification.playlistName || defaultPlaylist.name,
+    name:
+      playlistData.name || notification.playlistName || defaultPlaylist.name,
     description: playlistData.description || defaultPlaylist.description,
     songIds: songIds,
     songs: songs,
@@ -73,7 +76,8 @@ function SharedPlaylistModal({
   onAccept,
   onDecline,
 }) {
-  if (!show || !notification) return null;
+  if (!show) return null;
+  if (!notification) return null;
 
   // Extract playlist data safely
   const playlistData = extractValidPlaylistData(notification);

@@ -146,10 +146,10 @@ function NavBar() {
 
   // Handle notification click
   const handleNotificationClick = (notification) => {
+    console.log("Clicked notification:", notification);
     if (notification.type === "playlist_share") {
       setCurrentSharedNotification(notification);
       setShowSharedPlaylistModal(true);
-      // Do NOT close the notification dropdown here, let the modal overlay handle it
     }
   };
 
