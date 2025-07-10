@@ -319,22 +319,17 @@
 
 /* Notification Dropdown - Modern Minimal */
 .notification-dropdown {
-	position: absolute;
-	top: 48px;
-	/* or the height of your navbar */
-	right: 0;
+	position: fixed;
+	top: 60px;
+	/* or your navbar height */
+	right: 24px;
+	width: 340px;
+	max-height: 420px;
 	background: #222;
 	border-radius: 14px;
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
-	padding: 0;
-	width: 340px;
-	max-height: 420px;
-	overflow-y: auto;
-	display: flex;
-	flex-direction: column;
-	z-index: 10000 !important;
-	/* Highest in app */
-	border: 1px solid #333;
+	z-index: 10001 !important;
+	/* ...rest of your styles... */
 }
 
 /* Notification Header */
@@ -531,9 +526,9 @@
 	position: fixed;
 	top: 0;
 	left: 0;
-	width: 100vw;
-	height: 100vh;
+	right: 0;
+	bottom: 0;
 	background: transparent;
-	z-index: 9999 !important;
+	z-index: 10000 !important;
 	/* Just below the dropdown */
 }

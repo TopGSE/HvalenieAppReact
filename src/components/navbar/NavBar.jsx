@@ -13,6 +13,7 @@ import axios from "axios";
 import API_URL from "../../utils/api";
 import { toast } from "react-toastify";
 import SharedPlaylistModal from "../modals/SharedPlaylistModal";
+import { createPortal } from "react-dom";
 
 function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -256,7 +257,8 @@ function NavBar() {
       } catch (error) {
         console.error("Error creating playlist:", error);
         toast.error(
-          "Failed to create playlist: " + (error.response?.data?.message || error.message)
+          "Failed to create playlist: " +
+            (error.response?.data?.message || error.message)
         );
       }
     } catch (error) {
@@ -552,12 +554,100 @@ function NavBar() {
       ></div>
 
       {/* Add this new overlay for notifications */}
-      {showNotifications && (
-        <div
-          className="notification-overlay visible"
-          onClick={() => setShowNotifications(false)}
-        ></div>
-      )}
+      {showNotifications &&
+        createPortal(
+          <div className="notification-overlay visible">
+            <div className="notification-dropdown">
+              <div className="notification-header">
+                <h3>Notifications</h3>
+                <div className="notification-actions">
+                  {notifications.length > 0 && (
+                    <button
+                      className="clear-all-notifications"
+                      onClick={clearAllNotifications}
+                      disabled={isDeletingAll}
+                    >
+                      {isDeletingAll ? (
+                        <span className="deleting-spinner"></span>
+                      ) : (
+                        <>Clear all</>
+                      )}
+                    </button>
+                  )}
+                  {unreadCount > 0 && (
+                    <span className="unread-count">{unreadCount} new</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="notification-list">
+                {isLoading ? (
+                  <div className="notification-loading">
+                    <div className="notification-spinner"></div>
+                    <p>Loading notifications...</p>
+                  </div>
+                ) : notifications.length === 0 ? (
+                  <div className="no-notifications">
+                    <p>No notifications</p>
+                  </div>
+                ) : (
+                  notifications.map((notification) => (
+                    <div
+                      key={notification._id}
+                      className={`notification-item ${
+                        !notification.read ? "unread" : ""
+                      }`}
+                      onClick={() => handleNotificationClick(notification)}
+                    >
+                      <div className="notification-content">
+                        <div className="notification-icon">
+                          {notification.type === "playlist_share" ? "🎵" : "📣"}
+                        </div>
+                        <div className="notification-details">
+                          <p className="notification-message">
+                            {notification.message}
+                          </p>
+                          <span className="notification-time">
+                            {formatTime(notification.createdAt)}
+                          </span>
+                        </div>
+                        {!notification.read && (
+                          <div className="notification-dot"></div>
+                        )}
+
+                        <button
+                          className="delete-notification-btn"
+                          onClick={(e) =>
+                            deleteNotification(notification._id, e)
+                          }
+                          disabled={deletingNotificationId === notification._id}
+                        >
+                          {deletingNotificationId === notification._id ? (
+                            <span className="deleting-spinner small"></span>
+                          ) : (
+                            <FaTimesCircle />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {notifications.length > 0 && (
+                <div className="notification-footer">
+                  <button
+                    className="refresh-notifications"
+                    onClick={fetchNotifications}
+                  >
+                    Refresh
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>,
+          document.getElementById("notification-portal")
+        )}
 
       {/* Shared Playlist Modal */}
       <SharedPlaylistModal
