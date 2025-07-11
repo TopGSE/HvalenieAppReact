@@ -308,8 +308,8 @@ router.post('/forgot-password', async (req, res) => {
     });
     
     // Construct the reset URL (frontend URL)
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-    const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
+    const frontendUrl = 'https://hvalenieapp-89e57e2c3558.herokuapp.com';
+    const resetUrl = `${frontendUrl}/${resetToken}`;
     
     // Email content
     const mailOptions = {
