@@ -20,6 +20,24 @@ function PlaylistView({
 }) {
   // Existing states
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // Kebab menu state
+  const [actionsOpen, setActionsOpen] = useState(false);
+  const actionsRef = useRef();
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (actionsRef.current && !actionsRef.current.contains(event.target)) {
+        setActionsOpen(false);
+      }
+    }
+    if (actionsOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [actionsOpen]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("default");
 
@@ -381,33 +399,66 @@ function PlaylistView({
           )}
         </div>
 
-        <div className="playlist-actions">
+        <div
+          className="playlist-actions"
+          ref={actionsRef}
+          style={{ position: "relative" }}
+        >
           <button
-            className="share-playlist-btn"
-            onClick={handleShare}
-            title="Share this playlist"
+            className="playlist-actions-kebab"
+            aria-label="Playlist actions"
+            onClick={() => setActionsOpen((open) => !open)}
           >
-            <span className="btn-icon">📤</span>
-            <span className="btn-text">Share</span>
+            <span style={{ fontSize: 24, lineHeight: 1 }}>⋮</span>
           </button>
-
-          <button
-            className="edit-playlist-btn"
-            onClick={() => onEditPlaylist(playlist)}
-          >
-            <span className="btn-icon">✏️</span>
-            <span className="btn-text">Edit</span>
-          </button>
-
-          {confirmDelete ? (
-            <div className="confirm-delete">
+          {actionsOpen && (
+            <div className="playlist-actions-dropdown">
+              <button
+                onClick={() => {
+                  setActionsOpen(false);
+                  handleShare();
+                }}
+              >
+                <span role="img" aria-label="Share">
+                  📤
+                </span>{" "}
+                Share
+              </button>
+              <button
+                onClick={() => {
+                  setActionsOpen(false);
+                  onEditPlaylist(playlist);
+                }}
+              >
+                <span role="img" aria-label="Edit">
+                  ✏️
+                </span>{" "}
+                Edit
+              </button>
+              <button
+                className="delete"
+                onClick={() => {
+                  setActionsOpen(false);
+                  setConfirmDelete(true);
+                }}
+              >
+                <span role="img" aria-label="Delete">
+                  🗑️
+                </span>{" "}
+                Delete
+              </button>
+            </div>
+          )}
+          {confirmDelete && (
+            <div
+              className="confirm-delete"
+              style={{ position: "absolute", top: 40, right: 0, zIndex: 200 }}
+            >
               <span>Are you sure?</span>
               <button
                 className="confirm-yes"
                 onClick={() => {
-                  // Use playlist._id instead of playlist.id
                   const playlistId = playlist._id || playlist.id;
-                  console.log("Deleting playlist with ID:", playlistId); // Debug log
                   onDeletePlaylist(playlistId);
                 }}
               >
@@ -420,14 +471,6 @@ function PlaylistView({
                 No
               </button>
             </div>
-          ) : (
-            <button
-              className="delete-playlist-btn"
-              onClick={() => setConfirmDelete(true)}
-            >
-              <span className="btn-icon">🗑️</span>
-              <span className="btn-text">Delete</span>
-            </button>
           )}
         </div>
       </div>
