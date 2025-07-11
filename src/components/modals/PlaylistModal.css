@@ -32,7 +32,7 @@
 	border-radius: 12px;
 	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 	animation: slide-up 0.3s ease-out;
-	padding: 2rem;
+	padding: 2rem 1rem 2rem 1rem;
 	max-height: 90vh;
 	overflow-y: auto;
 }
