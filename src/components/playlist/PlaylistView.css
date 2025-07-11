@@ -240,6 +240,36 @@
 	opacity: 1;
 	box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.04);
 	min-height: 48px;
+	/* For swipe delete animation */
+	will-change: transform, opacity;
+}
+
+/* Swipe-to-right delete animation */
+.playlist-song-item.swipe-delete {
+	animation: swipe-right-delete 0.45s cubic-bezier(0.4, 0.2, 0.6, 1) forwards;
+	z-index: 2;
+}
+
+@keyframes swipe-right-delete {
+	0% {
+		transform: translateX(0) scale(1);
+		opacity: 1;
+	}
+
+	60% {
+		transform: translateX(60px) scale(1.03);
+		opacity: 1;
+	}
+
+	80% {
+		transform: translateX(120px) scale(0.98);
+		opacity: 0.7;
+	}
+
+	100% {
+		transform: translateX(100vw) scale(0.95);
+		opacity: 0;
+	}
 }
 
 .playlist-song-item .song-info {

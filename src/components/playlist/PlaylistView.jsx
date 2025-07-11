@@ -31,6 +31,9 @@ function PlaylistView({
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [shareStep, setShareStep] = useState(1); // 1: select users, 2: share options
 
+  // --- Swipe-to-right delete animation state ---
+  const [swipingSongId, setSwipingSongId] = useState(null);
+
   const songRefs = useRef({});
 
   // Fetch users from database
@@ -310,12 +313,15 @@ function PlaylistView({
     toggleFavorite(songId);
   };
 
+  // Animate and remove song
   const handleRemoveSong = (e, songId) => {
     e.stopPropagation();
-    // Use playlist._id instead of playlist.id
     const playlistId = playlist._id || playlist.id;
-    console.log("Removing song from playlist:", { playlistId, songId }); // Debug log
-    onRemoveSongFromPlaylist(playlistId, songId);
+    setSwipingSongId(songId);
+    setTimeout(() => {
+      onRemoveSongFromPlaylist(playlistId, songId);
+      setSwipingSongId(null);
+    }, 450); // match CSS animation duration
   };
 
   return (
@@ -454,7 +460,9 @@ function PlaylistView({
                         {...provided.dragHandleProps}
                         className={`playlist-song-item ${
                           selectedSongId === song._id ? "selected" : ""
-                        } ${snapshot.isDragging ? "dragging" : ""}`}
+                        } ${snapshot.isDragging ? "dragging" : ""} ${
+                          swipingSongId === song._id ? "swipe-delete" : ""
+                        }`}
                         onClick={() => onSelectSong(song)}
                         style={{
                           ...provided.draggableProps.style,
