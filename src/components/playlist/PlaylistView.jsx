@@ -402,49 +402,148 @@ function PlaylistView({
         <div
           className="playlist-actions"
           ref={actionsRef}
-          style={{ position: "relative" }}
+          style={{
+            position: "relative",
+            display: "flex",
+            alignItems: "center",
+            minHeight: 40,
+          }}
         >
           <button
             className="playlist-actions-kebab"
             aria-label="Playlist actions"
+            aria-haspopup="true"
+            aria-expanded={actionsOpen}
             onClick={() => setActionsOpen((open) => !open)}
+            style={{
+              padding: 8,
+              borderRadius: "50%",
+              border: "none",
+              background: actionsOpen ? "#f0f4fa" : "none",
+              boxShadow: actionsOpen
+                ? "0 2px 8px rgba(0,110,239,0.10)"
+                : "none",
+              transition: "background 0.2s",
+            }}
           >
-            <span style={{ fontSize: 24, lineHeight: 1 }}>⋮</span>
+            <span
+              style={{
+                fontSize: 24,
+                lineHeight: 1,
+                color: actionsOpen ? "#006eef" : "#888",
+              }}
+            >
+              ⋮
+            </span>
           </button>
           {actionsOpen && (
-            <div className="playlist-actions-dropdown">
+            <div
+              className="playlist-actions-dropdown"
+              style={{
+                position: "absolute",
+                right: 0,
+                top: 40,
+                minWidth: 140,
+                background: "#fff",
+                border: "1px solid #e0e7ef",
+                borderRadius: 10,
+                boxShadow: "0 8px 32px rgba(0,110,239,0.13)",
+                zIndex: 150,
+                display: "flex",
+                flexDirection: "column",
+                padding: "6px 0",
+                animation: "fadeIn 0.18s ease",
+              }}
+              role="menu"
+            >
               <button
+                style={{
+                  background: "none",
+                  border: "none",
+                  width: "100%",
+                  textAlign: "left",
+                  padding: "12px 20px",
+                  fontSize: 16,
+                  color: "#222",
+                  cursor: "pointer",
+                  transition: "background 0.18s",
+                }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.background = "#f5faff")
+                }
+                onMouseOut={(e) => (e.currentTarget.style.background = "none")}
                 onClick={() => {
                   setActionsOpen(false);
                   handleShare();
                 }}
+                role="menuitem"
               >
-                <span role="img" aria-label="Share">
+                <span role="img" aria-label="Share" style={{ marginRight: 10 }}>
                   📤
-                </span>{" "}
+                </span>
                 Share
               </button>
               <button
+                style={{
+                  background: "none",
+                  border: "none",
+                  width: "100%",
+                  textAlign: "left",
+                  padding: "12px 20px",
+                  fontSize: 16,
+                  color: "#222",
+                  cursor: "pointer",
+                  transition: "background 0.18s",
+                }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.background = "#f5faff")
+                }
+                onMouseOut={(e) => (e.currentTarget.style.background = "none")}
                 onClick={() => {
                   setActionsOpen(false);
                   onEditPlaylist(playlist);
                 }}
+                role="menuitem"
               >
-                <span role="img" aria-label="Edit">
+                <span role="img" aria-label="Edit" style={{ marginRight: 10 }}>
                   ✏️
-                </span>{" "}
+                </span>
                 Edit
               </button>
               <button
                 className="delete"
+                style={{
+                  background: "none",
+                  border: "none",
+                  width: "100%",
+                  textAlign: "left",
+                  padding: "12px 20px",
+                  fontSize: 16,
+                  color: "#f44336",
+                  cursor: "pointer",
+                  transition: "background 0.18s",
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = "#ffebee";
+                  e.currentTarget.style.color = "#b71c1c";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = "none";
+                  e.currentTarget.style.color = "#f44336";
+                }}
                 onClick={() => {
                   setActionsOpen(false);
                   setConfirmDelete(true);
                 }}
+                role="menuitem"
               >
-                <span role="img" aria-label="Delete">
+                <span
+                  role="img"
+                  aria-label="Delete"
+                  style={{ marginRight: 10 }}
+                >
                   🗑️
-                </span>{" "}
+                </span>
                 Delete
               </button>
             </div>
@@ -452,24 +551,66 @@ function PlaylistView({
           {confirmDelete && (
             <div
               className="confirm-delete"
-              style={{ position: "absolute", top: 40, right: 0, zIndex: 200 }}
+              style={{
+                position: "absolute",
+                top: 54,
+                right: 0,
+                zIndex: 200,
+                background: "#fff",
+                border: "1px solid #e0e7ef",
+                borderRadius: 10,
+                boxShadow: "0 8px 32px rgba(0,110,239,0.13)",
+                padding: "18px 24px 14px 24px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                minWidth: 200,
+              }}
             >
-              <span>Are you sure?</span>
-              <button
-                className="confirm-yes"
-                onClick={() => {
-                  const playlistId = playlist._id || playlist.id;
-                  onDeletePlaylist(playlistId);
-                }}
-              >
-                Yes
-              </button>
-              <button
-                className="confirm-no"
-                onClick={() => setConfirmDelete(false)}
-              >
-                No
-              </button>
+              <span style={{ fontWeight: 500, marginBottom: 12 }}>
+                Are you sure?
+              </span>
+              <div style={{ display: "flex", gap: 12 }}>
+                <button
+                  className="confirm-yes"
+                  style={{
+                    background: "#f44336",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 6,
+                    padding: "7px 18px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    fontSize: 15,
+                    boxShadow: "0 2px 8px rgba(244,67,54,0.08)",
+                    transition: "background 0.18s",
+                  }}
+                  onClick={() => {
+                    const playlistId = playlist._id || playlist.id;
+                    onDeletePlaylist(playlistId);
+                  }}
+                >
+                  Yes
+                </button>
+                <button
+                  className="confirm-no"
+                  style={{
+                    background: "#f0f0f0",
+                    color: "#333",
+                    border: "none",
+                    borderRadius: 6,
+                    padding: "7px 18px",
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    fontSize: 15,
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                    transition: "background 0.18s",
+                  }}
+                  onClick={() => setConfirmDelete(false)}
+                >
+                  No
+                </button>
+              </div>
             </div>
           )}
         </div>
