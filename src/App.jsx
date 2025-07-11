@@ -1375,25 +1375,34 @@ function App() {
 
   // Add this useEffect to App.jsx near your other useEffects
   useEffect(() => {
-    // This will refresh playlists when the event is dispatched
-    const handlePlaylistsUpdated = () => {
-      console.log("Detected playlists updated event, refreshing playlists");
-      // Get playlists from localStorage
-      const storedPlaylists = localStorage.getItem("playlists");
-      if (storedPlaylists) {
-        try {
-          const parsedPlaylists = JSON.parse(storedPlaylists);
-          setPlaylists(parsedPlaylists);
-        } catch (error) {
-          console.error("Error parsing playlists from localStorage:", error);
+    // This will refresh playlists from the server when the event is dispatched
+    const handlePlaylistsUpdated = async () => {
+      console.log(
+        "Detected playlists updated event, refreshing playlists from server"
+      );
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+        const response = await axios.get(`${API_URL}/api/playlists`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setPlaylists(response.data);
+      } catch (error) {
+        console.error("Error refreshing playlists from server:", error);
+        // Fallback to localStorage if server fails
+        const storedPlaylists = localStorage.getItem("playlists");
+        if (storedPlaylists) {
+          try {
+            const parsedPlaylists = JSON.parse(storedPlaylists);
+            setPlaylists(parsedPlaylists);
+          } catch (e) {
+            console.error("Error parsing playlists from localStorage:", e);
+          }
         }
       }
     };
 
-    // Add event listener
     window.addEventListener("playlistsUpdated", handlePlaylistsUpdated);
-
-    // Clean up
     return () => {
       window.removeEventListener("playlistsUpdated", handlePlaylistsUpdated);
     };
