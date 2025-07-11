@@ -312,6 +312,13 @@
 	align-items: center;
 	min-width: 64px;
 	transition: box-shadow 0.18s, background 0.18s;
+	margin-left: 6px;
+	/* Add a small gap between .song-actions divs */
+}
+
+/* Add a small gap between each .song-actions div */
+.playlist-song-item .song-actions:not(:last-child) {
+	margin-right: 8px;
 }
 
 .playlist-song-item .song-actions button {
