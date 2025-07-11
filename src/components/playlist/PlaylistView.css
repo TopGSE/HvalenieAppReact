@@ -246,29 +246,48 @@
 
 /* Swipe-to-right delete animation */
 .playlist-song-item.swipe-delete {
-	animation: swipe-right-delete 0.45s cubic-bezier(0.4, 0.2, 0.6, 1) forwards;
-	z-index: 2;
+	animation: swipe-right-delete 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+	z-index: 10;
+	box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.18), 0 1.5px 4px rgba(0, 0, 0, 0.04);
+	background: linear-gradient(90deg, #f5f7fa 60%, #b2f7c1 100%);
+	position: relative;
+	overflow: hidden;
 }
 
 @keyframes swipe-right-delete {
 	0% {
 		transform: translateX(0) scale(1);
 		opacity: 1;
+		box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.18), 0 1.5px 4px rgba(0, 0, 0, 0.04);
+		filter: none;
 	}
 
-	60% {
-		transform: translateX(60px) scale(1.03);
+	40% {
+		transform: translateX(40px) scale(1.04) rotate(-1deg);
 		opacity: 1;
+		box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.22);
+		filter: brightness(1.05);
 	}
 
-	80% {
-		transform: translateX(120px) scale(0.98);
+	70% {
+		transform: translateX(120px) scale(0.98) rotate(1deg);
 		opacity: 0.7;
+		box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.10);
+		filter: blur(0.5px);
+	}
+
+	85% {
+		transform: translateX(60vw) scale(0.97) rotate(2deg);
+		opacity: 0.3;
+		box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.06);
+		filter: blur(1.5px);
 	}
 
 	100% {
-		transform: translateX(100vw) scale(0.95);
+		transform: translateX(100vw) scale(0.95) rotate(3deg);
 		opacity: 0;
+		box-shadow: none;
+		filter: blur(2.5px);
 	}
 }
 
