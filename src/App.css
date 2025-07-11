@@ -153,54 +153,6 @@ body {
 		box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03);
 	}
 
-	.sidebar-header {
-		padding: 20px 18px 12px 18px;
-		font-size: 1.15rem;
-	}
-
-	.sidebar-content {
-		padding-bottom: 12px;
-	}
-
-	.song-list {
-		padding: 1.2rem 1.2rem 1.2rem 1.2rem;
-		font-size: 1.08rem;
-	}
-
-	.content-area {
-		padding: 32px 32px 32px 32px;
-		font-size: 1.08rem;
-		overflow-y: auto;
-	}
-
-	.song-details-container,
-	.song-details-card {
-		padding: 24px !important;
-		border-radius: 14px !important;
-		box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
-	}
-
-	.lyrics-section,
-	.chords-section {
-		margin-bottom: 24px;
-	}
-
-	.lyrics-text,
-	.chords-text {
-		font-size: 1.08rem !important;
-		padding: 18px !important;
-	}
-
-	/* Make buttons and inputs larger for touch */
-	button,
-	input,
-	textarea {
-		font-size: 1.08rem;
-		padding: 12px 16px;
-		border-radius: 8px;
-	}
-
-	/* Hide hamburger menu if present */
 	.hamburger-menu {
 		display: none !important;
 	}
@@ -433,27 +385,20 @@ input[type="text"] {
 	box-shadow: 0 4px 16px rgba(0, 110, 239, 0.10);
 }
 
-.sidebar .playlists-header h3 {
-	margin: 0;
-	font-size: 16px;
-	color: var(--text-color, #555);
+.sidebar .playlists-header {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #e0e7ef;
+	padding-bottom: 8px;
+	font-weight: 600;
+	color: #1a2a3a;
+	letter-spacing: 0.5px;
+	gap: 10px;
 }
 
-.sidebar .add-playlist-btn {
-	width: 24px;
-	height: 24px;
-	border-radius: 50%;
-	border: none;
-	background-color: var(--primary-color, #006eef);
-	color: white;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	font-size: 16px;
-	cursor: pointer;
-	padding: 0;
-	transition: all 0.2s;
-}
 
 .sidebar .add-playlist-btn:hover {
 	background-color: var(--primary-color-dark, #005bc7);
@@ -522,7 +467,10 @@ input[type="text"] {
 
 .playlist-header-buttons {
 	display: flex;
+	flex-direction: row;
 	gap: 8px;
+	align-items: center;
+	margin-left: 8px;
 }
 
 .generate-playlist-btn {
