@@ -312,18 +312,30 @@ router.post('/forgot-password', async (req, res) => {
     const frontendUrl = 'https://hvalenieapp-89e57e2c3558.herokuapp.com';
     const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
     
-    // Email content
+    // Email content with logo and modern style
+    // The logo must be accessible via a public URL. If you deploy your logo to your public folder, use that URL. For now, we use the Heroku public path:
+    const logoUrl = 'https://hvalenieapp-89e57e2c3558.herokuapp.com/images/Emanuil%20logo.jpg';
     const mailOptions = {
       from: process.env.EMAIL_USER || 'your-email@gmail.com',
       to: user.email,
       subject: 'Password Reset - Hvalenie Emanuil',
       html: `
-        <h1>Password Reset Request</h1>
-        <p>You requested a password reset for your account.</p>
-        <p>Click the link below to reset your password:</p>
-        <a href="${resetUrl}" style="display:inline-block;padding:10px 20px;background-color:#007bff;color:#ffffff;text-decoration:none;border-radius:5px;">Reset Password</a>
-        <p>This link is valid for one hour.</p>
-        <p>If you didn't request this, please ignore this email.</p>
+        <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:32px 24px 24px 24px;font-family:'Segoe UI',Arial,sans-serif;">
+          <div style="text-align:center;margin-bottom:24px;">
+            <img src="${logoUrl}" alt="Hvalenie Emanuil Logo" style="max-width:120px;margin-bottom:8px;border-radius:8px;" />
+            <h2 style="color:#2d3748;margin:0;font-weight:600;">Hvalenie Emanuil</h2>
+          </div>
+          <h3 style="color:#007bff;margin-top:0;">Password Reset Request</h3>
+          <p style="color:#333;font-size:16px;">Hello,</p>
+          <p style="color:#333;font-size:16px;">We received a request to reset your password for your Hvalenie Emanuil account.</p>
+          <p style="color:#333;font-size:16px;">To reset your password, please click the button below:</p>
+          <div style="text-align:center;margin:32px 0;">
+            <a href="${resetUrl}" style="display:inline-block;padding:14px 32px;background:linear-gradient(90deg,#007bff,#0056b3);color:#fff;font-weight:600;text-decoration:none;border-radius:6px;font-size:18px;box-shadow:0 2px 6px rgba(0,123,255,0.12);">Reset Password</a>
+          </div>
+          <p style="color:#666;font-size:14px;">This link is valid for one hour. If you did not request a password reset, you can safely ignore this email.</p>
+          <hr style="border:none;border-top:1px solid #eee;margin:32px 0 16px 0;" />
+          <div style="text-align:center;color:#aaa;font-size:12px;">&copy; ${new Date().getFullYear()} Hvalenie Emanuil. All rights reserved.</div>
+        </div>
       `
     };
     // Send the email
