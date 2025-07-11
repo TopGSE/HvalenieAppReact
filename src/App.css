@@ -396,6 +396,7 @@ input[type="text"] {
 	color: #1a2a3a;
 	letter-spacing: 0.5px;
 	gap: 10px;
+	padding: 0.7rem;
 }
 
 
@@ -425,6 +426,7 @@ input[type="text"] {
 	background-color: var(--list-item-bg, rgba(0, 0, 0, 0.02));
 	max-height: 40px;
 	/* Limit height of individual playlist items */
+	margin: 0.5rem;
 }
 
 .sidebar .playlist-item:hover {
@@ -435,6 +437,7 @@ input[type="text"] {
 	background-color: var(--primary-color-light, rgba(0, 110, 239, 0.1));
 	border-left: 3px solid var(--primary-color, #006eef);
 	font-weight: 500;
+	margin: 0.5rem;
 }
 
 .sidebar .playlist-item-name {
