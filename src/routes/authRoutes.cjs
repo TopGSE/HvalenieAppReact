@@ -308,8 +308,9 @@ router.post('/forgot-password', async (req, res) => {
     });
     
     // Construct the reset URL (frontend URL)
+    // This should point to the frontend reset password page, e.g. /reset-password/:token
     const frontendUrl = 'https://hvalenieapp-89e57e2c3558.herokuapp.com';
-    const resetUrl = `${frontendUrl}/forgot-password/${resetToken}`;
+    const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
     
     // Email content
     const mailOptions = {
@@ -325,13 +326,11 @@ router.post('/forgot-password', async (req, res) => {
         <p>If you didn't request this, please ignore this email.</p>
       `
     };
-    
     // Send the email
     await transporter.sendMail(mailOptions);
     console.log(`Password reset email sent to: ${email}`);
-    
     res.status(200).json({
-      message: 'Password reset instructions sent to your email'
+      message: 'If your email exists in our system, you will receive reset instructions.'
     });
   } catch (err) {
     console.error('Error in forgot password flow:', err);
@@ -364,25 +363,22 @@ router.post('/reset-password/:token', async (req, res) => {
   try {
     const { token } = req.params;
     const { newPassword } = req.body;
-    
+    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters.' });
+    }
     const user = await User.findOne({
       resetToken: token,
       resetTokenExpiry: { $gt: new Date() }
     });
-    
     if (!user) {
       return res.status(400).json({ message: 'Invalid or expired reset token' });
     }
-    
     // Set plain password, let pre-save hook hash it
     user.password = newPassword;
-    
     // Clear reset token fields
     user.resetToken = undefined;
     user.resetTokenExpiry = undefined;
-    
     await user.save();
-    
     res.json({ message: 'Password has been reset successfully' });
   } catch (err) {
     console.error('Error resetting password:', err);
