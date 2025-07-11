@@ -355,26 +355,25 @@ input[type="text"] {
 }
 
 /* Add these styles for the playlists in sidebar */
-.sidebar .playlist-item {
+.sidebar .add-playlist-btn {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	border: none;
+	background-color: var(--primary-color, #006eef);
+	color: white;
 	display: flex;
+	justify-content: center;
 	align-items: center;
-	justify-content: space-between;
-	padding: 10px 16px;
-	margin: 5px 0;
-	border-radius: 8px;
+	font-size: 16px;
 	cursor: pointer;
-	transition: all 0.18s cubic-bezier(.4, 0, .2, 1);
-	font-size: 15px;
-	background: rgba(0, 110, 239, 0.04);
-	max-height: 44px;
-	border: 1.5px solid transparent;
-	box-shadow: 0 1px 4px rgba(0, 110, 239, 0.03);
+	padding: 0;
+	transition: all 0.2s;
 }
 
-.sidebar .playlist-item:hover {
-	background: #eaf4ff;
-	border-color: #b3d8ff;
-	box-shadow: 0 2px 8px rgba(0, 110, 239, 0.08);
+.sidebar .add-playlist-btn:hover {
+	background-color: var(--primary-color-dark, #005bc7);
+	transform: scale(1.05);
 }
 
 .sidebar .playlist-item.selected {
