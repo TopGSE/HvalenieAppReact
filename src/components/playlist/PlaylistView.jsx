@@ -172,22 +172,66 @@ function PlaylistView({
 
       console.log("Share response:", response.data);
 
-      // Get usernames of recipients for a more personalized toast
-      const recipientNames = selectedUsers
+      // Get usernames and avatars of recipients for a more personalized toast
+      const recipientInfos = selectedUsers
         .map((userId) => {
           const user = users.find((u) => u._id === userId);
-          return user ? user.username : "";
+          return user
+            ? { username: user.username, avatar: user.profilePhoto }
+            : null;
         })
         .filter(Boolean);
 
       const recipientText =
-        recipientNames.length > 1
-          ? `${recipientNames.slice(0, -1).join(", ")} and ${
-              recipientNames.slice(-1)[0]
-            }`
-          : recipientNames[0];
+        recipientInfos.length > 1
+          ? `${recipientInfos
+              .slice(0, -1)
+              .map((u) => u.username)
+              .join(", ")} and ${recipientInfos.slice(-1)[0].username}`
+          : recipientInfos[0]?.username || "";
 
-      toast.success(`Playlist shared with ${recipientText}!`);
+      toast.success(
+        <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {recipientInfos.map((u, i) =>
+            u.avatar ? (
+              <img
+                key={u.username + i}
+                src={u.avatar}
+                alt={u.username}
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  marginRight: 2,
+                }}
+              />
+            ) : (
+              <span
+                key={u.username + i}
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  background: "#b2b2b2",
+                  color: "#fff",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontWeight: 600,
+                  fontSize: 14,
+                  marginRight: 2,
+                }}
+              >
+                {u.username.charAt(0).toUpperCase()}
+              </span>
+            )
+          )}
+          <span style={{ fontWeight: 500 }}>
+            Playlist shared with {recipientText}!
+          </span>
+        </span>
+      );
       setShowShareModal(false);
       setShareStep(1);
       setSelectedUsers([]);
