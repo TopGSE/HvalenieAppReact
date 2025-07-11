@@ -416,7 +416,12 @@ function PlaylistView({
             aria-expanded={actionsOpen}
             onClick={() => setActionsOpen((open) => !open)}
             style={{
-              padding: 8,
+              width: 40,
+              height: 40,
+              minWidth: 40,
+              minHeight: 40,
+              maxWidth: 40,
+              maxHeight: 40,
               borderRadius: "50%",
               border: "none",
               background: actionsOpen ? "#f0f4fa" : "none",
@@ -424,6 +429,10 @@ function PlaylistView({
                 ? "0 2px 8px rgba(0,110,239,0.10)"
                 : "none",
               transition: "background 0.2s",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
             }}
           >
             <span
@@ -431,6 +440,11 @@ function PlaylistView({
                 fontSize: 24,
                 lineHeight: 1,
                 color: actionsOpen ? "#006eef" : "#888",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 24,
+                height: 24,
               }}
             >
               ⋮
