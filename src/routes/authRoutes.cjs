@@ -322,7 +322,6 @@ router.post('/forgot-password', async (req, res) => {
       html: `
         <div style="max-width:480px;margin:0 auto;background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.08);padding:32px 24px 24px 24px;font-family:'Segoe UI',Arial,sans-serif;">
           <div style="text-align:center;margin-bottom:24px;">
-            <img src="${logoUrl}" alt="Hvalenie Emanuil Logo" style="max-width:120px;margin-bottom:8px;border-radius:8px;" />
             <h2 style="color:#2d3748;margin:0;font-weight:600;">Hvalenie Emanuil</h2>
           </div>
           <h3 style="color:#007bff;margin-top:0;">Password Reset Request</h3>
