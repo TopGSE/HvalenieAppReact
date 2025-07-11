@@ -313,8 +313,8 @@ router.post('/forgot-password', async (req, res) => {
     const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
     
     // Email content with logo and modern style
-    // The logo must be accessible via a public URL. If you deploy your logo to your public folder, use that URL. For now, we use the Heroku public path:
-    const logoUrl = 'https://hvalenieapp-89e57e2c3558.herokuapp.com/images/Emanuil%20logo.jpg';
+    // The logo must be accessible via a public URL. Place the logo in the public folder for Heroku static serving.
+    const logoUrl = 'https://hvalenieapp-89e57e2c3558.herokuapp.com/Emanuil%20logo.jpg';
     const mailOptions = {
       from: process.env.EMAIL_USER || 'your-email@gmail.com',
       to: user.email,
